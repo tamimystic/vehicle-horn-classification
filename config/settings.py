@@ -1,12 +1,7 @@
-"""
-Configuration Management for AcousticAcquire-BD
-"""
-import os
 import json
 from pathlib import Path
 from pydantic import BaseModel, Field
 
-# Base Directory paths (Root of Project)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 BASE_DIR = PROJECT_ROOT
 DATA_DIR = PROJECT_ROOT / "data"
@@ -20,7 +15,7 @@ class AudioSettings(BaseModel):
     pre_trigger_sec: float = 1.0
     post_trigger_sec: float = 2.5
     block_size: int = 1024
-    calib_offset_c: float = 112.4  # dB constant mapping dBFS to real-world dBA
+    calib_offset_c: float = 112.4
 
     @property
     def total_event_duration(self) -> float:
@@ -50,6 +45,5 @@ class AppConfig(BaseModel):
         self.paths.metadata_csv.parent.mkdir(parents=True, exist_ok=True)
         self.paths.logs_dir.mkdir(parents=True, exist_ok=True)
 
-# Singleton Global Configuration
 config = AppConfig()
 config.ensure_directories()
