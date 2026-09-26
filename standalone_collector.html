@@ -156,13 +156,14 @@
     let audioContext = null;
     let mediaStream = null;
     let scriptProcessor = null;
+    let muteGain = null;
     let isRecording = false;
 
-    const SAMPLE_RATE = 44100;
+    let actualSampleRate = 48000;
     const BUFFER_DURATION_SEC = 4.0;
     const TOTAL_DURATION_SEC = 3.0;
-    const BUFFER_SIZE = Math.floor(SAMPLE_RATE * BUFFER_DURATION_SEC);
-    let ringBuffer = new Float32Array(BUFFER_SIZE);
+    let bufferSize = 0;
+    let ringBuffer = null;
     let writeIndex = 0;
     let sampleCount = 0;
     let metadataRecords = [];
@@ -180,8 +181,10 @@
     const downloadMetadataBtn = document.getElementById("downloadMetadataBtn");
 
     function resizeCanvas() {
-      canvas.width = canvas.clientWidth * window.devicePixelRatio;
-      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      if (canvas) {
+        canvas.width = canvas.clientWidth * window.devicePixelRatio;
+        canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      }
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
@@ -192,13 +195,38 @@
     });
 
     async function startMicrophone() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert(
+          "⚠️ ব্রাউজার সিকিউরিটি নোটিশ:\n" +
+          "ক্রোম ব্রাউজারে 'file://' লিংকে সরাসরি মাইক্রোফোন চালু করা যায় না।\n\n" +
+          "সহজ সমাধান:\n" +
+          "১. কমান্ড প্রম্পটে 'python main.py --web' রান করে http://localhost:8000 দিয়ে ওপেন করুন,\n" +
+          "অথবা\n" +
+          "২. Firefox ব্রাউজারে এই ফাইলটি ওপেন করুন।"
+        );
+        return;
+      }
+
       try {
-        const constraints = {
-          audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: false, channelCount: 1, sampleRate: SAMPLE_RATE },
-          video: false
-        };
-        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: false },
+            video: false
+          });
+        } catch (e1) {
+          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        }
+
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+
+        actualSampleRate = audioContext.sampleRate || 48000;
+        bufferSize = Math.floor(actualSampleRate * BUFFER_DURATION_SEC);
+        ringBuffer = new Float32Array(bufferSize);
+        writeIndex = 0;
+
         const source = audioContext.createMediaStreamSource(mediaStream);
         scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
@@ -209,20 +237,25 @@
             const absVal = Math.abs(inputData[i]);
             if (absVal > peak) peak = absVal;
             ringBuffer[writeIndex] = inputData[i];
-            writeIndex = (writeIndex + 1) % BUFFER_SIZE;
+            writeIndex = (writeIndex + 1) % bufferSize;
           }
           const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
           updateAudioLevel(peakDb);
         };
 
+        // Mute gain node prevents screeching feedback loop from speakers
+        muteGain = audioContext.createGain();
+        muteGain.gain.value = 0.0;
+
         source.connect(scriptProcessor);
-        scriptProcessor.connect(audioContext.destination);
+        scriptProcessor.connect(muteGain);
+        muteGain.connect(audioContext.destination);
 
         isRecording = true;
         micBtn.classList.remove("start");
         micBtn.classList.add("active");
-        micBtnText.textContent = "মাইক চালু আছে (রানিং...)";
-        latestLogEl.textContent = "মাইক সক্রিয়। যেকোনো গাড়ির হর্ন বাজলে বাটনে চাপ দিন!";
+        micBtnText.textContent = `মাইক সক্রিয় (${actualSampleRate} Hz) - রানিং`;
+        latestLogEl.textContent = "মাইক চালু হয়েছে! হর্ন বাজা মাত্র নিচের যেকোনো বোতামে চাপ দিন।";
         requestAnimationFrame(renderWaveform);
       } catch (err) {
         alert("মাইক্রোফোন চালু করতে সমস্যা: " + err.message + "\nব্রাউজারে মাইক্রোফোন পারমিশন Allow করেছেন কি না চেক করুন।");
@@ -232,6 +265,7 @@
     function stopMicrophone() {
       if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
       if (scriptProcessor) scriptProcessor.disconnect();
+      if (muteGain) muteGain.disconnect();
       if (audioContext) audioContext.close();
       isRecording = false;
       micBtn.classList.remove("active");
@@ -254,7 +288,7 @@
     }
 
     function renderWaveform() {
-      if (!isRecording) return;
+      if (!isRecording || !ringBuffer) return;
       const width = canvas.width;
       const height = canvas.height;
       canvasCtx.clearRect(0, 0, width, height);
@@ -263,12 +297,12 @@
       canvasCtx.beginPath();
 
       const sliceCount = 300;
-      const step = Math.floor(BUFFER_SIZE / sliceCount);
+      const step = Math.floor(bufferSize / sliceCount);
       const sliceWidth = width / sliceCount;
       let x = 0;
 
       for (let i = 0; i < sliceCount; i++) {
-        const idx = (writeIndex - (sliceCount - i) * step + BUFFER_SIZE) % BUFFER_SIZE;
+        const idx = (writeIndex - (sliceCount - i) * step + bufferSize) % bufferSize;
         const v = ringBuffer[idx];
         const y = (0.5 + v * 0.45) * height;
         if (i === 0) canvasCtx.moveTo(x, y);
@@ -292,11 +326,11 @@
     function captureHornEvent(classId, className) {
       sampleCount++;
       sampleCountEl.textContent = sampleCount;
-      const totalSamples = Math.floor(TOTAL_DURATION_SEC * SAMPLE_RATE);
+      const totalSamples = Math.floor(TOTAL_DURATION_SEC * actualSampleRate);
       const extractedAudio = new Float32Array(totalSamples);
 
       for (let i = 0; i < totalSamples; i++) {
-        const readIdx = (writeIndex - totalSamples + i + BUFFER_SIZE) % BUFFER_SIZE;
+        const readIdx = (writeIndex - totalSamples + i + bufferSize) % bufferSize;
         extractedAudio[i] = ringBuffer[readIdx];
       }
 
@@ -316,7 +350,7 @@
       const dist = distanceSelect.value;
       const filename = `BDHORN_${classId}_${className.toUpperCase()}_${loc}_${timeStr}_${String(sampleCount).padStart(4, '0')}.wav`;
 
-      const wavBlob = encodeWAV(extractedAudio, SAMPLE_RATE);
+      const wavBlob = encodeWAV(extractedAudio, actualSampleRate);
       downloadBlob(wavBlob, filename);
 
       metadataRecords.push({
@@ -330,7 +364,7 @@
         peak_dbfs: peakDb.toFixed(2),
         rms_dbfs: rmsDb.toFixed(2),
         duration_sec: TOTAL_DURATION_SEC,
-        sample_rate: SAMPLE_RATE
+        sample_rate: actualSampleRate
       });
 
       latestLogEl.innerHTML = `✅ <b>সংরক্ষিত (#${sampleCount}):</b> ${filename}`;
@@ -374,7 +408,7 @@
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+      setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 200);
     }
 
     downloadMetadataBtn.addEventListener("click", () => {

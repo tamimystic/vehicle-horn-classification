@@ -1,26 +1,28 @@
 /**
- * AcousticAcquire Mobile - Client-Side Raw Audio Ingestion & WAV Logger
+ * Vehicle Horn Acoustic Data Acquisition - Robust Client-Side Audio Engine
  * Features:
- * - Zero AGC / Zero Noise Suppression (Programmatic bypass)
- * - 4.0s RAM Circular Ring Buffer (Pre-trigger 1.0s + Post-trigger 2.0s)
- * - Pure 16-bit Linear PCM WAV encoder in pure JavaScript
- * - Dynamic metadata CSV logger & real-time oscilloscope
+ * - Robust multi-tier getUserMedia fallback (No OverconstrainedError)
+ * - Hardware sample rate auto-detection (44.1 kHz / 48 kHz dynamic adaptation)
+ * - Mute-gain loopback isolation (Zero speaker screeching / feedback)
+ * - Pre-trigger 4.0s RAM circular buffer (1.0s pre-trigger + 2.0s post-trigger)
+ * - Pure Linear PCM WAV encoder
+ * - Real-time waveform visualizer & peak clipping alert
+ * - In-page recorded clip list with playback & download
  */
 
 // --- Global State ---
 let audioContext = null;
 let mediaStream = null;
 let scriptProcessor = null;
+let muteGain = null;
 let isRecording = false;
 
-const SAMPLE_RATE = 44100;
+let actualSampleRate = 48000;
 const BUFFER_DURATION_SEC = 4.0;
-const PRE_TRIGGER_SEC = 1.0;
-const POST_TRIGGER_SEC = 2.0;
-const TOTAL_DURATION_SEC = PRE_TRIGGER_SEC + POST_TRIGGER_SEC; // 3.0s
+const TOTAL_DURATION_SEC = 3.0;
 
-const BUFFER_SIZE = Math.floor(SAMPLE_RATE * BUFFER_DURATION_SEC);
-let ringBuffer = new Float32Array(BUFFER_SIZE);
+let bufferSize = 0;
+let ringBuffer = null;
 let writeIndex = 0;
 
 let sampleCount = 0;
@@ -41,8 +43,10 @@ const downloadMetadataBtn = document.getElementById("downloadMetadataBtn");
 
 // Resize canvas
 function resizeCanvas() {
-  canvas.width = canvas.clientWidth * window.devicePixelRatio;
-  canvas.height = canvas.clientHeight * window.devicePixelRatio;
+  if (canvas) {
+    canvas.width = canvas.clientWidth * window.devicePixelRatio;
+    canvas.height = canvas.clientHeight * window.devicePixelRatio;
+  }
 }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
@@ -57,73 +61,108 @@ micBtn.addEventListener("click", async () => {
 });
 
 async function startMicrophone() {
-  try {
-    // 1. Audio Constraints explicitly disabling AGC, Noise Suppression, Echo Cancellation
-    const constraints = {
-      audio: {
-        autoGainControl: false,
-        noiseSuppression: false,
-        echoCancellation: false,
-        channelCount: 1,
-        sampleRate: SAMPLE_RATE
-      },
-      video: false
-    };
+  // Check browser support for getUserMedia
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert(
+      "⚠️ ব্রাউজার সিকিউরিটি নোটিশ:\n" +
+      "আপনার ব্রাউজার এই পেজে সরাসরি মাইক্রোফোন চালু করতে দিচ্ছে না।\n\n" +
+      "সমাধান:\n" +
+      "১. কমান্ড প্রম্পটে 'python main.py --web' রান করে http://localhost:8000 দিয়ে ওপেন করুন,\n" +
+      "অথবা\n" +
+      "২. Firefox ব্রাউজারে ফাইলটি ওপেন করুন।"
+    );
+    return;
+  }
 
-    mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-    audioContext = new (window.AudioContext || window.webkitAudioContext)({
-      sampleRate: SAMPLE_RATE
-    });
+  try {
+    // Tier 1: Try disabling AGC and Noise Suppression without forcing hardware sample rate
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          autoGainControl: false,
+          noiseSuppression: false,
+          echoCancellation: false
+        },
+        video: false
+      });
+    } catch (e1) {
+      console.warn("Retrying with standard audio constraints:", e1);
+      // Tier 2: Fallback to basic audio
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    }
+
+    // Initialize AudioContext
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
+
+    actualSampleRate = audioContext.sampleRate || 48000;
+    bufferSize = Math.floor(actualSampleRate * BUFFER_DURATION_SEC);
+    ringBuffer = new Float32Array(bufferSize);
+    writeIndex = 0;
 
     const source = audioContext.createMediaStreamSource(mediaStream);
     
-    // ScriptProcessor for universal cross-platform mobile compatibility
+    // ScriptProcessorNode for wide cross-browser compatibility
     scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
     scriptProcessor.onaudioprocess = (e) => {
       const inputData = e.inputBuffer.getChannelData(0);
       
-      // Calculate Peak Level for visualizer
       let peak = 0;
       for (let i = 0; i < inputData.length; i++) {
-        const absVal = Math.abs(inputData[i]);
+        const val = inputData[i];
+        const absVal = Math.abs(val);
         if (absVal > peak) peak = absVal;
 
-        // Push to RAM circular ring buffer
-        ringBuffer[writeIndex] = inputData[i];
-        writeIndex = (writeIndex + 1) % BUFFER_SIZE;
+        // Push to RAM ring buffer
+        ringBuffer[writeIndex] = val;
+        writeIndex = (writeIndex + 1) % bufferSize;
       }
 
-      // Update Peak dBFS
+      // Compute Peak dBFS
       const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
       updateAudioLevel(peakDb);
     };
 
+    // MUTE GAIN: Prevents audio feedback loop (screeching sound from speakers)
+    muteGain = audioContext.createGain();
+    muteGain.gain.value = 0.0;
+
     source.connect(scriptProcessor);
-    scriptProcessor.connect(audioContext.destination);
+    scriptProcessor.connect(muteGain);
+    muteGain.connect(audioContext.destination);
 
     isRecording = true;
     micBtn.classList.remove("start");
     micBtn.classList.add("active");
-    micBtnText.textContent = "মাইক চালু আছে (রানিং...)";
-    latestLogEl.textContent = "মাইক সক্রিয়। যেকোনো গাড়ির হর্ন বাজলে বাটনে চাপ দিন!";
+    micBtnText.textContent = `মাইক সক্রিয় (${actualSampleRate} Hz) - রানিং`;
+    latestLogEl.textContent = "মাইক চালু হয়েছে! হর্ন বাজা মাত্র নিচের যেকোনো বোতামে চাপ দিন।";
 
     requestAnimationFrame(renderWaveform);
   } catch (err) {
-    alert("মাইক্রোফোন চালু করতে সমস্যা হয়েছে: " + err.message + "\nব্রাউজারে মাইক্রোফোনের পারমিশন দেওয়া আছে কি না চেক করুন।");
-    console.error(err);
+    alert("মাইক্রোফোন চালু করতে সমস্যা: " + err.message + "\nব্রাউজারে মাইক্রোফোন পারমিশন দেওয়া আছে কি না চেক করুন।");
+    console.error("Audio Ingestion Error:", err);
   }
 }
 
 function stopMicrophone() {
   if (mediaStream) {
     mediaStream.getTracks().forEach(track => track.stop());
+    mediaStream = null;
   }
   if (scriptProcessor) {
     scriptProcessor.disconnect();
+    scriptProcessor = null;
+  }
+  if (muteGain) {
+    muteGain.disconnect();
+    muteGain = null;
   }
   if (audioContext) {
     audioContext.close();
+    audioContext = null;
   }
 
   isRecording = false;
@@ -140,15 +179,18 @@ function updateAudioLevel(peakDb) {
   if (peakDb >= -0.5) {
     clippingBadge.textContent = "! CLIPPING WARN !";
     clippingBadge.className = "clipping-badge warn";
+  } else if (peakDb > -6.0) {
+    clippingBadge.textContent = "HIGH LEVEL";
+    clippingBadge.className = "clipping-badge clean";
   } else {
     clippingBadge.textContent = "SIGNAL CLEAN";
     clippingBadge.className = "clipping-badge clean";
   }
 }
 
-// --- Live Waveform Renderer ---
+// --- Live Oscilloscope Waveform Renderer ---
 function renderWaveform() {
-  if (!isRecording) return;
+  if (!isRecording || !ringBuffer) return;
 
   const width = canvas.width;
   const height = canvas.height;
@@ -159,12 +201,12 @@ function renderWaveform() {
   canvasCtx.beginPath();
 
   const sliceCount = 300;
-  const step = Math.floor(BUFFER_SIZE / sliceCount);
+  const step = Math.floor(bufferSize / sliceCount);
   const sliceWidth = width / sliceCount;
   let x = 0;
 
   for (let i = 0; i < sliceCount; i++) {
-    const idx = (writeIndex - (sliceCount - i) * step + BUFFER_SIZE) % BUFFER_SIZE;
+    const idx = (writeIndex - (sliceCount - i) * step + bufferSize) % bufferSize;
     const v = ringBuffer[idx];
     const y = (0.5 + v * 0.45) * height;
 
@@ -180,11 +222,11 @@ function renderWaveform() {
   requestAnimationFrame(renderWaveform);
 }
 
-// --- Class Buttons Event Listeners ---
+// --- Attach Class Buttons Event Handlers ---
 document.querySelectorAll(".class-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     if (!isRecording) {
-      alert("আগে ওপরের 'মাইক্রোফোন চালু করুন' বোতামে চাপ দিয়ে মাইক অন করুন!");
+      alert("আগে ওপরের 'মাইক্রোফোন চালু করুন' বোতামে চাপ দিন!");
       return;
     }
 
@@ -194,17 +236,17 @@ document.querySelectorAll(".class-btn").forEach(btn => {
   });
 });
 
-// --- Capture Event from Circular Buffer ---
+// --- Capture Event from Circular Ring Buffer ---
 function captureHornEvent(classId, className) {
   sampleCount++;
   sampleCountEl.textContent = sampleCount;
 
-  const totalSamples = Math.floor(TOTAL_DURATION_SEC * SAMPLE_RATE);
+  const totalSamples = Math.floor(TOTAL_DURATION_SEC * actualSampleRate);
   const extractedAudio = new Float32Array(totalSamples);
 
-  // Extract past 3 seconds chronologically from ring buffer
+  // Extract the past 3.0 seconds chronologically
   for (let i = 0; i < totalSamples; i++) {
-    const readIdx = (writeIndex - totalSamples + i + BUFFER_SIZE) % BUFFER_SIZE;
+    const readIdx = (writeIndex - totalSamples + i + bufferSize) % bufferSize;
     extractedAudio[i] = ringBuffer[readIdx];
   }
 
@@ -219,20 +261,20 @@ function captureHornEvent(classId, className) {
   const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
   const rmsDb = sumSq > 0 ? 10 * Math.log10(sumSq / totalSamples) : -100;
 
-  // Build Metadata
+  // Filename format
   const now = new Date();
   const timeStr = now.toISOString().replace(/[:.]/g, "-");
   const loc = (locationInput.value || "Field").trim().replace(/\s+/g, "_");
   const dist = distanceSelect.value;
   const filename = `BDHORN_${classId}_${className.toUpperCase()}_${loc}_${timeStr}_${String(sampleCount).padStart(4, '0')}.wav`;
 
-  // Encode to 16-bit PCM WAV
-  const wavBlob = encodeWAV(extractedAudio, SAMPLE_RATE);
+  // Encode to 16-bit PCM Linear WAV
+  const wavBlob = encodeWAV(extractedAudio, actualSampleRate);
 
-  // Trigger Automatic Download to Phone Storage
+  // Auto download
   downloadBlob(wavBlob, filename);
 
-  // Save metadata row
+  // Add to metadata
   const metaRow = {
     sample_id: `BDHORN_${String(sampleCount).padStart(4, '0')}`,
     filename: filename,
@@ -244,12 +286,10 @@ function captureHornEvent(classId, className) {
     peak_dbfs: peakDb.toFixed(2),
     rms_dbfs: rmsDb.toFixed(2),
     duration_sec: TOTAL_DURATION_SEC,
-    sample_rate: SAMPLE_RATE,
-    notes: "Captured via Mobile AcousticAcquire PWA"
+    sample_rate: actualSampleRate
   };
   metadataRecords.push(metaRow);
 
-  // UI Feedback
   latestLogEl.innerHTML = `✅ <b>সংরক্ষিত (#${sampleCount}):</b> ${filename} (${className})`;
   latestLogEl.style.color = "#a6e3a1";
 }
@@ -259,26 +299,26 @@ function encodeWAV(samples, sampleRate) {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
   const view = new DataView(buffer);
 
-  // RIFF Chunk Descriptor
+  // RIFF identifier
   writeString(view, 0, 'RIFF');
   view.setUint32(4, 36 + samples.length * 2, true);
   writeString(view, 8, 'WAVE');
 
-  // fmt sub-chunk
+  // fmt chunk
   writeString(view, 12, 'fmt ');
-  view.setUint32(16, 16, true);          // SubChunk1Size (16 for PCM)
-  view.setUint16(20, 1, true);           // AudioFormat (1 = PCM)
-  view.setUint16(22, 1, true);           // NumChannels (1 = Mono)
-  view.setUint32(24, sampleRate, true);  // SampleRate
-  view.setUint32(28, sampleRate * 2, true); // ByteRate (SampleRate * 1 * 2)
-  view.setUint16(32, 2, true);           // BlockAlign (1 * 2)
-  view.setUint16(34, 16, true);          // BitsPerSample (16 bit)
+  view.setUint32(16, 16, true);             // SubChunk1Size (16 for PCM)
+  view.setUint16(20, 1, true);              // AudioFormat (1 = PCM)
+  view.setUint16(22, 1, true);              // NumChannels (1 = Mono)
+  view.setUint32(24, sampleRate, true);     // SampleRate
+  view.setUint32(28, sampleRate * 2, true); // ByteRate (SampleRate * 1 channel * 2 bytes)
+  view.setUint16(32, 2, true);              // BlockAlign (1 channel * 2 bytes)
+  view.setUint16(34, 16, true);             // BitsPerSample (16 bits)
 
-  // data sub-chunk
+  // data chunk
   writeString(view, 36, 'data');
   view.setUint32(40, samples.length * 2, true);
 
-  // Write 16-bit PCM samples with clipping protection
+  // Write 16-bit PCM samples with clipping safeguard
   let offset = 44;
   for (let i = 0; i < samples.length; i++, offset += 2) {
     const s = Math.max(-1, Math.min(1, samples[i]));
@@ -294,7 +334,6 @@ function writeString(view, offset, string) {
   }
 }
 
-// --- Helper: Download Blob in Browser ---
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -306,7 +345,7 @@ function downloadBlob(blob, filename) {
   setTimeout(() => {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-  }, 100);
+  }, 200);
 }
 
 // --- Download Metadata CSV ---

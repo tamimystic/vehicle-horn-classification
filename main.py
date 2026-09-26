@@ -2,7 +2,7 @@
 Vehicle Horn Acoustic Data Collector: Unified Application Entry Point
 ---------------------------------------------------------------------
 Commands:
-  python main.py                 -> Start the Desktop GUI application (PyQt6)
+  python main.py                 -> Start the Desktop GUI application (Native / PyQt6)
   python main.py --web           -> Start the Mobile/Web collector server
   python main.py --list-devices  -> List all audio recording hardware
 """
@@ -52,12 +52,11 @@ def run_web_server(port: int):
             super().__init__(*args, directory=str(PROJECT_ROOT), **kwargs)
 
     print("\n" + "=" * 65)
-    print("  🚀 Vehicle Horn Web/Mobile Collector Server")
+    print("  🚀 Vehicle Horn Web/Mobile Collector Server is Running!")
     print("=" * 65)
     print(f"\n1. Local PC access:   http://localhost:{port}")
     print(f"2. Local WiFi access: http://{local_ip}:{port}")
-    print("\nOr open 'standalone_collector.html' directly in your browser.")
-    print("Press Ctrl + C to stop the server.\n" + "=" * 65 + "\n")
+    print("\nPress Ctrl + C to stop the server.\n" + "=" * 65 + "\n")
 
     with socketserver.TCPServer(("", port), Handler) as httpd:
         try:
@@ -90,53 +89,58 @@ def main():
             print("Please run: pip install -r requirements.txt\n")
         sys.exit(0)
 
-    # 3. Check Desktop GUI dependencies
+    # 3. Audio driver check
     try:
-        from PyQt6 import QtWidgets
         import sounddevice
         import soundfile
-        import pyqtgraph
     except ImportError as e:
         print("\n" + "=" * 65)
-        print("  Vehicle Horn Collector: Missing Desktop GUI Dependencies")
+        print("  Vehicle Horn Collector: Missing Audio Driver Dependencies")
         print("=" * 65)
-        print(f"Required package missing: {e.name if hasattr(e, 'name') else e}")
-        print("\nTo install desktop dependencies, run:")
-        print("    pip install -r requirements.txt")
-        print("\nOr to run the zero-install Mobile/Web version, run:")
-        print("    python main.py --web")
-        print("    (Or double-click 'standalone_collector.html' in your browser)")
+        print(f"Missing package: {e.name if hasattr(e, 'name') else e}")
+        print("Installing required audio drivers...")
+        os.system(f"{sys.executable} -m pip install sounddevice soundfile")
         print("=" * 65 + "\n")
-        sys.exit(1)
 
     from src.core.audio_engine import AudioEngine
     from src.services.metadata_service import MetadataService
     from src.services.recorder_service import RecorderService
-    from src.ui.main_window import MainWindow
 
     logger.info("Initializing Vehicle Horn Data Collector Application...")
     config.ensure_directories()
 
-    # Initialize Services
     audio_engine = AudioEngine()
     metadata_service = MetadataService()
     recorder_service = RecorderService(audio_engine, metadata_service)
 
-    # Start Audio Engine
     try:
         audio_engine.start(device_id=args.device)
     except Exception as e:
-        logger.error(f"Failed to start audio engine: {e}", exc_info=True)
-        print(f"\n[Error] Could not initialize audio device: {e}\nTry running 'python main.py --list-devices' to select a valid ID.\n")
+        logger.error(f"Audio device notice: {e}")
+        print(f"\n[Notice] Audio stream: {e}\n(Run 'python main.py --list-devices' to pick a specific mic)\n")
 
-    # Launch Desktop GUI
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow(audio_engine, recorder_service, metadata_service)
-    window.show()
+    # 4. Try launching PyQt6 GUI, or fallback cleanly to native Tkinter GUI
+    has_pyqt = False
+    try:
+        from PyQt6 import QtWidgets
+        from src.ui.main_window import MainWindow
+        has_pyqt = True
+    except ImportError:
+        has_pyqt = False
 
-    exit_code = app.exec()
-    audio_engine.stop()
-    sys.exit(exit_code)
+    if has_pyqt:
+        logger.info("Launching PyQt6 Desktop GUI...")
+        app = QtWidgets.QApplication(sys.argv)
+        window = MainWindow(audio_engine, recorder_service, metadata_service)
+        window.show()
+        exit_code = app.exec()
+        audio_engine.stop()
+        sys.exit(exit_code)
+    else:
+        logger.info("Launching Native Tkinter Desktop GUI...")
+        from src.ui.tk_window import TkMainWindow
+        window = TkMainWindow(audio_engine, recorder_service, metadata_service)
+        window.run()
 
 if __name__ == '__main__':
     main()
