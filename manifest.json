@@ -1,0 +1,22 @@
+{
+  "name": "Vehicle Horn Acoustic Data Collector",
+  "short_name": "HornCollector",
+  "description": "Zero-DSP Acoustic Data Acquisition Tool for Vehicle Horn Research",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#11111b",
+  "theme_color": "#1e1e2e",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

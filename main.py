@@ -40,7 +40,8 @@ def run_web_server(port: int):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(PROJECT_ROOT), **kwargs)
 
-    print(f"\nServer running at:\n- Local:   http://localhost:{port}\n- Network: http://{local_ip}:{port}\nPress Ctrl+C to stop.\n")
+    print(f"\nVehicle Horn Collector Web Server:\n- Online/Mobile (Zero Setup): https://tamimystic.github.io/vehicle-horn-classification/\n- Local PC:   http://localhost:{port}\n- Local Wi-Fi: http://{local_ip}:{port}\nPress Ctrl+C to stop.\n")
+    socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", port), Handler) as httpd:
         try:
             httpd.serve_forever()

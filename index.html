@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Acoustic Collector - Mobile Raw Audio Logger</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="theme-color" content="#1e1e2e">
 </head>
 <body>
@@ -116,14 +118,36 @@
     <section class="stats-card">
       <div class="stats-row">
         <div>সংগৃহীত স্যাম্পল: <strong id="sampleCount">0</strong> টি</div>
-        <button id="downloadMetadataBtn" class="action-btn">
-          📥 ডাউনলোড CSV মেটাডাটা
-        </button>
+        <div style="display:flex;gap:6px;">
+          <button id="installAppBtn" class="action-btn" style="display:none;background:#a6e3a1;color:#11111b;border:none;">📲 অ্যাপ ইনস্টল করুন</button>
+          <button id="downloadMetadataBtn" class="action-btn">📥 ডাউনলোড CSV</button>
+        </div>
       </div>
       <div id="latestLog" class="latest-log">মাইক চালু করে যেকোনো গাড়ির বাটনে চাপ দিন...</div>
     </section>
   </div>
 
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+    let deferredPrompt;
+    const installBtn = document.getElementById('installAppBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) {
+        installBtn.style.display = 'inline-block';
+        installBtn.addEventListener('click', () => {
+          installBtn.style.display = 'none';
+          deferredPrompt.prompt();
+          deferredPrompt = null;
+        });
+      }
+    });
+  </script>
 </body>
 </html>
