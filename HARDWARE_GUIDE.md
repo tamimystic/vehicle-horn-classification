@@ -1,116 +1,115 @@
-# Low-Cost Hardware Procurement & Rig Assembly Guide (Bangladesh Edition)
-> **প্রকল্প:** Vehicle Horn Acoustic Data Acquisition Rig  
-> **টার্গেট বাজেট:** ৳ ৭,০০০ – ৳ ১১,৫০০ (শিক্ষার্থী ও বিশ্ববিদ্যালয় ল্যাব বাজেট)  
-> **উদ্দেশ্য:** সর্বনিম্ন খরচে আন্তর্জাতিক পিয়ার-রিভিউড জার্নাল মানের একটি সাউন্ড কালেকশন রিগ তৈরি।
+# Low-Cost Hardware Procurement & Rig Assembly Guide
+> **Project:** Vehicle Horn Acoustic Data Acquisition Rig  
+> **Target Budget:** ~$65 – $100 USD (Student & University Research Lab Budget)  
+> **Objective:** Construct a peer-reviewed journal-grade acoustic acquisition rig with minimal expenditure using commercially available components.
 
 ---
 
-## ১. বাজেট অনুযায়ী হার্ডওয়্যার কম্পোনেন্ট লিস্ট (BD Market Verified)
+## 1. Bill of Materials & Component Selection
 
-নিচের সমস্ত পণ্য বাংলাদেশের স্থানীয় মার্কেট (যেমন: মাল্টিপ্ল্যান সেন্টার, বায়তুল মোকাররম ক্যামেরা মার্কেট, স্টেডিয়াম মার্কেট) অথবা অনলাইন প্ল্যাটফর্ম (Daraz, TechShopBD, BDSHOP) থেকে সহজেই কেনা সম্ভব:
+All components can be sourced locally or ordered via standard e-commerce platforms:
 
 ```
 +========================================================================================================+
 |                                    BUDGET RESEARCH HARDWARE RIG                                        |
 +========================================================================================================+
 |                                                                                                        |
-|  1. ACOUSTIC SENSOR (মাইক্রোফোন)                                                                        |
-|     - Boya BY-MM1 অথবা Boya BY-MM1+ (Directional Cardioid)                                            |
-|     - প্যাকেজে অন্তর্ভুক্ত: Furry Deadcat Windshield + Rubber Shock Mount + TRS/TRRS Cables              |
-|     - আনুমানিক দাম: ৳ ১,২০০ – ৳ ২,০০০                                                                  |
-|     - বিকল্প (অ্যাডভান্সড): Boya BY-PVM1000 / BY-BM3031 Supercardioid Shotgun (৳ ৪,০০০ – ৳ ৫,০০০)       |
+|  1. ACOUSTIC SENSOR (Microphone)                                                                       |
+|     - Boya BY-MM1 or Boya BY-MM1+ (Directional Cardioid Capsule)                                       |
+|     - Includes: High-density Furry Windshield, Rubber Shock Mount, 3.5mm TRS/TRRS Cables               |
+|     - Approx. Cost: $12 - $18                                                                          |
+|     - Advanced Alternative: Boya BY-PVM1000 / BY-BM3031 Shotgun ($35 - $50)                            |
 |                                                                                                        |
-|  2. AUDIO INTERFACE / CONVERTER (অডিও ইন্টারফেস)                                                        |
-|     - Behringer U-Phoria UM2 (Studio grade 24-bit/48kHz ADC with XENYX Preamp)                         |
-|     - জিরো-ডিএসপি, ফিক্সড এনালগ গেইন নব, নো সফটওয়্যার কম্প্রেশন                                         |
-|     - আনুমানিক দাম: ৳ ৩,৫০০ – ৳ ৪,৫০০                                                                  |
-|     - অতি-বাজেট বিকল্প: Conexant / Realtek Hi-Res 24-bit USB-C DAC Adapter (৳ ৮০০ – ৳ ১,২০০)          |
+|  2. AUDIO INTERFACE / ADC CONVERTER                                                                    |
+|     - Behringer U-Phoria UM2 (Studio Grade 24-bit/48kHz ADC with Preamplifier)                         |
+|     - True Zero-DSP, fixed analog gain knob, zero dynamic range compression                            |
+|     - Approx. Cost: $35 - $45                                                                          |
+|     - Ultra-Budget Alternative: Realtek / Conexant 24-bit USB-C DAC Adapter ($8 - $12)                 |
 |                                                                                                        |
-|  3. SOUND LEVEL METER (ডেসিবল মিটার)                                                                   |
+|  3. SOUND LEVEL METER (Physical SPL Reference)                                                         |
 |     - UNI-T UT353 Mini Digital Sound Level Meter                                                       |
-|     - স্পেকস: Class 2 Standard, 30–130 dBA range, 125ms Fast Time Weighting, 0.1 dB Resolution         |
-|     - আনুমানিক দাম: ৳ ১,২০০ – ৳ ১,৬০০                                                                  |
+|     - Specs: IEC 61672-1 Class 2, 30–130 dBA range, 125ms Fast Time Weighting, 0.1 dB Resolution     |
+|     - Approx. Cost: $12 - $16                                                                          |
 |                                                                                                        |
-|  4. GROUND-TRUTH CAMERA (ভিজ্যুয়াল ভেরিফিকেশন)                                                         |
-|     - গবেষকের নিজস্ব স্মার্টফোন (1080p @ 60fps) অথবা 1080p USB Webcam                                   |
-|     - আনুমানিক দাম: ৳ ০ (বিদ্যমান স্মার্টফোন ব্যবহারযোগ্য)                                                |
+|  4. GROUND-TRUTH CAMERA (Visual Verification)                                                          |
+|     - Researcher's Existing Smartphone (1080p @ 60fps) or 1080p USB Webcam                             |
+|     - Cost: $0 (Utilizes existing mobile device)                                                       |
 |                                                                                                        |
-|  5. TRIPOD & MOUNTING FRAME (ট্রাইপড ও মাউন্টিং)                                                        |
-|     - Yunteng VCT-668 অথবা Weifeng 3520 (60-inch / 1.50m Aluminum Tripod)                             |
-|     - Dual Cold-Shoe Metal Extension Bar (মাইক ও ফোন একসাথে আটকানোর ব্র্যাকেট)                          |
-|     - আনুমানিক দাম: ৳ ১,২০০ – ৳ ১,৮০০                                                                  |
+|  5. TRIPOD & MOUNTING FRAMEWORK                                                                        |
+|     - Standard 60-inch / 1.50m Aluminum Camera Tripod (e.g. Yunteng / Weifeng)                         |
+|     - Dual Cold-Shoe Metal Extension Bracket (Simultaneous microphone & phone mounting)                |
+|     - Approx. Cost: $12 - $18                                                                          |
 |                                                                                                        |
 |========================================================================================================|
-|  মোট আনুমানিক খরচ: ৳ ৭,১০০ – ৳ ১১,৫০০ (একটি সাধারণ স্মার্টফোনের দামের চেয়েও কম!)                         |
+|  Total Hardware Rig Cost: ~$70 – $100 USD                                                              |
 +========================================================================================================+
 ```
 
 ---
 
-## ২. ধাপে ধাপে রিগ অ্যাসেম্বলি নির্দেশিকা (Step-by-Step Mechanical Build)
+## 2. Mechanical Rig Assembly Diagram
 
 ```
-                            [ Boya Furry Deadcat Windshield ]
-                                           │
-                         [ Boya Directional Capsule Microphone ]
-                                           │
-                           [ 4-Point Rubber Shock Mount ]
-                                           │
-       ┌───────────────────────────────────┴───────────────────────────────────┐
-       │             Metal Dual Cold-Shoe Extension Bracket (৳ ৩০০)            │
-       └───────────────────┬───────────────────────────────┬───────────────────┘
-                           │                               │
-             [ Smartphone in Clamp (1080p) ]    [ UNI-T UT353 Decibel Meter ]
-                           │                               │
-                           └───────────────┬───────────────┘
-                                           │
-                            [ Fluid Head Pan/Tilt Base ]
-                                           │
-                           [ 1.50m Aluminum Camera Tripod ]
-                                           │
-                          [ Counter-Weight Water Bottle ]
+                            [ Furry Deadcat Windshield ]
+                                          │
+                         [ Directional Capsule Microphone ]
+                                          │
+                            [ 4-Point Rubber Shock Mount ]
+                                          │
+        ┌─────────────────────────────────┴─────────────────────────────────┐
+        │             Metal Dual Cold-Shoe Extension Bracket                │
+        └─────────────────┬───────────────────────────────┬─────────────────┘
+                          │                               │
+            [ Smartphone Clamp (1080p) ]     [ UNI-T UT353 Sound Level Meter ]
+                          │                               │
+                          └───────────────┬───────────────┘
+                                          │
+                           [ Fluid Head Pan/Tilt Base ]
+                                          │
+                          [ 1.50m Aluminum Camera Tripod ]
+                                          │
+                         [ Counter-Weight Ballast Hook ]
 ```
 
-### অ্যাসেম্বলি ধাপসমূহ:
-1. **ট্রাইপডের উচ্চতা সেট:** ট্রাইপডের পা প্রসারিত করে মাটি থেকে মাউন্টিং প্লেটের উচ্চতা ফিতা দিয়ে মেপে ঠিক **১.৫০ মিটার (৫ ফুট)** করুন। এটি মানুষের গড় কানের উচ্চতা এবং আন্তর্জাতিক নয়েজ মেজারমেন্টের স্ট্যান্ডার্ড।
-2. **কোল্ড-শু ব্র্যাকেট স্থাপন:** ট্রাইপডের মূল ১/৪" স্ক্রুতে কোল্ড-শু এক্সটেনশন বারটি শক্ত করে আটকে দিন।
-3. **শক-মাউন্ট ও মাইক্রোফোন:** ব্র্যাকেটের মাঝখানের কোল্ড-শুতে বয় মাইক্রোফোনের শক-মাউন্টটি লাগান। মাইক্রোফোনটিকে রাবার ব্যান্ডের মাঝখানে আলতো করে ঢুকিয়ে দিন।
-4. **ডেটক্যাট পরানো:** মাইক্রোফোনের মাথায় ফোম কভার এবং তার ওপর অবশ্যই **Furry Deadcat** পরিয়ে দিন। বাতাসে পশমগুলো এয়ার টার্বুলেন্স আটকে দেবে কিন্তু হর্নের আসল শব্দকে বিকৃত করবে না।
-5. **ডেসিবল মিটার ও ফোন মাউন্ট:** ব্র্যাকেটের ডান পাশে ডেসিবল মিটার এবং বাম পাশে স্মার্টফোন মাউন্ট করুন। স্মার্টফোনের ক্যামেরা মাইক্রোফোনের অভিমুখের সাথে সমান্তরাল থাকবে।
-6. **কাউন্টার-ওয়েট:** রাস্তায় ভারী বাস বা ট্রাক চলাচলের সময় ট্রাইপড যেন কেঁপে না ওঠে, সেজন্য ট্রাইপডের নিচের হুকে একটি ছোট ব্যাগ বা পানির বোতল ঝুলিয়ে দিন।
+### Step-by-Step Rig Assembly Protocol:
+1. **Tripod Elevation Setup:** Extend tripod legs and lock mounting plate height at exactly **1.50 meters (5.0 ft)** above ground level. This corresponds to the standardized human auditory plane and international traffic noise measurement protocols (ISO 1996).
+2. **Cold-Shoe Bracket Installation:** Secure the metal dual cold-shoe extension bar onto the tripod's 1/4" standard camera thread.
+3. **Microphone Decoupling:** Mount the rubber shock mount to the central shoe. Insert the directional microphone into the shock mount to decouple mechanical ground vibrations from heavy passing vehicles.
+4. **Wind Protection:** Slip the acoustic foam core and synthetic furry deadcat over the capsule to suppress atmospheric wind turbulence without distorting acoustic frequency response.
+5. **Sensor Alignment:** Mount the Sound Level Meter on the right cold shoe and the smartphone on the left clamp. Ensure both sensors and camera face parallel to the acoustic line of sight.
+6. **Mechanical Ballast:** Hang a weighted water bottle or field bag from the tripod center column hook to prevent chassis sway caused by aerodynamic gusts from passing trucks.
 
 ---
 
-## ৩. তারের সংযোগ ও অডিও ইন্টারফেস সেটআপ
+## 3. Signal Wiring & Ingestion Pipeline
 
 ```
-  [Boya Microphone] ──(3.5mm TRS Shielded Cable)──► [Behringer UM2 Mic In]
+  [Boya Microphone] ──(3.5mm TRS Shielded Cable)──► [Behringer UM2 Mic Input]
                                                               │
                                                         (USB Type-A)
                                                               ▼
                                                    [Field Laptop / PC]
-                                                   (Running AcousticAcquire-BD)
+                                                (Running Audio Engine)
 ```
 
-### সতর্কতা ও সংযোগ রুলস:
-* বয় মাইক্রোফোনের সাথে দুটি ক্যাবল থাকে:
-  1. **TRS (২টি কালো দাগ):** এটি অডিও ইন্টারফেস বা ক্যামেরায় ব্যবহারের জন্য। **আমরা এই ক্যাবলটি ব্যবহার করব।**
-  2. **TRRS (৩টি কালো দাগ):** এটি সরাসরি স্মার্টফোনের হেডফোন জ্যাকে লাগানোর জন্য।
-* যদি সরাসরি ল্যাপটপের ৩.৫ মিমি হেডফোন জ্যাকে মাইক্রোফোন লাগাতে চান, তবে একটি **USB Calibrated Type-C DAC** ব্যবহার করা সবচেয়ে নিরাপদ, কারণ সরাসরি ল্যাপটপের এনালগ জ্যাকে মাদারবোর্ডের ইলেকট্রনিক নয়েজ ঢুকে যায়।
+### Cabling Rules:
+* Use the **TRS cable (2 black rings)** for connecting to audio interfaces or camera inputs.
+* Use the **TRRS cable (3 black rings)** when connecting directly to a smartphone 3.5mm headset jack.
+* When recording via laptop, avoid unshielded analog 3.5mm inputs that capture motherboard electrical interference. Use a dedicated USB audio interface or calibrated USB-C ADC adapter.
 
 ---
 
-## ৪. জিরো-ক্লিপিং গেইন টিউনিং (Hardware Headroom Calibration)
+## 4. Hardware Headroom Calibration (Anti-Clipping Protocol)
 
-হাইড্রোলিক হর্ন অত্যন্ত তীব্র শব্দ (>১১০ ডেসিবেল) তৈরি করে। সাউন্ড কার্ডে শব্দ যাতে ফেটে না যায়:
-1. অডিও ইন্টারফেসের এনালগ Gain Knob টি **১০ টা থেকে ১১ টার অবস্থানে (প্রায় ৩৫% গেইন)** ফিক্সড করুন।
-2. ট্রাইপড থেকে ৫ মিটার দূরে দাঁড়িয়ে একটি পরিচিত হর্ন বাজান (বা জোরে হাততালি দিন)।
-3. সফটওয়্যারের স্ক্রিনে দেখুন পিক লেভেল যেন কোনোভাবেই **-6 dBFS** অতিক্রম না করে।
-4. একবার এই গেইন ফিক্স করার পর নবটির ওপর স্কচটেপ লাগিয়ে লক করে দিন। পুরো ফিল্ড সেশনে এই নব আর পরিবর্তন করবেন না।
+Hydraulic horns produce extreme sound pressure levels exceeding 105–115 dBA at 5 meters. To ensure zero digital clipping:
+1. Adjust the analog Gain Knob on the audio interface to approximately **30%–35% (10 to 11 o'clock position)**.
+2. Produce a loud acoustic impulse at 5 meters distance (e.g. sharp clapping or reference horn test).
+3. Monitor the desktop level meter to confirm peak amplitude remains below **-6.0 dBFS**.
+4. Once calibrated, lock the analog gain knob with adhesive tape to guarantee constant acoustic transfer function throughout the recording session.
 
 ---
 
-## ৫. ফিল্ডে কাজ করার সেফটি ও লিগ্যাল চেকলিস্ট
-- [ ] প্রতিফলক নিরাপত্তা জ্যাকেট (**Hi-Vis Reflective Vest**) পরিধান করুন।
-- [ ] ব্যস্ত হাইওয়েতে সবসময় ফুটপাত বা ওভারব্রিজে অবস্থান নিন।
-- [ ] বাস বা ট্রাক টার্মিনালে প্রবেশ করার সময় ডিপোর দায়িত্বপ্রাপ্ত ব্যক্তি বা লাইনম্যানকে আপনার বিশ্ববিদ্যালয়ের পরিচয়পত্র দেখান এবং গবেষণার উদ্দেশ্য বুঝিয়ে বলুন।
+## 5. Field Operational Safety Checklist
+- [ ] Wear a high-visibility reflective safety vest at all times near traffic corridors.
+- [ ] Maintain position on pedestrian walkways, elevated sidewalks, or overpasses.
+- [ ] Carry institutional identification and departmental research authorization letters when deploying in transit terminals or highway intersections.

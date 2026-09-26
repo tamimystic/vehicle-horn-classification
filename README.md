@@ -1,116 +1,123 @@
 # Vehicle Horn Acoustic Data Acquisition Suite
-> **প্রকল্প:** Standardized Acoustic Data Collector for Vehicle Horn & Hydraulic Horn Research in Bangladesh Traffic  
-> **উদ্দেশ্য:** গবেষণার জন্য যানবাহন ও নিষিদ্ধ হাইড্রোলিক হর্নের র-অডিও (Raw WAV) এবং পূর্ণাঙ্গ মেটাডাটা সংগ্রহের জন্য একটি স্বয়ংসম্পূর্ণ সফটওয়্যার স্যুট।
+> **Project:** Standardized Acoustic Data Acquisition System for Vehicle Horn & Hydraulic Horn Research in Heterogeneous Traffic  
+> **Objective:** Production-grade software suite for acquiring uncompressed raw audio (PCM WAV) and multidimensional metadata for deep learning classification benchmarks.
 
 ---
 
-## 🌟 এই প্রজেক্টের বৈশিষ্ট্যসমূহ
+## Key Features
 
-* **স্বয়ংসম্পূর্ণ রুট প্রজেক্ট:** কোনো সাব-ফোল্ডার বা নেস্টেড প্রজেক্ট ছাড়াই এই মূল রিপোজিটরির ভেতরেই সমস্ত সফটওয়্যার পরিচালিত হয়।
-* **জিরো-ডিএসপি র-অডিও ক্যাপচার (Zero-DSP / No AGC):** ফোনের বা কম্পিউটারের কোনো অটো-গেইন, নয়েজ ক্যান্সেলেশন বা কম্প্রেশন ছাড়াই আসল আনকম্প্রেসড ২৪-বিট/১৬-বিট PCM WAV রেকর্ড করে।
-* **Pre-Trigger Rolling Ring Buffer:** বোতাম প্রেস করার আগের ১.০ সেকেন্ড এবং পরের ২.০ সেকেন্ড কেটে মোট ৩.০-৩.৫ সেকেন্ডের নিখুঁত ইভেন্ট ফাইল তৈরি করে, যাতে হর্নের শুরুর অংশ কোনোভাবেই মিস না হয়।
-* **ওয়ান-টাচ ৯টি ক্লাস হট-কি গ্রিড:** কিবোর্ডের `1` থেকে `9` অথবা টাচস্ক্রিনে এক চাপে তাৎক্ষণিক ফাইল সেভ ও মেটাডাটা তৈরি।
-* **দ্বিমুখী ইন্টারফেস (Desktop GUI + Mobile Web):**
-  1. **Desktop GUI (PyQt6):** ল্যাপটপের জন্য ৬fps অসিলোস্কোপ ও FFT ওয়াটারফল স্পেকট্রামসহ পূর্ণাঙ্গ জিইউআই।
-  2. **Mobile Web / Offline App:** স্মার্টফোনে ফিল্ডে ০ টাকা খরচে সরাসরি ব্রাউজারে চালানোর জন্য।
+* **Flat Repository Architecture:** Self-contained within the root workspace without nested sub-projects or configuration splits.
+* **Zero-DSP Raw Audio Capture (No AGC):** Bypasses all hardware automatic gain control, dynamic range compression, and software noise suppression to capture unadulterated 24-bit/16-bit linear PCM audio.
+* **Pre-Trigger Rolling Ring Buffer:** Employs an in-memory circular buffer continuously storing audio. Triggering captures 1.0s pre-event and 2.0s post-event audio (3.0s total window), preventing loss of transient horn onset attacks.
+* **One-Touch Hotkey Grid:** Instant one-click or keyboard shortcut (keys `1` to `9`) logging with microsecond RAM extraction and asynchronous disk export.
+* **Dual Acquisition Interfaces (Desktop GUI + Mobile Web App):**
+  1. **Desktop GUI:** High-speed real-time waveform oscilloscope and FFT spectrum analyzer.
+  2. **Mobile Web & PWA:** Zero-cost field deployment directly from any smartphone browser with offline storage.
 
 ---
 
-## 📂 ফাইল ও ফোল্ডার আর্কিটেকচার
+## File and Directory Architecture
 
 ```
 vehicle horn classification/
-├── main.py                     # ইউনিফাইড লঞ্চার (GUI, Web Server, CLI)
-├── requirements.txt            # ডিপেন্ডেন্সি তালিকা
-├── README.md                   # এই ডকুমেন্টেশন ফাইল
-├── HARDWARE_GUIDE.md           # বাংলাদেশে কম খরচে (৳৭k-১১k) হার্ডওয়্যার সেটআপ গাইড
-├── plan.md                     # গবেষণার পূর্ণাঙ্গ মাস্টার প্ল্যান
-├── system.md                   # সিস্টেম ইঞ্জিনিয়ারিং ও ক্যালিব্রেশন ম্যানুয়াল
-├── .gitignore                  # গিটহাবে পুশ করার ফিল্টার রুলস
+├── main.py                     # Unified launcher (Desktop GUI, Web Server, CLI)
+├── requirements.txt            # Python dependencies
+├── README.md                   # Project documentation
+├── HARDWARE_GUIDE.md           # Low-cost field hardware rig assembly guide
+├── plan.md                     # Comprehensive academic research blueprint
+├── system.md                   # System engineering & calibration manual
+├── .gitignore                  # Git tracking exclusion rules
 │
-├── index.html                  # মোবাইল ওয়েব ইন্টারফেস (PWA / GitHub Pages রেডি)
-├── style.css                   # রেসপনসিভ ডার্ক থিম স্টাইল
-├── app.js                      # ব্রাউজার র-অডিও ইঞ্জিন ও WAV এনকোডার
-├── standalone_collector.html   # অফলাইনে চালানোর জন্য সিঙ্গল-ফাইল ভার্সন
+├── index.html                  # Mobile web app interface (PWA & GitHub Pages ready)
+├── style.css                   # Mobile-first dark theme stylesheet
+├── app.js                      # Browser audio ingestion engine & WAV encoder
+├── standalone_collector.html   # Single-file standalone offline web collector
+├── manifest.json               # Progressive Web App manifest
+├── sw.js                       # Service worker for offline caching
+├── icon-192.png, icon-512.png  # PWA application icons
+├── run_desktop.bat             # One-click Windows desktop launcher
+├── run_web.bat                 # One-click local web server launcher
+├── build_app.py                # Standalone executable compiler (PyInstaller)
 │
-├── config/                     # কনফিগারেশন ফাইলসমূহ
-│   ├── settings.py             # গ্লোবাল সেটিংস ও পাথ
-│   └── taxonomy.json           # ৯টি ক্লাসের বিবরণ ও ফ্রিকোয়েন্সি ব্যান্ড
+├── config/                     # Configuration definitions
+│   ├── settings.py             # Global paths and audio acquisition parameters
+│   └── taxonomy.json           # 9-class acoustic taxonomy & frequency bands
 │
-├── src/                        # মূল পাইথন সোর্স কোড
-│   ├── core/                   # রিং বাফার, অডিও ইঞ্জিন ও ডিএসপি
-│   ├── services/               # অডিও স্লাইসার ও ৫২-প্যারামিটার মেটাডাটা লগার
-│   ├── ui/                     # PyQt6 ডেস্কটপ জিইউআই ও ভিজ্যুয়ালাইজার
-│   └── utils/                  # রোট্যাটিং ফাইল ও কনসোল লগার
+├── src/                        # Core Python application
+│   ├── core/                   # Audio ingestion engine, circular buffer, DSP processor
+│   ├── services/               # Event audio slicer & 28-field metadata logger
+│   ├── ui/                     # Tkinter / PyQt GUI and real-time visualizers
+│   └── utils/                  # Rotating file and console logger
 │
-├── tests/                      # অটোমেটেড Pytest টেস্ট স্যুট
-│   ├── test_ring_buffer.py     # রিং বাফার ইন্টিগ্রিটি টেস্ট
-│   └── test_metadata.py        # মেটাডাটা স্কিমা টেস্ট
+├── tests/                      # Automated unit test suite
+│   ├── test_ring_buffer.py     # Circular buffer boundary & wraparound tests
+│   └── test_metadata.py        # Pydantic schema and storage integrity tests
 │
-├── data/                       # সংগৃহীত অডিও ডেটাস্টোর
+├── data/                       # Acquired audio data store
 │   └── 01_raw_field_recordings/
-└── metadata/                   # মেটাডাটা ডাটাবেস (CSV ও JSON)
+└── metadata/                   # Master metadata database (CSV & JSON)
     ├── metadata_master.csv
     └── metadata_master.json
 ```
 
 ---
 
-## 🚀 কীভাবে ব্যবহার করবেন?
+## Usage Guide
 
-### অপশন ১: মোবাইল / স্মার্টফোনে চালানো (ফিল্ডে ডাটা কালেকশনের জন্য)
+### Option 1: Mobile Smartphone App (Field Data Acquisition)
 
-> **সরাসরি লাইভ ওয়েব অ্যাপ (GitHub Pages - কোনো সেটআপ ছাড়া):**  
-> আপনার স্মার্টফোনের ক্রোম/সাফারি ব্রাউজারে নিচের লিংকে যান:  
+> **Live Hosted Web App (Zero Configuration):**  
+> Open on your smartphone browser (Chrome or Safari):  
 > **https://tamimystic.github.io/vehicle-horn-classification/**
-> - **কোনো কম্পিউটার চালু রাখার দরকার নেই**, সরাসরি রাস্তায়/ফিল্ডে বসে 4G/5G ইন্টারনেটে কাজ করবে।
-> - **PWA অফলাইন সাপোর্ট:** পেজে ঢুকে **"📲 অ্যাপ ইনস্টল করুন"** বাটনে চাপ দিলে আপনার ফোনে অ্যাপ আইকন যুক্ত হয়ে যাবে এবং সম্পূর্ণ অফলাইনেও (ইন্টারনেট ছাড়া) চলবে!
+> - **Runs anywhere in the field:** Works over 4G/5G cellular data without needing your PC turned on.
+> - **PWA Offline Support:** Tap **"Install App"** on the webpage to add an app icon to your phone screen. Works 100% offline without internet.
 
-**লোকাল কম্পিউটারে ওয়েব সার্ভার চালাতে:**  
-সরাসরি `run_web.bat` ফাইলে ডাবল-ক্লিক করুন, অথবা রান করুন:
+**To run the local web server on your computer:**  
+Double-click `run_web.bat` or run:
 ```powershell
 python main.py --web
 ```
 
 ---
 
-### অপশন ২: ডেস্কটপ GUI অ্যাপ্লিকেশন চালানো (উইন্ডোজ ল্যাপটপ/পিসির জন্য)
+### Option 2: Desktop GUI Application (Windows PC / Laptop)
 
-**পদ্ধতি ক: ওয়ান-ক্লিক ডাবল-ক্লিক লঞ্চার (সবচেয়ে সহজ)**  
-ফোল্ডারের `run_desktop.bat` ফাইলে সরাসরি মাউস দিয়ে ডাবল-ক্লিক করুন। সাথে সাথে ফুল ডেস্কটপ অ্যাপ্লিকেশন চালু হয়ে যাবে!
+**Method A: One-Click Desktop Launcher**  
+Double-click `run_desktop.bat` in the project root folder.
 
-**পদ্ধতি খ: কমান্ড লাইন দিয়ে চালানো:**
+**Method B: Command-Line Launch**
 ```powershell
 python main.py
 ```
 
-**পদ্ধতি গ: স্ট্যান্ডঅ্যালোন `.exe` বিল্ড তৈরি করা:**
+**Method C: Build Standalone Executable (`.exe`)**
 ```powershell
 python build_app.py
 ```
+This generates `dist/VehicleHornCollector/VehicleHornCollector.exe` using PyInstaller.
 
 ---
 
-## ⌨️ ৯টি টার্গেট ভেহিকল ক্লাস ও হট-কি চেকলিস্ট
+## Target Vehicle Horn Taxonomy
 
-| কি / হট-কি | যানবাহনের শ্রেণি | ফ্রিকোয়েন্সি সীমা | আইনি স্ট্যাটাস |
+| Key | Class Name | Frequency Range | Legal Status |
 |---|---|---|---|
-| `1` | **Hydraulic Horn** (নিষিদ্ধ হর্ন) | ১,০০০ Hz – ৮,০০০ Hz | **Illegal / Prohibited** |
-| `2` | **Bus** (Air / Electric) | ৪০০ Hz – ২,৫০০ Hz | Legal / Standard |
-| `3` | **Truck** / Heavy Lorry | ২০০ Hz – ১,৫০০ Hz | Legal / Standard |
-| `4` | **Private Car** / SUV | ৪০০ Hz – ৮০০ Hz | Legal / Standard |
-| `5` | **Motorcycle** | ৫০০ Hz – ৩,০০০ Hz | Legal / Standard |
-| `6` | **CNG Auto-rickshaw** | ৮০০ Hz – ৩,৫০০ Hz | Legal / Standard |
-| `7` | **Easybike** / Leguna | ৬০০ Hz – ৩,০০০ Hz | Regulated |
-| `8` | **Rickshaw Bell** / Bulb | ১,৫০০ Hz – ৬,০০০ Hz | Legal / Standard |
-| `9` | **Background Traffic Noise** | ২০ Hz – ২০,০০০ Hz | Ambient Negative Class |
+| `1` | **Hydraulic Horn** (Air Banned) | 1,000 Hz – 8,000 Hz | **Illegal / Prohibited** |
+| `2` | **Bus** (Air / Electric) | 400 Hz – 2,500 Hz | Legal / Standard |
+| `3` | **Truck** / Heavy Lorry | 200 Hz – 1,500 Hz | Legal / Standard |
+| `4` | **Private Car** / SUV | 400 Hz – 800 Hz | Legal / Standard |
+| `5` | **Motorcycle** | 500 Hz – 3,000 Hz | Legal / Standard |
+| `6` | **CNG Auto-rickshaw** | 800 Hz – 3,500 Hz | Legal / Standard |
+| `7` | **Easybike** / Leguna | 600 Hz – 3,000 Hz | Regulated |
+| `8` | **Rickshaw Bell** / Bulb | 1,500 Hz – 6,000 Hz | Legal / Standard |
+| `9` | **Background Traffic Noise** | 20 Hz – 20,000 Hz | Ambient Negative Class |
 
 ---
 
-## 🧪 টেস্ট স্যুট চালানো
+## Verification & Automated Tests
 
-রিং বাফার এবং মেটাডাটা ইঞ্জিনের কার্যকারিতা যাচাই করতে:
+To run the unit test suite:
 ```powershell
 pytest tests/
 ```
-(৬টি টেস্ট ১০০% পাসের নিশ্চয়তা দেয়)।
+All 6 tests verify ring buffer rollover integrity, memory management, and metadata schema validation.
