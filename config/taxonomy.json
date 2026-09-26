@@ -1,0 +1,95 @@
+{
+  "dataset_prefix": "BDHORN",
+  "classes": [
+    {
+      "class_id": "C01",
+      "key_shortcut": "1",
+      "name": "Hydraulic_Horn",
+      "display_name": "Hydraulic Horn (Banned)",
+      "color": "#f38ba8",
+      "legal_status": "Illegal_Prohibited",
+      "freq_range_hz": "1000-8000",
+      "description": "Multi-tone, extreme SPL (>105 dBA), banned by BD DoE."
+    },
+    {
+      "class_id": "C02",
+      "key_shortcut": "2",
+      "name": "Bus",
+      "display_name": "Bus (Air/Electric)",
+      "color": "#fab387",
+      "legal_status": "Legal_Standard",
+      "freq_range_hz": "400-2500",
+      "description": "Pneumatic dual air horn or standard high-pitch electric horn on buses."
+    },
+    {
+      "class_id": "C03",
+      "key_shortcut": "3",
+      "name": "Truck",
+      "display_name": "Truck / Heavy Lorry",
+      "color": "#f9e2af",
+      "legal_status": "Legal_Standard",
+      "freq_range_hz": "200-1500",
+      "description": "Deep resonant electric or pneumatic air horn on trucks."
+    },
+    {
+      "class_id": "C04",
+      "key_shortcut": "4",
+      "name": "Private_Car",
+      "display_name": "Private Car / SUV",
+      "color": "#a6e3a1",
+      "legal_status": "Legal_Standard",
+      "freq_range_hz": "400-800",
+      "description": "Dual disc snail harmonic pair on sedans, SUVs, microbuses."
+    },
+    {
+      "class_id": "C05",
+      "key_shortcut": "5",
+      "name": "Motorcycle",
+      "display_name": "Motorcycle",
+      "color": "#94e2d5",
+      "legal_status": "Legal_Standard",
+      "freq_range_hz": "500-3000",
+      "description": "Single-disc high-frequency electric horn on commuter bikes."
+    },
+    {
+      "class_id": "C06",
+      "key_shortcut": "6",
+      "name": "CNG_Autorickshaw",
+      "display_name": "CNG Auto-rickshaw",
+      "color": "#89dceb",
+      "legal_status": "Legal_Standard",
+      "freq_range_hz": "800-3500",
+      "description": "Sharp piercing electromagnetic buzzer on 4-stroke 3-wheelers."
+    },
+    {
+      "class_id": "C07",
+      "key_shortcut": "7",
+      "name": "Easybike_Leguna",
+      "display_name": "Easybike / Leguna",
+      "color": "#74c7ec",
+      "legal_status": "Regulated",
+      "freq_range_hz": "600-3000",
+      "description": "Battery auto-rickshaw electronic melody horn or light electric horn."
+    },
+    {
+      "class_id": "C08",
+      "key_shortcut": "8",
+      "name": "Rickshaw_Bell",
+      "display_name": "Rickshaw Bell / Bulb",
+      "color": "#b4befe",
+      "legal_status": "Legal_Standard",
+      "freq_range_hz": "1500-6000",
+      "description": "Traditional double-chime metallic bell ('Tung-Tung') or rubber bulb horn."
+    },
+    {
+      "class_id": "C09",
+      "key_shortcut": "9",
+      "name": "Background_Traffic_Noise",
+      "display_name": "Background Traffic Noise",
+      "color": "#cba6f7",
+      "legal_status": "Ambient_Negative",
+      "freq_range_hz": "20-20000",
+      "description": "Traffic congestion hum, engine idle, tires, pedestrian rush without any horn."
+    }
+  ]
+}

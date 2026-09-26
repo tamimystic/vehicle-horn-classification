@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Horn Data Collector (Offline)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background-color: #11111b; color: #cdd6f4; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.4; padding: 10px; max-width: 600px; margin: 0 auto; }
+    .app-container { display: flex; flex-direction: column; gap: 12px; }
+    .app-header { background: #181825; padding: 12px 14px; border-radius: 12px; border: 1px solid #313244; }
+    .title-row { display: flex; justify-content: space-between; align-items: center; }
+    .app-header h1 { font-size: 1.15rem; color: #89b4fa; font-weight: 700; }
+    .badge.zero-dsp { background-color: #a6e3a1; color: #11111b; font-size: 0.65rem; font-weight: 800; padding: 3px 6px; border-radius: 4px; }
+    .subtitle { font-size: 0.75rem; color: #a6adc8; margin-top: 4px; }
+    .session-card { background: #181825; padding: 12px; border-radius: 12px; border: 1px solid #313244; }
+    .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .flex-2 { flex: 2; }
+    .flex-1 { flex: 1; }
+    .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: #bac2de; margin-bottom: 4px; }
+    .form-group input, .form-group select { width: 100%; background: #313244; border: 1px solid #45475a; border-radius: 8px; color: #cdd6f4; padding: 8px 10px; font-size: 0.85rem; outline: none; }
+    .mic-toggle-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+    .mic-toggle-btn.start { background: #a6e3a1; color: #11111b; }
+    .mic-toggle-btn.active { background: #f38ba8; color: #11111b; }
+    .visualizer-card { background: #181825; padding: 10px; border-radius: 12px; border: 1px solid #313244; }
+    .vis-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.75rem; }
+    .level-indicator { color: #89b4fa; font-weight: 600; }
+    .clipping-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; }
+    .clipping-badge.clean { background: #313244; color: #a6e3a1; }
+    .clipping-badge.warn { background: #f38ba8; color: #11111b; }
+    #waveformCanvas { width: 100%; height: 60px; background: #11111b; border-radius: 8px; display: block; }
+    .class-grid-section { display: flex; flex-direction: column; gap: 8px; }
+    .section-title { font-size: 0.8rem; font-weight: 700; color: #fab387; padding-left: 2px; }
+    .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .class-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 14px 12px; border-radius: 12px; border: 2px solid transparent; background: #181825; color: #cdd6f4; cursor: pointer; min-height: 75px; }
+    .class-btn:active { transform: scale(0.96); filter: brightness(1.3); }
+    .btn-num { font-size: 0.75rem; font-weight: 800; opacity: 0.8; margin-bottom: 2px; }
+    .btn-label { font-size: 0.95rem; font-weight: 700; }
+    .btn-sub { font-size: 0.68rem; color: #a6adc8; margin-top: 2px; }
+    .btn-c01 { border-color: #f38ba8; color: #f38ba8; }
+    .btn-c02 { border-color: #fab387; color: #fab387; }
+    .btn-c03 { border-color: #f9e2af; color: #f9e2af; }
+    .btn-c04 { border-color: #a6e3a1; color: #a6e3a1; }
+    .btn-c05 { border-color: #94e2d5; color: #94e2d5; }
+    .btn-c06 { border-color: #89dceb; color: #89dceb; }
+    .btn-c07 { border-color: #74c7ec; color: #74c7ec; }
+    .btn-c08 { border-color: #b4befe; color: #b4befe; }
+    .btn-c09 { border-color: #cba6f7; color: #cba6f7; grid-column: span 2; }
+    .stats-card { background: #181825; padding: 12px; border-radius: 12px; border: 1px solid #313244; }
+    .stats-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 8px; }
+    .action-btn { background: #313244; color: #89b4fa; border: 1px solid #89b4fa; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+    .latest-log { font-size: 0.75rem; color: #a6adc8; background: #11111b; padding: 8px 10px; border-radius: 6px; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="title-row">
+        <h1>🎙️ Horn Data Collector</h1>
+        <span class="badge zero-dsp">RAW AUDIO (NO AGC)</span>
+      </div>
+      <p class="subtitle">Vehicle Horn Research Data Acquisition Suite</p>
+    </header>
+
+    <section class="session-card">
+      <div class="form-row">
+        <div class="form-group flex-2">
+          <label for="locationInput">লোকেশন / স্থান:</label>
+          <input type="text" id="locationInput" value="Gabtoli_Terminal">
+        </div>
+        <div class="form-group flex-1">
+          <label for="distanceSelect">দূরত্ব:</label>
+          <select id="distanceSelect">
+            <option value="3m">3 মি.</option>
+            <option value="5m" selected>5 মি.</option>
+            <option value="7m">7 মি.</option>
+            <option value="10m">10 মি.</option>
+            <option value="15m">15 মি.</option>
+          </select>
+        </div>
+      </div>
+      <button id="micBtn" class="mic-toggle-btn start">
+        <span class="mic-icon">🔴</span> <span id="micBtnText">মাইক্রোফোন চালু করুন (Start Mic)</span>
+      </button>
+    </section>
+
+    <section class="visualizer-card">
+      <div class="vis-header">
+        <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
+        <span id="clippingBadge" class="clipping-badge clean">SIGNAL CLEAN</span>
+      </div>
+      <canvas id="waveformCanvas"></canvas>
+    </section>
+
+    <section class="class-grid-section">
+      <div class="section-title">হর্ন বাজার সাথে সাথে চাপ দিন (One-Touch):</div>
+      <div class="button-grid">
+        <button class="class-btn btn-c01" data-class-id="C01" data-class-name="Hydraulic_Horn">
+          <span class="btn-num">[1]</span>
+          <span class="btn-label">Hydraulic Horn</span>
+          <span class="btn-sub">নিষিদ্ধ হর্ন (Banned)</span>
+        </button>
+        <button class="class-btn btn-c02" data-class-id="C02" data-class-name="Bus">
+          <span class="btn-num">[2]</span>
+          <span class="btn-label">Bus</span>
+          <span class="btn-sub">বাসের এয়ার/ইলেকট্রিক হর্ন</span>
+        </button>
+        <button class="class-btn btn-c03" data-class-id="C03" data-class-name="Truck">
+          <span class="btn-num">[3]</span>
+          <span class="btn-label">Truck / Lorry</span>
+          <span class="btn-sub">ট্রাকের ভারী হর্ন</span>
+        </button>
+        <button class="class-btn btn-c04" data-class-id="C04" data-class-name="Private_Car">
+          <span class="btn-num">[4]</span>
+          <span class="btn-label">Private Car</span>
+          <span class="btn-sub">কার / এসইউভি / মাইক্রো</span>
+        </button>
+        <button class="class-btn btn-c05" data-class-id="C05" data-class-name="Motorcycle">
+          <span class="btn-num">[5]</span>
+          <span class="btn-label">Motorcycle</span>
+          <span class="btn-sub">বাইকের সিঙ্গেল হর্ন</span>
+        </button>
+        <button class="class-btn btn-c06" data-class-id="C06" data-class-name="CNG_Autorickshaw">
+          <span class="btn-num">[6]</span>
+          <span class="btn-label">CNG Auto</span>
+          <span class="btn-sub">সিএনজির তীক্ষ্ণ বাজার</span>
+        </button>
+        <button class="class-btn btn-c07" data-class-id="C07" data-class-name="Easybike_Leguna">
+          <span class="btn-num">[7]</span>
+          <span class="btn-label">Easybike / Auto</span>
+          <span class="btn-sub">ইজিবাইক মেলোডি হর্ন</span>
+        </button>
+        <button class="class-btn btn-c08" data-class-id="C08" data-class-name="Rickshaw_Bell">
+          <span class="btn-num">[8]</span>
+          <span class="btn-label">Rickshaw Bell</span>
+          <span class="btn-sub">টুংটুং ঘণ্টা / পাম্প হর্ন</span>
+        </button>
+        <button class="class-btn btn-c09" data-class-id="C09" data-class-name="Background_Traffic_Noise">
+          <span class="btn-num">[9]</span>
+          <span class="btn-label">Traffic Noise</span>
+          <span class="btn-sub">শুধু ট্রাফিক কোলাহল</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="stats-card">
+      <div class="stats-row">
+        <div>সংগৃহীত স্যাম্পল: <strong id="sampleCount">0</strong> টি</div>
+        <button id="downloadMetadataBtn" class="action-btn">📥 ডাউনলোড CSV মেটাডাটা</button>
+      </div>
+      <div id="latestLog" class="latest-log">মাইক চালু করে যেকোনো গাড়ির বাটনে চাপ দিন...</div>
+    </section>
+  </div>
+
+  <script>
+    let audioContext = null;
+    let mediaStream = null;
+    let scriptProcessor = null;
+    let isRecording = false;
+
+    const SAMPLE_RATE = 44100;
+    const BUFFER_DURATION_SEC = 4.0;
+    const TOTAL_DURATION_SEC = 3.0;
+    const BUFFER_SIZE = Math.floor(SAMPLE_RATE * BUFFER_DURATION_SEC);
+    let ringBuffer = new Float32Array(BUFFER_SIZE);
+    let writeIndex = 0;
+    let sampleCount = 0;
+    let metadataRecords = [];
+
+    const micBtn = document.getElementById("micBtn");
+    const micBtnText = document.getElementById("micBtnText");
+    const locationInput = document.getElementById("locationInput");
+    const distanceSelect = document.getElementById("distanceSelect");
+    const levelIndicator = document.getElementById("levelIndicator");
+    const clippingBadge = document.getElementById("clippingBadge");
+    const canvas = document.getElementById("waveformCanvas");
+    const canvasCtx = canvas.getContext("2d");
+    const sampleCountEl = document.getElementById("sampleCount");
+    const latestLogEl = document.getElementById("latestLog");
+    const downloadMetadataBtn = document.getElementById("downloadMetadataBtn");
+
+    function resizeCanvas() {
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    micBtn.addEventListener("click", async () => {
+      if (!isRecording) await startMicrophone();
+      else stopMicrophone();
+    });
+
+    async function startMicrophone() {
+      try {
+        const constraints = {
+          audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: false, channelCount: 1, sampleRate: SAMPLE_RATE },
+          video: false
+        };
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
+        const source = audioContext.createMediaStreamSource(mediaStream);
+        scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+
+        scriptProcessor.onaudioprocess = (e) => {
+          const inputData = e.inputBuffer.getChannelData(0);
+          let peak = 0;
+          for (let i = 0; i < inputData.length; i++) {
+            const absVal = Math.abs(inputData[i]);
+            if (absVal > peak) peak = absVal;
+            ringBuffer[writeIndex] = inputData[i];
+            writeIndex = (writeIndex + 1) % BUFFER_SIZE;
+          }
+          const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
+          updateAudioLevel(peakDb);
+        };
+
+        source.connect(scriptProcessor);
+        scriptProcessor.connect(audioContext.destination);
+
+        isRecording = true;
+        micBtn.classList.remove("start");
+        micBtn.classList.add("active");
+        micBtnText.textContent = "মাইক চালু আছে (রানিং...)";
+        latestLogEl.textContent = "মাইক সক্রিয়। যেকোনো গাড়ির হর্ন বাজলে বাটনে চাপ দিন!";
+        requestAnimationFrame(renderWaveform);
+      } catch (err) {
+        alert("মাইক্রোফোন চালু করতে সমস্যা: " + err.message + "\nব্রাউজারে মাইক্রোফোন পারমিশন Allow করেছেন কি না চেক করুন।");
+      }
+    }
+
+    function stopMicrophone() {
+      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+      if (scriptProcessor) scriptProcessor.disconnect();
+      if (audioContext) audioContext.close();
+      isRecording = false;
+      micBtn.classList.remove("active");
+      micBtn.classList.add("start");
+      micBtnText.textContent = "মাইক্রোফোন চালু করুন (Start Mic)";
+      levelIndicator.textContent = "Peak: -- dBFS";
+      clippingBadge.textContent = "SIGNAL OFF";
+      clippingBadge.className = "clipping-badge clean";
+    }
+
+    function updateAudioLevel(peakDb) {
+      levelIndicator.textContent = `Peak: ${peakDb.toFixed(1)} dBFS`;
+      if (peakDb >= -0.5) {
+        clippingBadge.textContent = "! CLIPPING WARN !";
+        clippingBadge.className = "clipping-badge warn";
+      } else {
+        clippingBadge.textContent = "SIGNAL CLEAN";
+        clippingBadge.className = "clipping-badge clean";
+      }
+    }
+
+    function renderWaveform() {
+      if (!isRecording) return;
+      const width = canvas.width;
+      const height = canvas.height;
+      canvasCtx.clearRect(0, 0, width, height);
+      canvasCtx.lineWidth = 2 * window.devicePixelRatio;
+      canvasCtx.strokeStyle = "#89b4fa";
+      canvasCtx.beginPath();
+
+      const sliceCount = 300;
+      const step = Math.floor(BUFFER_SIZE / sliceCount);
+      const sliceWidth = width / sliceCount;
+      let x = 0;
+
+      for (let i = 0; i < sliceCount; i++) {
+        const idx = (writeIndex - (sliceCount - i) * step + BUFFER_SIZE) % BUFFER_SIZE;
+        const v = ringBuffer[idx];
+        const y = (0.5 + v * 0.45) * height;
+        if (i === 0) canvasCtx.moveTo(x, y);
+        else canvasCtx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      canvasCtx.stroke();
+      requestAnimationFrame(renderWaveform);
+    }
+
+    document.querySelectorAll(".class-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (!isRecording) {
+          alert("আগে ওপরের 'মাইক্রোফোন চালু করুন' বোতামে চাপ দিন!");
+          return;
+        }
+        captureHornEvent(btn.getAttribute("data-class-id"), btn.getAttribute("data-class-name"));
+      });
+    });
+
+    function captureHornEvent(classId, className) {
+      sampleCount++;
+      sampleCountEl.textContent = sampleCount;
+      const totalSamples = Math.floor(TOTAL_DURATION_SEC * SAMPLE_RATE);
+      const extractedAudio = new Float32Array(totalSamples);
+
+      for (let i = 0; i < totalSamples; i++) {
+        const readIdx = (writeIndex - totalSamples + i + BUFFER_SIZE) % BUFFER_SIZE;
+        extractedAudio[i] = ringBuffer[readIdx];
+      }
+
+      let peak = 0;
+      let sumSq = 0;
+      for (let i = 0; i < totalSamples; i++) {
+        const absVal = Math.abs(extractedAudio[i]);
+        if (absVal > peak) peak = absVal;
+        sumSq += absVal * absVal;
+      }
+      const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
+      const rmsDb = sumSq > 0 ? 10 * Math.log10(sumSq / totalSamples) : -100;
+
+      const now = new Date();
+      const timeStr = now.toISOString().replace(/[:.]/g, "-");
+      const loc = (locationInput.value || "Field").trim().replace(/\s+/g, "_");
+      const dist = distanceSelect.value;
+      const filename = `BDHORN_${classId}_${className.toUpperCase()}_${loc}_${timeStr}_${String(sampleCount).padStart(4, '0')}.wav`;
+
+      const wavBlob = encodeWAV(extractedAudio, SAMPLE_RATE);
+      downloadBlob(wavBlob, filename);
+
+      metadataRecords.push({
+        sample_id: `BDHORN_${String(sampleCount).padStart(4, '0')}`,
+        filename: filename,
+        class_id: classId,
+        vehicle_class: className,
+        timestamp: now.toISOString(),
+        location: loc,
+        distance_m: dist,
+        peak_dbfs: peakDb.toFixed(2),
+        rms_dbfs: rmsDb.toFixed(2),
+        duration_sec: TOTAL_DURATION_SEC,
+        sample_rate: SAMPLE_RATE
+      });
+
+      latestLogEl.innerHTML = `✅ <b>সংরক্ষিত (#${sampleCount}):</b> ${filename}`;
+      latestLogEl.style.color = "#a6e3a1";
+    }
+
+    function encodeWAV(samples, sampleRate) {
+      const buffer = new ArrayBuffer(44 + samples.length * 2);
+      const view = new DataView(buffer);
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + samples.length * 2, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, samples.length * 2, true);
+
+      let offset = 44;
+      for (let i = 0; i < samples.length; i++, offset += 2) {
+        const s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    function writeString(view, offset, string) {
+      for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);
+    }
+
+    downloadMetadataBtn.addEventListener("click", () => {
+      if (metadataRecords.length === 0) { alert("এখনো কোনো স্যাম্পল রেকর্ড করা হয়নি!"); return; }
+      const headers = Object.keys(metadataRecords[0]);
+      const csvRows = [headers.join(",")];
+      for (const row of metadataRecords) {
+        const values = headers.map(h => `"${row[h] || ""}"`);
+        csvRows.push(values.join(","));
+      }
+      const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+      downloadBlob(blob, `metadata_session_${new Date().toISOString().slice(0, 10)}.csv`);
+    });
+  </script>
+</body>
+</html>

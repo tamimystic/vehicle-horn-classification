@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Acoustic Collector - Mobile Raw Audio Logger</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#1e1e2e">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="title-row">
+        <h1>🎙️ Horn Data Collector</h1>
+        <span class="badge zero-dsp">RAW AUDIO (NO AGC)</span>
+      </div>
+      <p class="subtitle">Vehicle Horn Research Data Acquisition Suite</p>
+    </header>
+
+    <!-- Top Controls: Session Location & Mic Toggle -->
+    <section class="session-card">
+      <div class="form-row">
+        <div class="form-group flex-2">
+          <label for="locationInput">লোকেশন / স্থান:</label>
+          <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="যেমন: Farmgate, Mawa_Highway">
+        </div>
+        <div class="form-group flex-1">
+          <label for="distanceSelect">দূরত্ব:</label>
+          <select id="distanceSelect">
+            <option value="3m">3 মি.</option>
+            <option value="5m" selected>5 মি.</option>
+            <option value="7m">7 মি.</option>
+            <option value="10m">10 মি.</option>
+            <option value="15m">15 মি.</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Mic Activation Button -->
+      <button id="micBtn" class="mic-toggle-btn start">
+        <span class="mic-icon">🔴</span> <span id="micBtnText">মাইক্রোফোন চালু করুন (Start Mic)</span>
+      </button>
+    </section>
+
+    <!-- Real-time Visualizer & Clipping Monitor -->
+    <section class="visualizer-card">
+      <div class="vis-header">
+        <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
+        <span id="clippingBadge" class="clipping-badge clean">SIGNAL CLEAN</span>
+      </div>
+      <canvas id="waveformCanvas"></canvas>
+    </section>
+
+    <!-- Quick Vehicle Horn Class Grid (1-Touch Big Buttons) -->
+    <section class="class-grid-section">
+      <div class="section-title">হর্ন বাজার সাথে সাথে চাপ দিন (One-Touch):</div>
+      <div class="button-grid">
+        <button class="class-btn btn-c01" data-class-id="C01" data-class-name="Hydraulic_Horn">
+          <span class="btn-num">[1]</span>
+          <span class="btn-label">Hydraulic Horn</span>
+          <span class="btn-sub">নিষিদ্ধ হর্ন (Banned)</span>
+        </button>
+
+        <button class="class-btn btn-c02" data-class-id="C02" data-class-name="Bus">
+          <span class="btn-num">[2]</span>
+          <span class="btn-label">Bus</span>
+          <span class="btn-sub">বাসের এয়ার/ইলেকট্রিক হর্ন</span>
+        </button>
+
+        <button class="class-btn btn-c03" data-class-id="C03" data-class-name="Truck">
+          <span class="btn-num">[3]</span>
+          <span class="btn-label">Truck / Lorry</span>
+          <span class="btn-sub">ট্রাকের ভারী হর্ন</span>
+        </button>
+
+        <button class="class-btn btn-c04" data-class-id="C04" data-class-name="Private_Car">
+          <span class="btn-num">[4]</span>
+          <span class="btn-label">Private Car</span>
+          <span class="btn-sub">কার / এসইউভি / মাইক্রো</span>
+        </button>
+
+        <button class="class-btn btn-c05" data-class-id="C05" data-class-name="Motorcycle">
+          <span class="btn-num">[5]</span>
+          <span class="btn-label">Motorcycle</span>
+          <span class="btn-sub">বাইকের সিঙ্গেল হর্ন</span>
+        </button>
+
+        <button class="class-btn btn-c06" data-class-id="C06" data-class-name="CNG_Autorickshaw">
+          <span class="btn-num">[6]</span>
+          <span class="btn-label">CNG Auto</span>
+          <span class="btn-sub">সিএনজির তীক্ষ্ণ বাজার</span>
+        </button>
+
+        <button class="class-btn btn-c07" data-class-id="C07" data-class-name="Easybike_Leguna">
+          <span class="btn-num">[7]</span>
+          <span class="btn-label">Easybike / Auto</span>
+          <span class="btn-sub">ইজিবাইক মেলোডি হর্ন</span>
+        </button>
+
+        <button class="class-btn btn-c08" data-class-id="C08" data-class-name="Rickshaw_Bell">
+          <span class="btn-num">[8]</span>
+          <span class="btn-label">Rickshaw Bell</span>
+          <span class="btn-sub">টুংটুং ঘণ্টা / পাম্প হর্ন</span>
+        </button>
+
+        <button class="class-btn btn-c09" data-class-id="C09" data-class-name="Background_Traffic_Noise">
+          <span class="btn-num">[9]</span>
+          <span class="btn-label">Traffic Noise</span>
+          <span class="btn-sub">শুধু ট্রাফিক কোলাহল (হর্ন ছাড়া)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Session Stats & Data Export -->
+    <section class="stats-card">
+      <div class="stats-row">
+        <div>সংগৃহীত স্যাম্পল: <strong id="sampleCount">0</strong> টি</div>
+        <button id="downloadMetadataBtn" class="action-btn">
+          📥 ডাউনলোড CSV মেটাডাটা
+        </button>
+      </div>
+      <div id="latestLog" class="latest-log">মাইক চালু করে যেকোনো গাড়ির বাটনে চাপ দিন...</div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

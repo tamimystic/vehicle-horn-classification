@@ -1,0 +1,49 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE / Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Audio cache & logs
+*.log
+acoustic_collector/logs/*.log
+
+# Dataset audio files (Optional: keep large raw WAVs out of git repo, track with Git LFS or external drive)
+# Uncomment the line below if raw data exceeds GitHub's 100MB limit:
+# data/01_raw_field_recordings/*.wav
