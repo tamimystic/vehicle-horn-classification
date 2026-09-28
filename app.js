@@ -876,7 +876,7 @@ function stopAudioRecording() {
   const model = sanitize(vehicleModelInput.value || "Unknown");
   const plate = sanitize(vehiclePlateInput.value || "Unknown");
 
-  const baseFileName = `${sampleId}_${instanceId}_${loc}_${dist}_${cls}_${model}_${plate}_${timeStr}`;
+  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${loc}_${timeStr}`;
   const wavName = `${baseFileName}.wav`;
   const photoName = `${baseFileName}.jpg`;
 
@@ -951,7 +951,7 @@ saveRecordingBtn.addEventListener("click", async () => {
   const model = sanitize(vehicleModelInput.value || "Unknown");
   const plate = sanitize(vehiclePlateInput.value || "Unknown");
 
-  const baseFileName = `${sampleId}_${instanceId}_${loc}_${dist}_${cls}_${model}_${plate}_${timeStr}`;
+  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${loc}_${timeStr}`;
   const wavFileName = `${baseFileName}.wav`;
   const photoFileName = currentPhotoBlob ? `${baseFileName}.jpg` : "";
 

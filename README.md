@@ -46,13 +46,13 @@ A critical flaw in acoustic machine learning research is **Data Leakage**: when 
 * **Layer B (Instance-Level Structured):** `Dataset/Instances_By_Vehicle/<VehicleClass>/<Model>_<PlateNumber>/` aggregates all recordings belonging to that specific physical vehicle, indexing them by both the global identifier and an instance-local counter (`S01`, `S02`).
 * **Segregated Photo Layer:** `Dataset/Vehicle_Photos/` stores high-resolution vehicle and license plate photographs named with identical base identifiers to eliminate non-audio file clutter inside acoustic training folders.
 
-### 6. Standard 7-Parameter Filename Convention
+### 6. Standard Filename Architecture
 Every audio file and photograph encodes its complete contextual provenance in its filename:
 ```
-[SampleID]_[InstanceID]_[Location]_[Distance]_[VehicleClass]_[VehicleModel]_[VehiclePlate]_[Timestamp].wav
+[SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Location]_[Timestamp].wav
 ```
-*Example Audio:* `BDHORN_0001_S01_GabtoliTerminal_5m_Bus_HinoAK1J_DhakaMetroBa148923_20260929_003500.wav`  
-*Example Photo:* `BDHORN_0001_S01_GabtoliTerminal_5m_Bus_HinoAK1J_DhakaMetroBa148923_20260929_003500.jpg`
+*Example Audio:* `BDHORN_0001_S01_Bus_HinoAK1J_DhakaMetroBa148923_5m_GabtoliTerminal_20260929_003500.wav`  
+*Example Photo:* `BDHORN_0001_S01_Bus_HinoAK1J_DhakaMetroBa148923_5m_GabtoliTerminal_20260929_003500.jpg`
 
 ### 7. Dual Export Engine: Direct Disk Writing & Standalone ZIP
 * **Direct File System Access API:** Chromium-based browsers on laptops and Android allow binding a target directory directly. Committing a sample writes dual-layer files and appends to `metadata.csv` on the physical drive with zero download popups.
@@ -200,9 +200,9 @@ All 7 unit tests must report clean passes prior to committing dataset modificati
 | :--- | :--- | :--- | :--- |
 | `sample_id` | String | Unique sequential dataset identifier | `BDHORN_0001` |
 | `instance_id` | String | Vehicle-specific sample counter | `S01` |
-| `filename` | String | Standard 7-parameter WAV filename | `BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_Plate_20260929.wav` |
-| `audio_filename` | String | Database alias for file resolution | `BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_Plate_20260929.wav` |
-| `photo_filename` | String | Matching photograph filename | `BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_Plate_20260929.jpg` |
+| `filename` | String | Standard 8-parameter WAV filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929.wav` |
+| `audio_filename` | String | Database alias for file resolution | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929.wav` |
+| `photo_filename` | String | Matching photograph filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929.jpg` |
 | `vehicle_class` | String | Target category from 9-class taxonomy | `Bus` |
 | `vehicle_model` | String | Vehicle manufacturer chassis / model | `Hino_AK1J` |
 | `license_plate` | String | Official vehicle registration number | `DhakaMetro-Ba-14-8923` |

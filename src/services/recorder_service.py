@@ -47,8 +47,8 @@ class RecorderService:
             self.instance_counters[inst_key] = instance_num
             instance_id = f"S{instance_num:02d}"
 
-            # Standard 7-Parameter Filename
-            filename = f"{sample_id}_{instance_id}_{location}_{distance}_{class_name}_{model}_{plate}_{time_str}.wav"
+            # Standard Filename: [SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Location]_[Timestamp].wav
+            filename = f"{sample_id}_{instance_id}_{class_name}_{model}_{plate}_{distance}_{location}_{time_str}.wav"
 
             # 1. Dual-Layer File Organization:
             # Layer A: Dataset/Raw_By_Class/<VehicleClass>/

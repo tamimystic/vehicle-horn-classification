@@ -47,7 +47,7 @@ def test_recorder_service_dual_layer_export():
         assert raw_bus_dir.exists()
         raw_files = list(raw_bus_dir.glob("*.wav"))
         assert len(raw_files) == 1
-        assert "BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_" in raw_files[0].name
+        assert "BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_" in raw_files[0].name
 
         # Verify Layer B (Instances_By_Vehicle)
         inst_bus_dir = paths.instances_dir / "Bus" / "Hino_AK1J_DhakaMetro-Ba-14-8923"
