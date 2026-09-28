@@ -86,6 +86,12 @@ body {
   color: #fab387;
 }
 
+.header-action-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 .pill-btn {
   background: #313244;
   color: #89b4fa;
@@ -101,6 +107,18 @@ body {
 .pill-btn:active {
   background: #89b4fa;
   color: #11111b;
+}
+
+.dir-select-btn {
+  background: #313244;
+  color: #cba6f7;
+  border-color: #cba6f7;
+}
+
+.dir-select-btn.bound {
+  background: #181825;
+  color: #a6e3a1;
+  border-color: #a6e3a1;
 }
 
 .mic-arm-btn {
@@ -438,13 +456,21 @@ body {
 
 .review-details {
   background: #11111b;
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
   font-size: 0.72rem;
-  color: #89b4fa;
+  color: #cdd6f4;
   margin-bottom: 12px;
   word-break: break-all;
-  line-height: 1.4;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.path-tag {
+  color: #a6e3a1;
+  font-family: monospace;
 }
 
 .review-actions {
@@ -499,13 +525,26 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dir-badge {
+  background: #313244;
+  color: #a6e3a1;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+  border: 1px solid #a6e3a1;
 }
 
 .action-btn-group {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 
 .action-btn {
@@ -513,8 +552,8 @@ body {
   color: #89b4fa;
   border: 1px solid #89b4fa;
   border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 0.75rem;
+  padding: 6px 10px;
+  font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -522,6 +561,23 @@ body {
 .action-btn:active {
   background: #89b4fa;
   color: #11111b;
+}
+
+.action-btn.zip-btn {
+  background: #313244;
+  color: #f9e2af;
+  border-color: #f9e2af;
+}
+
+.action-btn.zip-btn:active {
+  background: #f9e2af;
+  color: #11111b;
+}
+
+.action-btn.clear-btn {
+  background: #313244;
+  color: #a6adc8;
+  border-color: #45475a;
 }
 
 .action-btn.install-btn {
@@ -558,7 +614,10 @@ body {
     <section class="card metadata-card">
       <div class="card-header">
         <span class="card-title">📋 Vehicle & Session Metadata</span>
-        <button id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS Location</button>
+        <div class="header-action-group">
+          <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct auto-saving">📁 Bind Folder</button>
+          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS</button>
+        </div>
       </div>
 
       <div class="form-grid">
@@ -665,7 +724,7 @@ body {
       </div>
 
       <div class="review-details" id="reviewDetails">
-        <!-- Dynamically injected target filenames -->
+        <!-- Dynamically injected target filenames & dual-layer folder paths -->
       </div>
 
       <div class="review-actions">
@@ -681,10 +740,15 @@ body {
     <!-- Stats & Session Actions Card -->
     <section class="card stats-card">
       <div class="stats-row">
-        <div>Saved Samples: <strong id="sampleCount">0</strong></div>
+        <div>
+          Saved Samples: <strong id="sampleCount">0</strong>
+          <span id="dirStatusBadge" class="dir-badge" style="display:none;">📁 Direct Auto-Save Active</span>
+        </div>
         <div class="action-btn-group">
           <button id="installAppBtn" class="action-btn install-btn" style="display:none;">📲 Install App</button>
-          <button id="downloadMetadataBtn" class="action-btn">📥 Export CSV</button>
+          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">📦 Export ZIP</button>
+          <button type="button" id="downloadMetadataBtn" class="action-btn">📥 CSV</button>
+          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">🔄 Reset</button>
         </div>
       </div>
       <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
@@ -693,10 +757,16 @@ body {
 
   <script>
 /**
- * Vehicle Horn Acoustic Data Acquisition Engine - Step 2 Audio & Gesture Engine
- * Implements zero-latency microphone pre-arming, pointer capture gesture stabilization,
- * haptic vibration feedback, real-time waveform monitoring, DC-offset acoustic filtering,
- * 7-parameter filename generation, and in-app quality review.
+ * Vehicle Horn Acoustic Data Acquisition Engine - Step 3 Storage & Dual-Layer Routing
+ * Implements:
+ * 1. Dual-Layer File Organization:
+ *    - Layer A: Dataset/Raw_By_Class/<Class>/<AudioFilename>.wav
+ *    - Layer B: Dataset/Instances_By_Vehicle/<Class>/<Model_Plate>/<AudioFilename>.wav
+ *    - Photo Layer: Dataset/Vehicle_Photos/<PhotoFilename>.jpg
+ * 2. Local Directory Binding via File System Access API (Chrome/Edge direct auto-save)
+ * 3. Client-Side Offline Persistence via IndexedDB (survives refreshes)
+ * 4. Zero-Dependency Standalone Dual-Layer ZIP Exporter
+ * 5. Full Relational metadata.csv Management
  */
 
 // Application State
@@ -723,6 +793,9 @@ let globalSampleIndex = 1;
 const instanceCounters = {}; // Maps `${class}_${model}_${plate}` -> count
 const metadataRecords = [];
 
+// File System Handle for Direct Auto-Saving
+let rootDirectoryHandle = null;
+
 // DOM Elements
 const locationInput = document.getElementById("locationInput");
 const distanceSelect = document.getElementById("distanceSelect");
@@ -730,6 +803,8 @@ const vehicleClassSelect = document.getElementById("vehicleClassSelect");
 const vehicleModelInput = document.getElementById("vehicleModelInput");
 const vehiclePlateInput = document.getElementById("vehiclePlateInput");
 const gpsBtn = document.getElementById("gpsBtn");
+const selectDirBtn = document.getElementById("selectDirBtn");
+const dirStatusBadge = document.getElementById("dirStatusBadge");
 
 const globalSampleDisplay = document.getElementById("globalSampleDisplay");
 const instanceCounterDisplay = document.getElementById("instanceCounterDisplay");
@@ -760,7 +835,9 @@ const saveRecordingBtn = document.getElementById("saveRecordingBtn");
 const discardRecordingBtn = document.getElementById("discardRecordingBtn");
 
 const sampleCountEl = document.getElementById("sampleCount");
+const exportZipBtn = document.getElementById("exportZipBtn");
 const downloadMetadataBtn = document.getElementById("downloadMetadataBtn");
+const clearSessionBtn = document.getElementById("clearSessionBtn");
 const latestLogEl = document.getElementById("latestLog");
 
 // Prevent mobile context menu on long press
@@ -798,7 +875,6 @@ function updateInstanceCounterDisplay() {
 [vehicleClassSelect, vehicleModelInput, vehiclePlateInput].forEach((el) => {
   el.addEventListener("input", updateInstanceCounterDisplay);
 });
-updateInstanceCounterDisplay();
 
 // Geolocation Auto-Detect
 gpsBtn.addEventListener("click", () => {
@@ -813,12 +889,12 @@ gpsBtn.addEventListener("click", () => {
       const lon = pos.coords.longitude.toFixed(4);
       locationInput.value = `GPS_${lat}_${lon}`;
       gpsBtn.textContent = "📍 GPS Set";
-      setTimeout(() => (gpsBtn.textContent = "📍 GPS Location"), 2500);
+      setTimeout(() => (gpsBtn.textContent = "📍 GPS"), 2500);
     },
     (err) => {
       gpsBtn.textContent = "📍 GPS Failed";
       alert("GPS Error: " + err.message);
-      setTimeout(() => (gpsBtn.textContent = "📍 GPS Location"), 2000);
+      setTimeout(() => (gpsBtn.textContent = "📍 GPS"), 2000);
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
@@ -985,7 +1061,6 @@ async function startAudioRecording() {
     reviewSection.style.display = "none";
   }
 
-  // Ensure mic is armed
   if (!isMicArmed) {
     const ok = await preArmMicrophone();
     if (!ok) return;
@@ -995,7 +1070,6 @@ async function startAudioRecording() {
   isRecording = true;
   recordingStartTime = performance.now();
 
-  // Haptic feedback (short buzz on start)
   if (navigator.vibrate) {
     try { navigator.vibrate(40); } catch {}
   }
@@ -1004,7 +1078,6 @@ async function startAudioRecording() {
   mainRecordBtn.classList.add("recording");
   recordInstruction.textContent = activeMode === "tap" ? "Recording... Tap again to STOP" : "Recording... Release to STOP";
 
-  // Start Live Timer
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     const elapsed = (performance.now() - recordingStartTime) / 1000;
@@ -1019,7 +1092,6 @@ function stopAudioRecording() {
   isRecording = false;
   clearInterval(timerInterval);
 
-  // Haptic feedback (double buzz on stop)
   if (navigator.vibrate) {
     try { navigator.vibrate([30, 40, 30]); } catch {}
   }
@@ -1030,7 +1102,6 @@ function stopAudioRecording() {
     ? "Tap button once when horn starts, tap again when horn stops"
     : "Press and hold button while horn sounds, release to stop";
 
-  // Flatten recorded Float32Array chunks
   let totalLength = 0;
   for (const chunk of recordedChunks) totalLength += chunk.length;
   const mergedAudio = new Float32Array(totalLength);
@@ -1066,7 +1137,7 @@ function stopAudioRecording() {
   currentPeakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
   currentRmsDb = sumSq > 0 ? 10 * Math.log10(sumSq / mergedAudio.length) : -100;
 
-  // Encode to uncompressed 16-bit WAV Blob
+  // Encode to WAV Blob
   currentAudioBlob = encodeWAV(mergedAudio, actualSampleRate);
 
   // Load into Review Player
@@ -1074,7 +1145,7 @@ function stopAudioRecording() {
   audioPlayback.src = audioUrl;
   clipDurationDisplay.textContent = `${currentDurationSec.toFixed(2)}s`;
 
-  // Compute Target Filenames
+  // Compute Target Filenames & Paths
   const now = new Date();
   const timeStr = formatTimestamp(now);
   const sampleId = `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`;
@@ -1092,11 +1163,11 @@ function stopAudioRecording() {
   const photoName = `${baseFileName}.jpg`;
 
   reviewDetails.innerHTML = `
-    <div><strong>Target Audio:</strong> ${wavName}</div>
-    ${currentPhotoBlob ? `<div><strong>Target Photo:</strong> ${photoName}</div>` : `<div style="color:#a6adc8;">(No vehicle photo attached)</div>`}
+    <div><strong>1. Class Layer:</strong> <span class="path-tag">Dataset/Raw_By_Class/${cls}/${wavName}</span></div>
+    <div><strong>2. Instance Layer:</strong> <span class="path-tag">Dataset/Instances_By_Vehicle/${cls}/${model}_${plate}/${wavName}</span></div>
+    ${currentPhotoBlob ? `<div><strong>3. Photo Layer:</strong> <span class="path-tag">Dataset/Vehicle_Photos/${photoName}</span></div>` : `<div style="color:#a6adc8;">(No vehicle photo attached)</div>`}
   `;
 
-  // Display review section
   reviewSection.style.display = "block";
   reviewSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -1147,7 +1218,7 @@ discardRecordingBtn.addEventListener("click", () => {
   latestLogEl.innerHTML = `<span style="color:#f38ba8;">Clip discarded. Ready for retake.</span>`;
 });
 
-saveRecordingBtn.addEventListener("click", () => {
+saveRecordingBtn.addEventListener("click", async () => {
   if (!currentAudioBlob) return;
 
   const now = new Date();
@@ -1166,19 +1237,6 @@ saveRecordingBtn.addEventListener("click", () => {
   const wavFileName = `${baseFileName}.wav`;
   const photoFileName = currentPhotoBlob ? `${baseFileName}.jpg` : "";
 
-  // 1. Download WAV
-  downloadBlob(currentAudioBlob, wavFileName);
-
-  // 2. Download Photo if attached
-  if (currentPhotoBlob) {
-    downloadBlob(currentPhotoBlob, photoFileName);
-  }
-
-  // 3. Update Counters & Metadata
-  instanceCounters[key] = instanceNum;
-  globalSampleIndex++;
-  updateInstanceCounterDisplay();
-
   const record = {
     sample_id: sampleId,
     instance_id: instanceId,
@@ -1195,10 +1253,40 @@ saveRecordingBtn.addEventListener("click", () => {
     photo_filename: photoFileName,
     timestamp: now.toISOString()
   };
+
+  // 1. Direct File System Auto-Save if folder is bound
+  let savedToDisk = false;
+  if (rootDirectoryHandle) {
+    try {
+      await saveDirectToDirectory(rootDirectoryHandle, cls, `${model}_${plate}`, wavFileName, photoFileName, currentAudioBlob, currentPhotoBlob, record);
+      savedToDisk = true;
+    } catch (err) {
+      console.warn("Direct directory save failed, falling back to download:", err);
+    }
+  }
+
+  // 2. Standard Download Fallback (if not bound to disk)
+  if (!savedToDisk) {
+    downloadBlob(currentAudioBlob, wavFileName);
+    if (currentPhotoBlob) {
+      downloadBlob(currentPhotoBlob, photoFileName);
+    }
+  }
+
+  // 3. Save to IndexedDB Offline Storage
+  await saveToIndexedDB(record, currentAudioBlob, currentPhotoBlob);
+
+  // 4. Update In-Memory State
+  instanceCounters[key] = instanceNum;
+  globalSampleIndex++;
   metadataRecords.push(record);
+  updateInstanceCounterDisplay();
+  await persistSessionState();
 
   sampleCountEl.textContent = metadataRecords.length;
-  latestLogEl.innerHTML = `Saved (#${metadataRecords.length}): <b>${wavFileName}</b>`;
+  latestLogEl.innerHTML = savedToDisk
+    ? `Direct Saved (#${metadataRecords.length}): <b>${wavFileName}</b> (Dual-layer written to disk)`
+    : `Saved (#${metadataRecords.length}): <b>${wavFileName}</b> (Cached offline & downloaded)`;
   latestLogEl.style.color = "#a6e3a1";
 
   // Reset Review State
@@ -1206,6 +1294,344 @@ saveRecordingBtn.addEventListener("click", () => {
   audioPlayback.src = "";
   reviewSection.style.display = "none";
   recordingTimer.textContent = "00:00.0";
+});
+
+// File System Access API - Direct Dual-Layer Auto-Saver
+if (selectDirBtn) {
+  selectDirBtn.addEventListener("click", async () => {
+    if (!window.showDirectoryPicker) {
+      alert("File System Access API is not supported in this browser. You can still use the 'Export ZIP' button anytime!");
+      return;
+    }
+    try {
+      rootDirectoryHandle = await window.showDirectoryPicker({ mode: "readwrite" });
+      selectDirBtn.textContent = "📁 Folder Bound";
+      selectDirBtn.classList.add("bound");
+      dirStatusBadge.style.display = "inline-block";
+      dirStatusBadge.textContent = "📁 Direct Auto-Save Active";
+      latestLogEl.textContent = "Dataset folder bound! Recordings will auto-save directly to disk.";
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        alert("Directory Selection Error: " + err.message);
+      }
+    }
+  });
+}
+
+async function getOrCreateSubdir(dirHandle, segments) {
+  let curr = dirHandle;
+  for (const seg of segments) {
+    curr = await curr.getDirectoryHandle(seg, { create: true });
+  }
+  return curr;
+}
+
+async function saveDirectToDirectory(rootHandle, cls, instanceFolder, wavName, photoName, audioBlob, photoBlob, record) {
+  // Layer A: Raw_By_Class/<Class>/
+  const rawDir = await getOrCreateSubdir(rootHandle, ["Dataset", "Raw_By_Class", cls]);
+  const rawFile = await rawDir.getFileHandle(wavName, { create: true });
+  const w1 = await rawFile.createWritable();
+  await w1.write(audioBlob);
+  await w1.close();
+
+  // Layer B: Instances_By_Vehicle/<Class>/<Model_Plate>/
+  const instDir = await getOrCreateSubdir(rootHandle, ["Dataset", "Instances_By_Vehicle", cls, instanceFolder]);
+  const instFile = await instDir.getFileHandle(wavName, { create: true });
+  const w2 = await instFile.createWritable();
+  await w2.write(audioBlob);
+  await w2.close();
+
+  // Photo Layer: Vehicle_Photos/
+  if (photoBlob && photoName) {
+    const photoDir = await getOrCreateSubdir(rootHandle, ["Dataset", "Vehicle_Photos"]);
+    const photoFile = await photoDir.getFileHandle(photoName, { create: true });
+    const wp = await photoFile.createWritable();
+    await wp.write(photoBlob);
+    await wp.close();
+  }
+
+  // Master metadata.csv
+  const datasetDir = await getOrCreateSubdir(rootHandle, ["Dataset"]);
+  const metaFile = await datasetDir.getFileHandle("metadata.csv", { create: true });
+  const fileData = await metaFile.getFile();
+  const existingText = fileData.size > 0 ? await fileData.text() : "";
+  const header = Object.keys(record).join(",");
+  const row = Object.values(record).map((v) => `"${v}"`).join(",");
+  let newCsvContent = "";
+  if (!existingText.trim()) {
+    newCsvContent = `${header}\n${row}\n`;
+  } else {
+    newCsvContent = `${existingText.trimEnd()}\n${row}\n`;
+  }
+  const wm = await metaFile.createWritable();
+  await wm.write(newCsvContent);
+  await wm.close();
+}
+
+// IndexedDB Persistence Engine
+const DB_NAME = "BDHornCollectorDB";
+const DB_VERSION = 1;
+let dbInstance = null;
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    if (dbInstance) return resolve(dbInstance);
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("samples")) {
+        db.createObjectStore("samples", { keyPath: "sample_id" });
+      }
+      if (!db.objectStoreNames.contains("metadata")) {
+        db.createObjectStore("metadata", { keyPath: "key" });
+      }
+    };
+    req.onsuccess = (e) => {
+      dbInstance = e.target.result;
+      resolve(dbInstance);
+    };
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function saveToIndexedDB(record, audioBlob, photoBlob) {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(["samples"], "readwrite");
+    const store = tx.objectStore("samples");
+    store.put({
+      sample_id: record.sample_id,
+      record: record,
+      audioBlob: audioBlob,
+      photoBlob: photoBlob || null
+    });
+    return new Promise((res) => { tx.oncomplete = () => res(); });
+  } catch (err) {
+    console.warn("IndexedDB save failed:", err);
+  }
+}
+
+async function persistSessionState() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(["metadata"], "readwrite");
+    const store = tx.objectStore("metadata");
+    store.put({ key: "globalSampleIndex", val: globalSampleIndex });
+    store.put({ key: "instanceCounters", val: instanceCounters });
+    store.put({ key: "metadataRecords", val: metadataRecords });
+  } catch (err) {
+    console.warn("Persist session error:", err);
+  }
+}
+
+async function restoreSessionState() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(["metadata"], "readonly");
+    const store = tx.objectStore("metadata");
+    const gReq = store.get("globalSampleIndex");
+    const iReq = store.get("instanceCounters");
+    const mReq = store.get("metadataRecords");
+
+    await new Promise((res) => { tx.oncomplete = () => res(); });
+
+    if (gReq.result && gReq.result.val) globalSampleIndex = gReq.result.val;
+    if (iReq.result && iReq.result.val) Object.assign(instanceCounters, iReq.result.val);
+    if (mReq.result && mReq.result.val && Array.isArray(mReq.result.val)) {
+      metadataRecords.length = 0;
+      metadataRecords.push(...mReq.result.val);
+    }
+    sampleCountEl.textContent = metadataRecords.length;
+    updateInstanceCounterDisplay();
+    if (metadataRecords.length > 0) {
+      latestLogEl.textContent = `Restored ${metadataRecords.length} offline samples. Ready for next capture.`;
+    }
+  } catch (err) {
+    console.warn("Restore state error:", err);
+  }
+}
+restoreSessionState();
+
+// Clear Session / New Batch
+if (clearSessionBtn) {
+  clearSessionBtn.addEventListener("click", async () => {
+    if (!confirm("Start new batch? This will clear the offline cache and reset sample counters to 1. (Previously exported/downloaded files will not be deleted).")) {
+      return;
+    }
+    const db = await openDB();
+    const tx = db.transaction(["samples", "metadata"], "readwrite");
+    tx.objectStore("samples").clear();
+    tx.objectStore("metadata").clear();
+    await new Promise((res) => { tx.oncomplete = () => res(); });
+
+    globalSampleIndex = 1;
+    for (const k in instanceCounters) delete instanceCounters[k];
+    metadataRecords.length = 0;
+    sampleCountEl.textContent = "0";
+    updateInstanceCounterDisplay();
+    latestLogEl.textContent = "Session reset. Ready for new batch.";
+  });
+}
+
+// Zero-Dependency Pure JS ZIP Generator
+const CRC32_TABLE = new Uint32Array(256);
+for (let i = 0; i < 256; i++) {
+  let c = i;
+  for (let k = 0; k < 8; k++) {
+    c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+  }
+  CRC32_TABLE[i] = c;
+}
+
+function calculateCRC32(bytes) {
+  let c = 0 ^ (-1);
+  for (let i = 0; i < bytes.length; i++) {
+    c = (c >>> 8) ^ CRC32_TABLE[(c ^ bytes[i]) & 0xff];
+  }
+  return (c ^ (-1)) >>> 0;
+}
+
+class FastZipBuilder {
+  constructor() {
+    this.files = [];
+  }
+
+  addFile(relativePath, uint8Array) {
+    this.files.push({ path: relativePath, data: uint8Array });
+  }
+
+  buildBlob() {
+    const parts = [];
+    const centralDirParts = [];
+    let offset = 0;
+
+    for (const f of this.files) {
+      const nameBytes = new TextEncoder().encode(f.path);
+      const crc = calculateCRC32(f.data);
+      const size = f.data.length;
+
+      // Local File Header (30 bytes)
+      const localHdr = new Uint8Array(30);
+      const lv = new DataView(localHdr.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true); // Version 2.0
+      lv.setUint16(6, 0, true);  // General flags
+      lv.setUint16(8, 0, true);  // Compression 0 (Store)
+      lv.setUint16(10, 0, true); // Time
+      lv.setUint16(12, 0, true); // Date
+      lv.setUint32(14, crc, true);
+      lv.setUint32(18, size, true);
+      lv.setUint32(22, size, true);
+      lv.setUint16(26, nameBytes.length, true);
+      lv.setUint16(28, 0, true); // Extra length
+
+      parts.push(localHdr, nameBytes, f.data);
+
+      // Central Directory Header (46 bytes)
+      const cdHdr = new Uint8Array(46);
+      const cv = new DataView(cdHdr.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true); // Made by
+      cv.setUint16(6, 20, true); // Needed
+      cv.setUint16(8, 0, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, 0, true);
+      cv.setUint16(14, 0, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, size, true);
+      cv.setUint32(24, size, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint16(30, 0, true); // Extra
+      cv.setUint16(32, 0, true); // Comment
+      cv.setUint16(34, 0, true); // Disk
+      cv.setUint16(36, 0, true); // Internal attr
+      cv.setUint32(38, 0, true); // External attr
+      cv.setUint32(42, offset, true); // Relative offset
+
+      centralDirParts.push(cdHdr, nameBytes);
+      offset += 30 + nameBytes.length + size;
+    }
+
+    const cdOffset = offset;
+    let cdSize = 0;
+    for (const p of centralDirParts) cdSize += p.length;
+
+    // End of Central Directory Record (22 bytes)
+    const eocd = new Uint8Array(22);
+    const ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(4, 0, true); // Disk
+    ev.setUint16(6, 0, true); // CD Disk
+    ev.setUint16(8, this.files.length, true);
+    ev.setUint16(10, this.files.length, true);
+    ev.setUint32(12, cdSize, true);
+    ev.setUint32(16, cdOffset, true);
+    ev.setUint16(20, 0, true);
+
+    return new Blob([...parts, ...centralDirParts, eocd], { type: "application/zip" });
+  }
+}
+
+// Export Full Dual-Layer Dataset as ZIP
+exportZipBtn.addEventListener("click", async () => {
+  if (metadataRecords.length === 0) {
+    alert("No samples recorded to export.");
+    return;
+  }
+
+  exportZipBtn.textContent = "⏳ Generating ZIP...";
+  exportZipBtn.disabled = true;
+
+  try {
+    const db = await openDB();
+    const tx = db.transaction(["samples"], "readonly");
+    const store = tx.objectStore("samples");
+    const req = store.getAll();
+
+    await new Promise((res) => { tx.oncomplete = () => res(); });
+    const samples = req.result || [];
+
+    const zip = new FastZipBuilder();
+
+    // 1. Pack Audio & Photos into Dual-Layer Structure
+    for (const item of samples) {
+      const rec = item.record;
+      const audioArrayBuffer = await item.audioBlob.arrayBuffer();
+      const audioBytes = new Uint8Array(audioArrayBuffer);
+
+      // Layer A: Raw_By_Class/<Class>/
+      zip.addFile(`Dataset/Raw_By_Class/${rec.vehicle_class}/${rec.audio_filename}`, audioBytes);
+
+      // Layer B: Instances_By_Vehicle/<Class>/<Model_Plate>/
+      const instFolder = `${rec.vehicle_model}_${rec.license_plate}`;
+      zip.addFile(`Dataset/Instances_By_Vehicle/${rec.vehicle_class}/${instFolder}/${rec.audio_filename}`, audioBytes);
+
+      // Photo Layer: Vehicle_Photos/
+      if (item.photoBlob && rec.photo_filename) {
+        const photoArrayBuffer = await item.photoBlob.arrayBuffer();
+        zip.addFile(`Dataset/Vehicle_Photos/${rec.photo_filename}`, new Uint8Array(photoArrayBuffer));
+      }
+    }
+
+    // 2. Pack metadata.csv
+    const headers = Object.keys(metadataRecords[0]);
+    const rows = [headers.join(",")];
+    for (const r of metadataRecords) {
+      rows.push(headers.map((h) => `"${r[h] || ""}"`).join(","));
+    }
+    const csvBytes = new TextEncoder().encode(rows.join("\n"));
+    zip.addFile("Dataset/metadata.csv", csvBytes);
+
+    // 3. Build & Download ZIP
+    const zipBlob = zip.buildBlob();
+    downloadBlob(zipBlob, `BDHORN_Dataset_Export_${formatTimestamp(new Date())}.zip`);
+    latestLogEl.innerHTML = `<span style="color:#f9e2af;">Dataset exported: <b>BDHORN_Dataset_Export_${formatTimestamp(new Date())}.zip</b></span>`;
+  } catch (err) {
+    alert("ZIP Export Failed: " + err.message);
+  } finally {
+    exportZipBtn.textContent = "📦 Export ZIP";
+    exportZipBtn.disabled = false;
+  }
 });
 
 // Format Timestamp Helper: YYYYMMDD_HHMMSS

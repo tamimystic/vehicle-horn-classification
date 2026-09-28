@@ -23,7 +23,10 @@
     <section class="card metadata-card">
       <div class="card-header">
         <span class="card-title">📋 Vehicle & Session Metadata</span>
-        <button id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS Location</button>
+        <div class="header-action-group">
+          <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct auto-saving">📁 Bind Folder</button>
+          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS</button>
+        </div>
       </div>
 
       <div class="form-grid">
@@ -130,7 +133,7 @@
       </div>
 
       <div class="review-details" id="reviewDetails">
-        <!-- Dynamically injected target filenames -->
+        <!-- Dynamically injected target filenames & dual-layer folder paths -->
       </div>
 
       <div class="review-actions">
@@ -146,10 +149,15 @@
     <!-- Stats & Session Actions Card -->
     <section class="card stats-card">
       <div class="stats-row">
-        <div>Saved Samples: <strong id="sampleCount">0</strong></div>
+        <div>
+          Saved Samples: <strong id="sampleCount">0</strong>
+          <span id="dirStatusBadge" class="dir-badge" style="display:none;">📁 Direct Auto-Save Active</span>
+        </div>
         <div class="action-btn-group">
           <button id="installAppBtn" class="action-btn install-btn" style="display:none;">📲 Install App</button>
-          <button id="downloadMetadataBtn" class="action-btn">📥 Export CSV</button>
+          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">📦 Export ZIP</button>
+          <button type="button" id="downloadMetadataBtn" class="action-btn">📥 CSV</button>
+          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">🔄 Reset</button>
         </div>
       </div>
       <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
