@@ -115,7 +115,15 @@ function updateInstanceCounterDisplay() {
 }
 
 [vehicleClassSelect, vehicleModelInput, vehiclePlateInput].forEach((el) => {
-  el.addEventListener("input", updateInstanceCounterDisplay);
+  el.addEventListener("input", () => {
+    updateInstanceCounterDisplay();
+    if (currentPhotoBlob) {
+      currentPhotoBlob = null;
+      photoFileInput.value = "";
+      photoThumb.src = "";
+      photoThumbContainer.style.display = "none";
+    }
+  });
 });
 
 // Geolocation Auto-Detect
@@ -482,6 +490,9 @@ saveRecordingBtn.addEventListener("click", async () => {
   const record = {
     sample_id: sampleId,
     instance_id: instanceId,
+    filename: wavFileName,
+    audio_filename: wavFileName,
+    photo_filename: photoFileName,
     vehicle_class: cls,
     vehicle_model: model,
     license_plate: plate,
@@ -491,8 +502,6 @@ saveRecordingBtn.addEventListener("click", async () => {
     peak_dbfs: currentPeakDb.toFixed(2),
     rms_dbfs: currentRmsDb.toFixed(2),
     sample_rate: actualSampleRate,
-    audio_filename: wavFileName,
-    photo_filename: photoFileName,
     timestamp: now.toISOString()
   };
 
@@ -531,11 +540,15 @@ saveRecordingBtn.addEventListener("click", async () => {
     : `Saved (#${metadataRecords.length}): <b>${wavFileName}</b> (Cached offline & downloaded)`;
   latestLogEl.style.color = "#a6e3a1";
 
-  // Reset Review State
+  // Reset Review & Photo State
   currentAudioBlob = null;
   audioPlayback.src = "";
   reviewSection.style.display = "none";
   recordingTimer.textContent = "00:00.0";
+  currentPhotoBlob = null;
+  photoFileInput.value = "";
+  photoThumb.src = "";
+  photoThumbContainer.style.display = "none";
 });
 
 // File System Access API - Direct Dual-Layer Auto-Saver
