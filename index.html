@@ -16,18 +16,26 @@
         <h1>Vehicle Horn Data Collector</h1>
         <span class="badge zero-dsp">RAW AUDIO (NO AGC)</span>
       </div>
-      <p class="subtitle">Standardized Acoustic Data Acquisition Suite</p>
+      <p class="subtitle">Standardized Acoustic & Multimodal Acquisition Suite</p>
     </header>
 
-    <section class="session-card">
-      <div class="form-row">
-        <div class="form-group flex-2">
+    <!-- Session & Vehicle Metadata Card -->
+    <section class="card metadata-card">
+      <div class="card-header">
+        <span class="card-title">📋 Vehicle & Session Metadata</span>
+        <button id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS Location</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group col-2">
           <label for="locationInput">Location / Site:</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
         </div>
-        <div class="form-group flex-1">
+
+        <div class="form-group col-1">
           <label for="distanceSelect">Distance:</label>
           <select id="distanceSelect">
+            <option value="1m">1 m</option>
             <option value="3m">3 m</option>
             <option value="5m" selected>5 m</option>
             <option value="7m">7 m</option>
@@ -35,80 +43,115 @@
             <option value="15m">15 m</option>
           </select>
         </div>
+
+        <div class="form-group col-3">
+          <label for="vehicleClassSelect">Vehicle Class:</label>
+          <select id="vehicleClassSelect">
+            <option value="Bus" selected>Bus (Pneumatic Air / Dual Electric)</option>
+            <option value="Hydraulic_Horn">Hydraulic Horn (Banned High-SPL >105 dBA)</option>
+            <option value="Truck">Truck / Lorry (Heavy Commercial)</option>
+            <option value="Private_Car">Private Car (Sedan / SUV / Microbus)</option>
+            <option value="Motorcycle">Motorcycle (Single-Disc High Pitch)</option>
+            <option value="CNG_Autorickshaw">CNG Auto (3-Wheeler Buzzer)</option>
+            <option value="Easybike_Leguna">Easybike / Leguna (Melody / Electric)</option>
+            <option value="Rickshaw_Bell">Rickshaw Bell (Metallic Chime)</option>
+            <option value="Background_Traffic">Background Traffic Noise (Negative)</option>
+          </select>
+        </div>
+
+        <div class="form-group col-2">
+          <label for="vehicleModelInput">Vehicle Name & Model:</label>
+          <input type="text" id="vehicleModelInput" value="Hino_AK1J" placeholder="e.g. Hino AK1J, Tata LP 410, Yamaha FZ">
+        </div>
+
+        <div class="form-group col-1">
+          <label for="vehiclePlateInput">Plate / Vehicle ID:</label>
+          <input type="text" id="vehiclePlateInput" value="Dhaka-Metro-Ba-14-8923" placeholder="e.g. DhakaMetro-Ba-14-8923">
+        </div>
       </div>
-      <button id="micBtn" class="mic-toggle-btn start">
-        <span class="mic-icon">🔴</span> <span id="micBtnText">Start Microphone</span>
-      </button>
+
+      <!-- Sample Tracking & Photo Capture Row -->
+      <div class="meta-footer-row">
+        <div class="sample-counters">
+          <div class="counter-badge global">Global ID: <strong id="globalSampleDisplay">BDHORN_0001</strong></div>
+          <div class="counter-badge instance">Instance: <strong id="instanceCounterDisplay">Sample #1</strong></div>
+        </div>
+
+        <div class="photo-capture-box">
+          <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none;">
+          <button type="button" id="snapPhotoBtn" class="action-btn photo-btn">📷 Snap Photo</button>
+          <div id="photoThumbContainer" class="photo-thumb-container" style="display:none;">
+            <img id="photoThumb" class="photo-thumb" alt="Vehicle Photo">
+            <button type="button" id="removePhotoBtn" class="photo-remove-btn" title="Remove photo">✕</button>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="visualizer-card">
+    <!-- Visualizer & Audio Monitor Card -->
+    <section class="card visualizer-card">
       <div class="vis-header">
         <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
-        <span id="clippingBadge" class="clipping-badge clean">SIGNAL CLEAN</span>
+        <span id="recordingTimer" class="timer-display">00:00.0</span>
+        <span id="clippingBadge" class="clipping-badge clean">SIGNAL READY</span>
       </div>
       <canvas id="waveformCanvas"></canvas>
     </section>
 
-    <section class="class-grid-section">
-      <div class="section-title">One-Touch Class Logger (Click upon Horn Sound):</div>
-      <div class="button-grid">
-        <button class="class-btn btn-c01" data-class-id="C01" data-class-name="Hydraulic_Horn">
-          <span class="btn-num">[1]</span>
-          <span class="btn-label">Hydraulic Horn</span>
-          <span class="btn-sub">Banned High-SPL (>105 dBA)</span>
+    <!-- Central Recording Hub -->
+    <section class="card recording-hub-card">
+      <div class="mode-selector-row">
+        <span class="mode-label">Record Mode:</span>
+        <div class="mode-toggle">
+          <button type="button" id="modeTapBtn" class="mode-btn active">⏺️ Tap to Start / Stop</button>
+          <button type="button" id="modeHoldBtn" class="mode-btn">🤏 Hold to Record</button>
+        </div>
+      </div>
+
+      <div class="record-btn-container">
+        <button type="button" id="mainRecordBtn" class="main-record-btn idle">
+          <div class="btn-icon"></div>
         </button>
-        <button class="class-btn btn-c02" data-class-id="C02" data-class-name="Bus">
-          <span class="btn-num">[2]</span>
-          <span class="btn-label">Bus</span>
-          <span class="btn-sub">Pneumatic Air / Dual Electric</span>
+        <div id="recordInstruction" class="record-instruction">Tap button once when horn starts, tap again when horn stops</div>
+      </div>
+    </section>
+
+    <!-- Post-Recording Review & Quality Control Card -->
+    <section id="reviewSection" class="card review-card" style="display:none;">
+      <div class="review-header">
+        <span class="card-title">🎧 Quality Review Before Saving</span>
+        <span id="clipDurationDisplay" class="clip-duration">--s</span>
+      </div>
+      <p class="review-hint">Listen to the clip to ensure clean horn sound without wind or speech interference:</p>
+      
+      <div class="audio-player-container">
+        <audio id="audioPlayback" controls></audio>
+      </div>
+
+      <div class="review-details" id="reviewDetails">
+        <!-- Dynamically injected target filenames -->
+      </div>
+
+      <div class="review-actions">
+        <button type="button" id="saveRecordingBtn" class="btn-save">
+          💾 Save Audio & Photo
         </button>
-        <button class="class-btn btn-c03" data-class-id="C03" data-class-name="Truck">
-          <span class="btn-num">[3]</span>
-          <span class="btn-label">Truck / Lorry</span>
-          <span class="btn-sub">Heavy Commercial Low-Pitch</span>
-        </button>
-        <button class="class-btn btn-c04" data-class-id="C04" data-class-name="Private_Car">
-          <span class="btn-num">[4]</span>
-          <span class="btn-label">Private Car</span>
-          <span class="btn-sub">Sedan / SUV / Microbus Pair</span>
-        </button>
-        <button class="class-btn btn-c05" data-class-id="C05" data-class-name="Motorcycle">
-          <span class="btn-num">[5]</span>
-          <span class="btn-label">Motorcycle</span>
-          <span class="btn-sub">Single-Disc High Frequency</span>
-        </button>
-        <button class="class-btn btn-c06" data-class-id="C06" data-class-name="CNG_Autorickshaw">
-          <span class="btn-num">[6]</span>
-          <span class="btn-label">CNG Auto</span>
-          <span class="btn-sub">Piercing 3-Wheeler Buzzer</span>
-        </button>
-        <button class="class-btn btn-c07" data-class-id="C07" data-class-name="Easybike_Leguna">
-          <span class="btn-num">[7]</span>
-          <span class="btn-label">Easybike / Auto</span>
-          <span class="btn-sub">Electric Rickshaw Melody Horn</span>
-        </button>
-        <button class="class-btn btn-c08" data-class-id="C08" data-class-name="Rickshaw_Bell">
-          <span class="btn-num">[8]</span>
-          <span class="btn-label">Rickshaw Bell</span>
-          <span class="btn-sub">Metallic Chime / Bulb Horn</span>
-        </button>
-        <button class="class-btn btn-c09" data-class-id="C09" data-class-name="Background_Traffic_Noise">
-          <span class="btn-num">[9]</span>
-          <span class="btn-label">Traffic Noise</span>
-          <span class="btn-sub">Ambient Rush (Negative Class)</span>
+        <button type="button" id="discardRecordingBtn" class="btn-discard">
+          🗑️ Discard / Retake
         </button>
       </div>
     </section>
 
-    <section class="stats-card">
+    <!-- Stats & Session Actions Card -->
+    <section class="card stats-card">
       <div class="stats-row">
-        <div>Logged Samples: <strong id="sampleCount">0</strong></div>
-        <div style="display:flex;gap:6px;">
-          <button id="installAppBtn" class="action-btn" style="display:none;background:#a6e3a1;color:#11111b;border:none;">📲 Install App</button>
+        <div>Saved Samples: <strong id="sampleCount">0</strong></div>
+        <div class="action-btn-group">
+          <button id="installAppBtn" class="action-btn install-btn" style="display:none;">📲 Install App</button>
           <button id="downloadMetadataBtn" class="action-btn">📥 Export CSV</button>
         </div>
       </div>
-      <div id="latestLog" class="latest-log">Start microphone and tap any class button when horn sounds.</div>
+      <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
     </section>
   </div>
 

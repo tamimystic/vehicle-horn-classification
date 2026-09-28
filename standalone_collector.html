@@ -3,56 +3,531 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Vehicle Horn Data Collector (Standalone Offline)</title>
+  <title>Vehicle Horn Acoustic Data Collector</title>
+  <style>
+/* Catppuccin Mocha Acoustic Data Acquisition Styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #11111b;
+  color: #cdd6f4;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.4;
+  padding: 10px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Header */
+.app-header {
+  background: #181825;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #313244;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-header h1 {
+  font-size: 1.15rem;
+  color: #89b4fa;
+  font-weight: 700;
+}
+
+.badge.zero-dsp {
+  background-color: #a6e3a1;
+  color: #11111b;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  color: #a6adc8;
+  margin-top: 4px;
+}
+
+/* Generic Card */
+.card {
+  background: #181825;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #313244;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fab387;
+}
+
+.pill-btn {
+  background: #313244;
+  color: #89b4fa;
+  border: 1px solid #45475a;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.pill-btn:active {
+  background: #89b4fa;
+  color: #11111b;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.col-1 { grid-column: span 1; }
+.col-2 { grid-column: span 2; }
+.col-3 { grid-column: span 3; }
+
+@media (max-width: 480px) {
+  .col-2, .col-1 { grid-column: span 3; }
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #bac2de;
+  margin-bottom: 3px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  background: #313244;
+  border: 1px solid #45475a;
+  border-radius: 8px;
+  color: #cdd6f4;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.form-group input:focus, .form-group select:focus {
+  border-color: #89b4fa;
+}
+
+/* Meta Footer Row */
+.meta-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px solid #313244;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sample-counters {
+  display: flex;
+  gap: 6px;
+}
+
+.counter-badge {
+  font-size: 0.72rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #313244;
+}
+
+.counter-badge.global strong { color: #a6e3a1; }
+.counter-badge.instance strong { color: #f9e2af; }
+
+.photo-capture-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.photo-btn {
+  background: #313244;
+  color: #89b4fa;
+  border: 1px solid #89b4fa;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.photo-thumb-container {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #a6e3a1;
+}
+
+.photo-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-remove-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(243, 139, 168, 0.9);
+  color: #11111b;
+  border: none;
+  font-size: 10px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Visualizer Card */
+.visualizer-card {
+  padding: 10px;
+}
+
+.vis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+}
+
+.level-indicator {
+  color: #89b4fa;
+  font-weight: 600;
+}
+
+.timer-display {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #f9e2af;
+}
+
+.clipping-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.clipping-badge.clean {
+  background: #313244;
+  color: #a6e3a1;
+}
+
+.clipping-badge.warn {
+  background: #f38ba8;
+  color: #11111b;
+}
+
+#waveformCanvas {
+  width: 100%;
+  height: 60px;
+  background: #11111b;
+  border-radius: 8px;
+  display: block;
+}
+
+/* Central Recording Hub */
+.recording-hub-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+}
+
+.mode-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 0.8rem;
+}
+
+.mode-label {
+  color: #a6adc8;
+  font-weight: 600;
+}
+
+.mode-toggle {
+  display: flex;
+  background: #313244;
+  border-radius: 20px;
+  padding: 3px;
+  border: 1px solid #45475a;
+}
+
+.mode-btn {
+  background: transparent;
+  border: none;
+  color: #a6adc8;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mode-btn.active {
+  background: #89b4fa;
+  color: #11111b;
+  font-weight: 700;
+}
+
+.record-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.main-record-btn {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 4px solid #f38ba8;
+  background: #1e1e2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.1s, border-color 0.2s, background 0.2s;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.main-record-btn:active {
+  transform: scale(0.95);
+}
+
+.main-record-btn.idle .btn-icon {
+  width: 44px;
+  height: 44px;
+  background: #f38ba8;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.main-record-btn.recording {
+  background: #313244;
+  border-color: #f38ba8;
+  animation: pulse-ring 1.5s infinite;
+}
+
+.main-record-btn.recording .btn-icon {
+  width: 34px;
+  height: 34px;
+  background: #f38ba8;
+  border-radius: 6px;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(243, 139, 168, 0.7); }
+  70% { box-shadow: 0 0 0 16px rgba(243, 139, 168, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(243, 139, 168, 0); }
+}
+
+.record-instruction {
+  font-size: 0.75rem;
+  color: #a6adc8;
+  text-align: center;
+  min-height: 18px;
+}
+
+/* Post-Recording Review Card */
+.review-card {
+  border: 2px solid #fab387;
+  background: #1e1e2e;
+  animation: slide-in 0.2s ease-out;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.clip-duration {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #a6e3a1;
+  background: #313244;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.review-hint {
+  font-size: 0.72rem;
+  color: #bac2de;
+  margin-bottom: 10px;
+}
+
+.audio-player-container {
+  margin-bottom: 10px;
+}
+
+.audio-player-container audio {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.review-details {
+  background: #11111b;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: #89b4fa;
+  margin-bottom: 12px;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.review-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-save {
+  flex: 2;
+  background: #a6e3a1;
+  color: #11111b;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-save:active {
+  transform: scale(0.97);
+  filter: brightness(0.9);
+}
+
+.btn-discard {
+  flex: 1;
+  background: #313244;
+  color: #f38ba8;
+  border: 1px solid #f38ba8;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-discard:active {
+  background: #f38ba8;
+  color: #11111b;
+}
+
+/* Stats Card */
+.stats-card {
+  padding: 12px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.action-btn-group {
+  display: flex;
+  gap: 6px;
+}
+
+.action-btn {
+  background: #313244;
+  color: #89b4fa;
+  border: 1px solid #89b4fa;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.action-btn:active {
+  background: #89b4fa;
+  color: #11111b;
+}
+
+.action-btn.install-btn {
+  background: #a6e3a1;
+  color: #11111b;
+  border: none;
+}
+
+.latest-log {
+  font-size: 0.74rem;
+  color: #a6adc8;
+  background: #11111b;
+  padding: 8px 10px;
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+</style>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background-color: #11111b; color: #cdd6f4; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.4; padding: 10px; max-width: 600px; margin: 0 auto; }
-    .app-container { display: flex; flex-direction: column; gap: 12px; }
-    .app-header { background: #181825; padding: 12px 14px; border-radius: 12px; border: 1px solid #313244; }
-    .title-row { display: flex; justify-content: space-between; align-items: center; }
-    .app-header h1 { font-size: 1.15rem; color: #89b4fa; font-weight: 700; }
-    .badge.zero-dsp { background-color: #a6e3a1; color: #11111b; font-size: 0.65rem; font-weight: 800; padding: 3px 6px; border-radius: 4px; }
-    .subtitle { font-size: 0.75rem; color: #a6adc8; margin-top: 4px; }
-    .session-card { background: #181825; padding: 12px; border-radius: 12px; border: 1px solid #313244; }
-    .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .flex-2 { flex: 2; }
-    .flex-1 { flex: 1; }
-    .form-group label { display: block; font-size: 0.75rem; font-weight: 600; color: #bac2de; margin-bottom: 4px; }
-    .form-group input, .form-group select { width: 100%; background: #313244; border: 1px solid #45475a; border-radius: 8px; color: #cdd6f4; padding: 8px 10px; font-size: 0.85rem; outline: none; }
-    .mic-toggle-btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
-    .mic-toggle-btn.start { background: #a6e3a1; color: #11111b; }
-    .mic-toggle-btn.active { background: #f38ba8; color: #11111b; }
-    .visualizer-card { background: #181825; padding: 10px; border-radius: 12px; border: 1px solid #313244; }
-    .vis-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.75rem; }
-    .level-indicator { color: #89b4fa; font-weight: 600; }
-    .clipping-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; }
-    .clipping-badge.clean { background: #313244; color: #a6e3a1; }
-    .clipping-badge.warn { background: #f38ba8; color: #11111b; }
-    #waveformCanvas { width: 100%; height: 60px; background: #11111b; border-radius: 8px; display: block; }
-    .class-grid-section { display: flex; flex-direction: column; gap: 8px; }
-    .section-title { font-size: 0.8rem; font-weight: 700; color: #fab387; padding-left: 2px; }
-    .button-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .class-btn { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 14px 12px; border-radius: 12px; border: 2px solid transparent; background: #181825; color: #cdd6f4; cursor: pointer; min-height: 75px; }
-    .class-btn:active { transform: scale(0.96); filter: brightness(1.3); }
-    .btn-num { font-size: 0.75rem; font-weight: 800; opacity: 0.8; margin-bottom: 2px; }
-    .btn-label { font-size: 0.95rem; font-weight: 700; }
-    .btn-sub { font-size: 0.68rem; color: #a6adc8; margin-top: 2px; }
-    .btn-c01 { border-color: #f38ba8; color: #f38ba8; }
-    .btn-c02 { border-color: #fab387; color: #fab387; }
-    .btn-c03 { border-color: #f9e2af; color: #f9e2af; }
-    .btn-c04 { border-color: #a6e3a1; color: #a6e3a1; }
-    .btn-c05 { border-color: #94e2d5; color: #94e2d5; }
-    .btn-c06 { border-color: #89dceb; color: #89dceb; }
-    .btn-c07 { border-color: #74c7ec; color: #74c7ec; }
-    .btn-c08 { border-color: #b4befe; color: #b4befe; }
-    .btn-c09 { border-color: #cba6f7; color: #cba6f7; grid-column: span 2; }
-    .stats-card { background: #181825; padding: 12px; border-radius: 12px; border: 1px solid #313244; }
-    .stats-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; margin-bottom: 8px; }
-    .action-btn { background: #313244; color: #89b4fa; border: 1px solid #89b4fa; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
-    .latest-log { font-size: 0.75rem; color: #a6adc8; background: #11111b; padding: 8px 10px; border-radius: 6px; word-break: break-all; }
-  </style>
+  <meta name="theme-color" content="#1e1e2e">
 </head>
 <body>
   <div class="app-container">
@@ -61,18 +536,26 @@
         <h1>Vehicle Horn Data Collector</h1>
         <span class="badge zero-dsp">RAW AUDIO (NO AGC)</span>
       </div>
-      <p class="subtitle">Standardized Acoustic Data Acquisition Suite</p>
+      <p class="subtitle">Standardized Acoustic & Multimodal Acquisition Suite</p>
     </header>
 
-    <section class="session-card">
-      <div class="form-row">
-        <div class="form-group flex-2">
+    <!-- Session & Vehicle Metadata Card -->
+    <section class="card metadata-card">
+      <div class="card-header">
+        <span class="card-title">📋 Vehicle & Session Metadata</span>
+        <button id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS Location</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group col-2">
           <label for="locationInput">Location / Site:</label>
-          <input type="text" id="locationInput" value="Gabtoli_Terminal">
+          <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
         </div>
-        <div class="form-group flex-1">
+
+        <div class="form-group col-1">
           <label for="distanceSelect">Distance:</label>
           <select id="distanceSelect">
+            <option value="1m">1 m</option>
             <option value="3m">3 m</option>
             <option value="5m" selected>5 m</option>
             <option value="7m">7 m</option>
@@ -80,297 +563,672 @@
             <option value="15m">15 m</option>
           </select>
         </div>
+
+        <div class="form-group col-3">
+          <label for="vehicleClassSelect">Vehicle Class:</label>
+          <select id="vehicleClassSelect">
+            <option value="Bus" selected>Bus (Pneumatic Air / Dual Electric)</option>
+            <option value="Hydraulic_Horn">Hydraulic Horn (Banned High-SPL >105 dBA)</option>
+            <option value="Truck">Truck / Lorry (Heavy Commercial)</option>
+            <option value="Private_Car">Private Car (Sedan / SUV / Microbus)</option>
+            <option value="Motorcycle">Motorcycle (Single-Disc High Pitch)</option>
+            <option value="CNG_Autorickshaw">CNG Auto (3-Wheeler Buzzer)</option>
+            <option value="Easybike_Leguna">Easybike / Leguna (Melody / Electric)</option>
+            <option value="Rickshaw_Bell">Rickshaw Bell (Metallic Chime)</option>
+            <option value="Background_Traffic">Background Traffic Noise (Negative)</option>
+          </select>
+        </div>
+
+        <div class="form-group col-2">
+          <label for="vehicleModelInput">Vehicle Name & Model:</label>
+          <input type="text" id="vehicleModelInput" value="Hino_AK1J" placeholder="e.g. Hino AK1J, Tata LP 410, Yamaha FZ">
+        </div>
+
+        <div class="form-group col-1">
+          <label for="vehiclePlateInput">Plate / Vehicle ID:</label>
+          <input type="text" id="vehiclePlateInput" value="Dhaka-Metro-Ba-14-8923" placeholder="e.g. DhakaMetro-Ba-14-8923">
+        </div>
       </div>
-      <button id="micBtn" class="mic-toggle-btn start">
-        <span class="mic-icon">🔴</span> <span id="micBtnText">Start Microphone</span>
-      </button>
+
+      <!-- Sample Tracking & Photo Capture Row -->
+      <div class="meta-footer-row">
+        <div class="sample-counters">
+          <div class="counter-badge global">Global ID: <strong id="globalSampleDisplay">BDHORN_0001</strong></div>
+          <div class="counter-badge instance">Instance: <strong id="instanceCounterDisplay">Sample #1</strong></div>
+        </div>
+
+        <div class="photo-capture-box">
+          <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none;">
+          <button type="button" id="snapPhotoBtn" class="action-btn photo-btn">📷 Snap Photo</button>
+          <div id="photoThumbContainer" class="photo-thumb-container" style="display:none;">
+            <img id="photoThumb" class="photo-thumb" alt="Vehicle Photo">
+            <button type="button" id="removePhotoBtn" class="photo-remove-btn" title="Remove photo">✕</button>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="visualizer-card">
+    <!-- Visualizer & Audio Monitor Card -->
+    <section class="card visualizer-card">
       <div class="vis-header">
         <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
-        <span id="clippingBadge" class="clipping-badge clean">SIGNAL CLEAN</span>
+        <span id="recordingTimer" class="timer-display">00:00.0</span>
+        <span id="clippingBadge" class="clipping-badge clean">SIGNAL READY</span>
       </div>
       <canvas id="waveformCanvas"></canvas>
     </section>
 
-    <section class="class-grid-section">
-      <div class="section-title">One-Touch Class Logger:</div>
-      <div class="button-grid">
-        <button class="class-btn btn-c01" data-class-id="C01" data-class-name="Hydraulic_Horn">
-          <span class="btn-num">[1]</span>
-          <span class="btn-label">Hydraulic Horn</span>
-          <span class="btn-sub">Banned High-SPL (>105 dBA)</span>
+    <!-- Central Recording Hub -->
+    <section class="card recording-hub-card">
+      <div class="mode-selector-row">
+        <span class="mode-label">Record Mode:</span>
+        <div class="mode-toggle">
+          <button type="button" id="modeTapBtn" class="mode-btn active">⏺️ Tap to Start / Stop</button>
+          <button type="button" id="modeHoldBtn" class="mode-btn">🤏 Hold to Record</button>
+        </div>
+      </div>
+
+      <div class="record-btn-container">
+        <button type="button" id="mainRecordBtn" class="main-record-btn idle">
+          <div class="btn-icon"></div>
         </button>
-        <button class="class-btn btn-c02" data-class-id="C02" data-class-name="Bus">
-          <span class="btn-num">[2]</span>
-          <span class="btn-label">Bus</span>
-          <span class="btn-sub">Pneumatic Air / Dual Electric</span>
+        <div id="recordInstruction" class="record-instruction">Tap button once when horn starts, tap again when horn stops</div>
+      </div>
+    </section>
+
+    <!-- Post-Recording Review & Quality Control Card -->
+    <section id="reviewSection" class="card review-card" style="display:none;">
+      <div class="review-header">
+        <span class="card-title">🎧 Quality Review Before Saving</span>
+        <span id="clipDurationDisplay" class="clip-duration">--s</span>
+      </div>
+      <p class="review-hint">Listen to the clip to ensure clean horn sound without wind or speech interference:</p>
+      
+      <div class="audio-player-container">
+        <audio id="audioPlayback" controls></audio>
+      </div>
+
+      <div class="review-details" id="reviewDetails">
+        <!-- Dynamically injected target filenames -->
+      </div>
+
+      <div class="review-actions">
+        <button type="button" id="saveRecordingBtn" class="btn-save">
+          💾 Save Audio & Photo
         </button>
-        <button class="class-btn btn-c03" data-class-id="C03" data-class-name="Truck">
-          <span class="btn-num">[3]</span>
-          <span class="btn-label">Truck / Lorry</span>
-          <span class="btn-sub">Heavy Commercial Low-Pitch</span>
-        </button>
-        <button class="class-btn btn-c04" data-class-id="C04" data-class-name="Private_Car">
-          <span class="btn-num">[4]</span>
-          <span class="btn-label">Private Car</span>
-          <span class="btn-sub">Sedan / SUV / Microbus Pair</span>
-        </button>
-        <button class="class-btn btn-c05" data-class-id="C05" data-class-name="Motorcycle">
-          <span class="btn-num">[5]</span>
-          <span class="btn-label">Motorcycle</span>
-          <span class="btn-sub">Single-Disc High Frequency</span>
-        </button>
-        <button class="class-btn btn-c06" data-class-id="C06" data-class-name="CNG_Autorickshaw">
-          <span class="btn-num">[6]</span>
-          <span class="btn-label">CNG Auto</span>
-          <span class="btn-sub">Piercing 3-Wheeler Buzzer</span>
-        </button>
-        <button class="class-btn btn-c07" data-class-id="C07" data-class-name="Easybike_Leguna">
-          <span class="btn-num">[7]</span>
-          <span class="btn-label">Easybike / Auto</span>
-          <span class="btn-sub">Electric Rickshaw Melody Horn</span>
-        </button>
-        <button class="class-btn btn-c08" data-class-id="C08" data-class-name="Rickshaw_Bell">
-          <span class="btn-num">[8]</span>
-          <span class="btn-label">Rickshaw Bell</span>
-          <span class="btn-sub">Metallic Chime / Bulb Horn</span>
-        </button>
-        <button class="class-btn btn-c09" data-class-id="C09" data-class-name="Background_Traffic_Noise">
-          <span class="btn-num">[9]</span>
-          <span class="btn-label">Traffic Noise</span>
-          <span class="btn-sub">Ambient Rush (Negative Class)</span>
+        <button type="button" id="discardRecordingBtn" class="btn-discard">
+          🗑️ Discard / Retake
         </button>
       </div>
     </section>
 
-    <section class="stats-card">
+    <!-- Stats & Session Actions Card -->
+    <section class="card stats-card">
       <div class="stats-row">
-        <div>Logged Samples: <strong id="sampleCount">0</strong></div>
-        <button id="downloadMetadataBtn" class="action-btn">📥 Export CSV</button>
+        <div>Saved Samples: <strong id="sampleCount">0</strong></div>
+        <div class="action-btn-group">
+          <button id="installAppBtn" class="action-btn install-btn" style="display:none;">📲 Install App</button>
+          <button id="downloadMetadataBtn" class="action-btn">📥 Export CSV</button>
+        </div>
       </div>
-      <div id="latestLog" class="latest-log">Start microphone and tap any class button when horn sounds.</div>
+      <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
     </section>
   </div>
 
   <script>
-    let audioContext = null, mediaStream = null, scriptProcessor = null, muteGain = null, isRecording = false;
-    let actualSampleRate = 48000, bufferSize = 0, ringBuffer = null, writeIndex = 0, sampleCount = 0;
-    const BUFFER_DURATION_SEC = 4.0, TOTAL_DURATION_SEC = 3.0, metadataRecords = [];
+/**
+ * Vehicle Horn Acoustic Data Acquisition Engine
+ * Supports dual interaction modes (Tap-to-Toggle and Hold-to-Record),
+ * 7-parameter filename schema, in-app review & quality control,
+ * and multimodal vehicle photo acquisition.
+ */
 
-    const micBtn = document.getElementById("micBtn");
-    const micBtnText = document.getElementById("micBtnText");
-    const locationInput = document.getElementById("locationInput");
-    const distanceSelect = document.getElementById("distanceSelect");
-    const levelIndicator = document.getElementById("levelIndicator");
-    const clippingBadge = document.getElementById("clippingBadge");
-    const canvas = document.getElementById("waveformCanvas");
-    const canvasCtx = canvas.getContext("2d");
-    const sampleCountEl = document.getElementById("sampleCount");
-    const latestLogEl = document.getElementById("latestLog");
-    const downloadMetadataBtn = document.getElementById("downloadMetadataBtn");
+// Application State
+let activeMode = "tap"; // 'tap' or 'hold'
+let isRecording = false;
+let audioContext = null;
+let mediaStream = null;
+let scriptProcessor = null;
+let muteGain = null;
+let actualSampleRate = 48000;
+let recordedChunks = [];
+let recordingStartTime = 0;
+let timerInterval = null;
 
-    function resizeCanvas() {
-      if (canvas) {
-        canvas.width = canvas.clientWidth * window.devicePixelRatio;
-        canvas.height = canvas.clientHeight * window.devicePixelRatio;
-      }
+let currentAudioBlob = null;
+let currentPhotoBlob = null;
+let currentPhotoFileName = null;
+let currentDurationSec = 0;
+let currentPeakDb = -100;
+let currentRmsDb = -100;
+
+let globalSampleIndex = 1;
+const instanceCounters = {}; // Maps `${class}_${model}_${plate}` -> count
+const metadataRecords = [];
+
+// DOM Elements
+const locationInput = document.getElementById("locationInput");
+const distanceSelect = document.getElementById("distanceSelect");
+const vehicleClassSelect = document.getElementById("vehicleClassSelect");
+const vehicleModelInput = document.getElementById("vehicleModelInput");
+const vehiclePlateInput = document.getElementById("vehiclePlateInput");
+const gpsBtn = document.getElementById("gpsBtn");
+
+const globalSampleDisplay = document.getElementById("globalSampleDisplay");
+const instanceCounterDisplay = document.getElementById("instanceCounterDisplay");
+
+const photoFileInput = document.getElementById("photoFileInput");
+const snapPhotoBtn = document.getElementById("snapPhotoBtn");
+const photoThumbContainer = document.getElementById("photoThumbContainer");
+const photoThumb = document.getElementById("photoThumb");
+const removePhotoBtn = document.getElementById("removePhotoBtn");
+
+const levelIndicator = document.getElementById("levelIndicator");
+const recordingTimer = document.getElementById("recordingTimer");
+const clippingBadge = document.getElementById("clippingBadge");
+const canvas = document.getElementById("waveformCanvas");
+const canvasCtx = canvas.getContext("2d");
+
+const modeTapBtn = document.getElementById("modeTapBtn");
+const modeHoldBtn = document.getElementById("modeHoldBtn");
+const mainRecordBtn = document.getElementById("mainRecordBtn");
+const recordInstruction = document.getElementById("recordInstruction");
+
+const reviewSection = document.getElementById("reviewSection");
+const clipDurationDisplay = document.getElementById("clipDurationDisplay");
+const audioPlayback = document.getElementById("audioPlayback");
+const reviewDetails = document.getElementById("reviewDetails");
+const saveRecordingBtn = document.getElementById("saveRecordingBtn");
+const discardRecordingBtn = document.getElementById("discardRecordingBtn");
+
+const sampleCountEl = document.getElementById("sampleCount");
+const downloadMetadataBtn = document.getElementById("downloadMetadataBtn");
+const latestLogEl = document.getElementById("latestLog");
+
+// Canvas Setup
+function resizeCanvas() {
+  if (canvas) {
+    canvas.width = canvas.clientWidth * window.devicePixelRatio;
+    canvas.height = canvas.clientHeight * window.devicePixelRatio;
+  }
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Text Sanitizer (strips forbidden characters for file systems)
+function sanitize(str) {
+  return (str || "").trim().replace(/[^a-zA-Z0-9_-]/g, "_").replace(/_+/g, "_");
+}
+
+function getInstanceKey() {
+  const cls = sanitize(vehicleClassSelect.value);
+  const model = sanitize(vehicleModelInput.value);
+  const plate = sanitize(vehiclePlateInput.value);
+  return `${cls}_${model}_${plate}`;
+}
+
+function updateInstanceCounterDisplay() {
+  const key = getInstanceKey();
+  const nextNum = (instanceCounters[key] || 0) + 1;
+  instanceCounterDisplay.textContent = `Sample #${nextNum}`;
+  globalSampleDisplay.textContent = `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`;
+}
+
+[vehicleClassSelect, vehicleModelInput, vehiclePlateInput].forEach(el => {
+  el.addEventListener("input", updateInstanceCounterDisplay);
+});
+updateInstanceCounterDisplay();
+
+// Geolocation Auto-Detect
+gpsBtn.addEventListener("click", () => {
+  if (!navigator.geolocation) {
+    alert("Geolocation is not supported by your browser.");
+    return;
+  }
+  gpsBtn.textContent = "⏳ Locating...";
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const lat = pos.coords.latitude.toFixed(4);
+      const lon = pos.coords.longitude.toFixed(4);
+      locationInput.value = `GPS_${lat}_${lon}`;
+      gpsBtn.textContent = "📍 GPS Set";
+      setTimeout(() => (gpsBtn.textContent = "📍 GPS Location"), 2500);
+    },
+    (err) => {
+      gpsBtn.textContent = "📍 GPS Failed";
+      alert("GPS Error: " + err.message);
+      setTimeout(() => (gpsBtn.textContent = "📍 GPS Location"), 2000);
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+});
+
+// Photo Capture Handlers
+snapPhotoBtn.addEventListener("click", () => photoFileInput.click());
+
+photoFileInput.addEventListener("change", (e) => {
+  const file = e.target.files && e.target.files[0];
+  if (file) {
+    currentPhotoBlob = file;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      photoThumb.src = ev.target.result;
+      photoThumbContainer.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+removePhotoBtn.addEventListener("click", () => {
+  currentPhotoBlob = null;
+  photoFileInput.value = "";
+  photoThumb.src = "";
+  photoThumbContainer.style.display = "none";
+});
+
+// Mode Switching (Tap vs Hold)
+modeTapBtn.addEventListener("click", () => {
+  activeMode = "tap";
+  modeTapBtn.classList.add("active");
+  modeHoldBtn.classList.remove("active");
+  recordInstruction.textContent = "Tap button once when horn starts, tap again when horn stops";
+});
+
+modeHoldBtn.addEventListener("click", () => {
+  activeMode = "hold";
+  modeHoldBtn.classList.add("active");
+  modeTapBtn.classList.remove("active");
+  recordInstruction.textContent = "Press and hold button while horn sounds, release to stop";
+});
+
+// Dual Interaction Mechanics on Main Record Button
+mainRecordBtn.addEventListener("click", async (e) => {
+  if (activeMode !== "tap") return;
+  e.preventDefault();
+  if (!isRecording) {
+    await startAudioRecording();
+  } else {
+    stopAudioRecording();
+  }
+});
+
+mainRecordBtn.addEventListener("pointerdown", async (e) => {
+  if (activeMode !== "hold") return;
+  e.preventDefault();
+  if (!isRecording) {
+    await startAudioRecording();
+  }
+});
+
+window.addEventListener("pointerup", (e) => {
+  if (activeMode === "hold" && isRecording) {
+    stopAudioRecording();
+  }
+});
+
+window.addEventListener("pointercancel", (e) => {
+  if (activeMode === "hold" && isRecording) {
+    stopAudioRecording();
+  }
+});
+
+// Core Audio Recording Logic
+async function startAudioRecording() {
+  if (reviewSection.style.display === "block") {
+    // If a previous clip is unreviewed, prompt user
+    if (!confirm("Start new recording? Current unreviewed clip will be discarded.")) {
+      return;
     }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    reviewSection.style.display = "none";
+  }
 
-    micBtn.addEventListener("click", async () => {
-      if (!isRecording) await startMicrophone();
-      else stopMicrophone();
-    });
+  try {
+    if (!audioContext || audioContext.state === "closed") {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
 
-    async function startMicrophone() {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert("Microphone API unavailable. In Chrome, access via HTTPS: https://tamimystic.github.io/vehicle-horn-classification/ or open with Firefox.");
-        return;
-      }
+    if (!mediaStream) {
       try {
-        try {
-          mediaStream = await navigator.mediaDevices.getUserMedia({
-            audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: false },
-            video: false
-          });
-        } catch {
-          mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        }
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioContext.state === 'suspended') await audioContext.resume();
-
-        actualSampleRate = audioContext.sampleRate || 48000;
-        bufferSize = Math.floor(actualSampleRate * BUFFER_DURATION_SEC);
-        ringBuffer = new Float32Array(bufferSize);
-        writeIndex = 0;
-
-        const source = audioContext.createMediaStreamSource(mediaStream);
-        scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
-        scriptProcessor.onaudioprocess = (e) => {
-          const input = e.inputBuffer.getChannelData(0);
-          let peak = 0;
-          for (let i = 0; i < input.length; i++) {
-            const absVal = Math.abs(input[i]);
-            if (absVal > peak) peak = absVal;
-            ringBuffer[writeIndex] = input[i];
-            writeIndex = (writeIndex + 1) % bufferSize;
-          }
-          const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
-          updateAudioLevel(peakDb);
-        };
-
-        muteGain = audioContext.createGain();
-        muteGain.gain.value = 0.0;
-        source.connect(scriptProcessor);
-        scriptProcessor.connect(muteGain);
-        muteGain.connect(audioContext.destination);
-
-        isRecording = true;
-        micBtn.classList.remove("start");
-        micBtn.classList.add("active");
-        micBtnText.textContent = `Mic Active (${actualSampleRate} Hz) - Recording`;
-        latestLogEl.textContent = "Mic active! Click any button upon hearing a horn.";
-        requestAnimationFrame(renderWaveform);
-      } catch (err) {
-        alert("Microphone access error: " + err.message + ". Please ensure microphone permission is granted.");
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: { autoGainControl: false, noiseSuppression: false, echoCancellation: false },
+          video: false
+        });
+      } catch {
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       }
     }
 
-    function stopMicrophone() {
-      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
-      if (scriptProcessor) scriptProcessor.disconnect();
-      if (muteGain) muteGain.disconnect();
-      if (audioContext) audioContext.close();
-      isRecording = false;
-      micBtn.classList.remove("active");
-      micBtn.classList.add("start");
-      micBtnText.textContent = "Start Microphone";
-      levelIndicator.textContent = "Peak: -- dBFS";
-      clippingBadge.textContent = "SIGNAL OFF";
-      clippingBadge.className = "clipping-badge clean";
-    }
+    actualSampleRate = audioContext.sampleRate || 48000;
+    recordedChunks = [];
 
-    function updateAudioLevel(peakDb) {
-      levelIndicator.textContent = `Peak: ${peakDb.toFixed(1)} dBFS`;
-      if (peakDb >= -0.5) {
-        clippingBadge.textContent = "! CLIPPING WARN !";
-        clippingBadge.className = "clipping-badge warn";
-      } else {
-        clippingBadge.textContent = "SIGNAL CLEAN";
-        clippingBadge.className = "clipping-badge clean";
-      }
-    }
+    const source = audioContext.createMediaStreamSource(mediaStream);
+    scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
-    function renderWaveform() {
-      if (!isRecording || !ringBuffer) return;
-      const width = canvas.width, height = canvas.height;
-      canvasCtx.clearRect(0, 0, width, height);
-      canvasCtx.lineWidth = 2 * window.devicePixelRatio;
-      canvasCtx.strokeStyle = "#89b4fa";
-      canvasCtx.beginPath();
+    scriptProcessor.onaudioprocess = (e) => {
+      if (!isRecording) return;
+      const input = e.inputBuffer.getChannelData(0);
+      recordedChunks.push(new Float32Array(input));
 
-      const sliceCount = 300, step = Math.floor(bufferSize / sliceCount), sliceWidth = width / sliceCount;
-      let x = 0;
-      for (let i = 0; i < sliceCount; i++) {
-        const idx = (writeIndex - (sliceCount - i) * step + bufferSize) % bufferSize;
-        const y = (0.5 + ringBuffer[idx] * 0.45) * height;
-        if (i === 0) canvasCtx.moveTo(x, y);
-        else canvasCtx.lineTo(x, y);
-        x += sliceWidth;
-      }
-      canvasCtx.stroke();
-      requestAnimationFrame(renderWaveform);
-    }
-
-    document.querySelectorAll(".class-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (!isRecording) { alert("Please start the microphone first!"); return; }
-        captureHornEvent(btn.getAttribute("data-class-id"), btn.getAttribute("data-class-name"));
-      });
-    });
-
-    function captureHornEvent(classId, className) {
-      sampleCount++;
-      sampleCountEl.textContent = sampleCount;
-      const totalSamples = Math.floor(TOTAL_DURATION_SEC * actualSampleRate);
-      const audio = new Float32Array(totalSamples);
-      for (let i = 0; i < totalSamples; i++) {
-        audio[i] = ringBuffer[(writeIndex - totalSamples + i + bufferSize) % bufferSize];
-      }
-
-      let peak = 0, sumSq = 0;
-      for (let i = 0; i < totalSamples; i++) {
-        const absVal = Math.abs(audio[i]);
+      let peak = 0;
+      for (let i = 0; i < input.length; i++) {
+        const absVal = Math.abs(input[i]);
         if (absVal > peak) peak = absVal;
-        sumSq += absVal * absVal;
       }
       const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
-      const rmsDb = sumSq > 0 ? 10 * Math.log10(sumSq / totalSamples) : -100;
+      updateAudioLevel(peakDb);
+    };
 
-      const now = new Date();
-      const timeStr = now.toISOString().replace(/[:.]/g, "-");
-      const loc = (locationInput.value || "Field").trim().replace(/\s+/g, "_");
-      const dist = distanceSelect.value;
-      const filename = `BDHORN_${classId}_${className.toUpperCase()}_${loc}_${timeStr}_${String(sampleCount).padStart(4, '0')}.wav`;
+    muteGain = audioContext.createGain();
+    muteGain.gain.value = 0.0;
+    source.connect(scriptProcessor);
+    scriptProcessor.connect(muteGain);
+    muteGain.connect(audioContext.destination);
 
-      downloadBlob(encodeWAV(audio, actualSampleRate), filename);
-      metadataRecords.push({
-        sample_id: `BDHORN_${String(sampleCount).padStart(4, '0')}`,
-        filename, class_id: classId, vehicle_class: className,
-        timestamp: now.toISOString(), location: loc, distance_m: dist,
-        peak_dbfs: peakDb.toFixed(2), rms_dbfs: rmsDb.toFixed(2),
-        duration_sec: TOTAL_DURATION_SEC, sample_rate: actualSampleRate
+    isRecording = true;
+    recordingStartTime = performance.now();
+
+    mainRecordBtn.classList.remove("idle");
+    mainRecordBtn.classList.add("recording");
+    recordInstruction.textContent = activeMode === "tap" ? "Recording... Tap again to STOP" : "Recording... Release to STOP";
+
+    // Start Live Timer
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      const elapsed = (performance.now() - recordingStartTime) / 1000;
+      const mins = Math.floor(elapsed / 60);
+      const secs = (elapsed % 60).toFixed(1);
+      recordingTimer.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(4, "0")}`;
+    }, 50);
+
+    requestAnimationFrame(renderWaveform);
+  } catch (err) {
+    alert("Microphone Error: " + err.message);
+  }
+}
+
+function stopAudioRecording() {
+  if (!isRecording) return;
+  isRecording = false;
+  clearInterval(timerInterval);
+
+  mainRecordBtn.classList.remove("recording");
+  mainRecordBtn.classList.add("idle");
+  recordInstruction.textContent = activeMode === "tap"
+    ? "Tap button once when horn starts, tap again when horn stops"
+    : "Press and hold button while horn sounds, release to stop";
+
+  if (scriptProcessor) {
+    scriptProcessor.disconnect();
+    scriptProcessor = null;
+  }
+  if (muteGain) {
+    muteGain.disconnect();
+    muteGain = null;
+  }
+
+  // Flatten recorded Float32Array chunks
+  let totalLength = 0;
+  for (const chunk of recordedChunks) totalLength += chunk.length;
+  const mergedAudio = new Float32Array(totalLength);
+  let offset = 0;
+  for (const chunk of recordedChunks) {
+    mergedAudio.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  currentDurationSec = mergedAudio.length / actualSampleRate;
+  if (currentDurationSec < 0.1) {
+    latestLogEl.textContent = "Clip too short (<0.1s). Ignored.";
+    return;
+  }
+
+  // Audio Stats
+  let peak = 0, sumSq = 0;
+  for (let i = 0; i < mergedAudio.length; i++) {
+    const val = Math.abs(mergedAudio[i]);
+    if (val > peak) peak = val;
+    sumSq += val * val;
+  }
+  currentPeakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
+  currentRmsDb = sumSq > 0 ? 10 * Math.log10(sumSq / mergedAudio.length) : -100;
+
+  // Encode to WAV Blob
+  currentAudioBlob = encodeWAV(mergedAudio, actualSampleRate);
+
+  // Load into Review Player
+  const audioUrl = URL.createObjectURL(currentAudioBlob);
+  audioPlayback.src = audioUrl;
+  clipDurationDisplay.textContent = `${currentDurationSec.toFixed(2)}s`;
+
+  // Compute Target Filenames for Review Details
+  const now = new Date();
+  const timeStr = formatTimestamp(now);
+  const sampleId = `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`;
+  const key = getInstanceKey();
+  const instanceNum = (instanceCounters[key] || 0) + 1;
+  const instanceId = `S${String(instanceNum).padStart(2, "0")}`;
+  const loc = sanitize(locationInput.value || "Field");
+  const dist = distanceSelect.value;
+  const cls = sanitize(vehicleClassSelect.value);
+  const model = sanitize(vehicleModelInput.value || "Unknown");
+  const plate = sanitize(vehiclePlateInput.value || "Unknown");
+
+  const baseFileName = `${sampleId}_${instanceId}_${loc}_${dist}_${cls}_${model}_${plate}_${timeStr}`;
+  const wavName = `${baseFileName}.wav`;
+  const photoName = `${baseFileName}.jpg`;
+
+  reviewDetails.innerHTML = `
+    <div><strong>Target Audio:</strong> ${wavName}</div>
+    ${currentPhotoBlob ? `<div><strong>Target Photo:</strong> ${photoName}</div>` : `<div style="color:#a6adc8;">(No vehicle photo attached)</div>`}
+  `;
+
+  // Display review section
+  reviewSection.style.display = "block";
+  reviewSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function updateAudioLevel(peakDb) {
+  levelIndicator.textContent = `Peak: ${peakDb.toFixed(1)} dBFS`;
+  if (peakDb >= -0.5) {
+    clippingBadge.textContent = "! CLIPPING WARN !";
+    clippingBadge.className = "clipping-badge warn";
+  } else if (peakDb > -6.0) {
+    clippingBadge.textContent = "HIGH LEVEL";
+    clippingBadge.className = "clipping-badge clean";
+  } else {
+    clippingBadge.textContent = "SIGNAL CLEAN";
+    clippingBadge.className = "clipping-badge clean";
+  }
+}
+
+function renderWaveform() {
+  if (!isRecording) return;
+  const width = canvas.width, height = canvas.height;
+  canvasCtx.clearRect(0, 0, width, height);
+  canvasCtx.lineWidth = 2 * window.devicePixelRatio;
+  canvasCtx.strokeStyle = "#89b4fa";
+  canvasCtx.beginPath();
+
+  if (recordedChunks.length > 0) {
+    const lastChunk = recordedChunks[recordedChunks.length - 1];
+    const sliceWidth = width / lastChunk.length;
+    let x = 0;
+    for (let i = 0; i < lastChunk.length; i += 4) {
+      const y = (0.5 + lastChunk[i] * 0.45) * height;
+      if (i === 0) canvasCtx.moveTo(x, y);
+      else canvasCtx.lineTo(x, y);
+      x += sliceWidth * 4;
+    }
+  }
+  canvasCtx.stroke();
+  requestAnimationFrame(renderWaveform);
+}
+
+// Review Section Actions
+discardRecordingBtn.addEventListener("click", () => {
+  currentAudioBlob = null;
+  audioPlayback.src = "";
+  reviewSection.style.display = "none";
+  recordingTimer.textContent = "00:00.0";
+  latestLogEl.innerHTML = `<span style="color:#f38ba8;">Clip discarded. Ready for retake.</span>`;
+});
+
+saveRecordingBtn.addEventListener("click", () => {
+  if (!currentAudioBlob) return;
+
+  const now = new Date();
+  const timeStr = formatTimestamp(now);
+  const sampleId = `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`;
+  const key = getInstanceKey();
+  const instanceNum = (instanceCounters[key] || 0) + 1;
+  const instanceId = `S${String(instanceNum).padStart(2, "0")}`;
+  const loc = sanitize(locationInput.value || "Field");
+  const dist = distanceSelect.value;
+  const cls = sanitize(vehicleClassSelect.value);
+  const model = sanitize(vehicleModelInput.value || "Unknown");
+  const plate = sanitize(vehiclePlateInput.value || "Unknown");
+
+  const baseFileName = `${sampleId}_${instanceId}_${loc}_${dist}_${cls}_${model}_${plate}_${timeStr}`;
+  const wavFileName = `${baseFileName}.wav`;
+  const photoFileName = currentPhotoBlob ? `${baseFileName}.jpg` : "";
+
+  // 1. Download WAV
+  downloadBlob(currentAudioBlob, wavFileName);
+
+  // 2. Download Photo if attached
+  if (currentPhotoBlob) {
+    downloadBlob(currentPhotoBlob, photoFileName);
+  }
+
+  // 3. Update Counters & Metadata
+  instanceCounters[key] = instanceNum;
+  globalSampleIndex++;
+  updateInstanceCounterDisplay();
+
+  const record = {
+    sample_id: sampleId,
+    instance_id: instanceId,
+    vehicle_class: cls,
+    vehicle_model: model,
+    license_plate: plate,
+    location: loc,
+    distance_m: dist,
+    duration_sec: currentDurationSec.toFixed(2),
+    peak_dbfs: currentPeakDb.toFixed(2),
+    rms_dbfs: currentRmsDb.toFixed(2),
+    sample_rate: actualSampleRate,
+    audio_filename: wavFileName,
+    photo_filename: photoFileName,
+    timestamp: now.toISOString()
+  };
+  metadataRecords.push(record);
+
+  sampleCountEl.textContent = metadataRecords.length;
+  latestLogEl.innerHTML = `Saved (#${metadataRecords.length}): <b>${wavFileName}</b>`;
+  latestLogEl.style.color = "#a6e3a1";
+
+  // Reset Review State
+  currentAudioBlob = null;
+  audioPlayback.src = "";
+  reviewSection.style.display = "none";
+  recordingTimer.textContent = "00:00.0";
+});
+
+// Format Timestamp Helper: YYYYMMDD_HHMMSS
+function formatTimestamp(d) {
+  const pad = (n) => String(n).padStart(2, "0");
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const day = pad(d.getDate());
+  const h = pad(d.getHours());
+  const min = pad(d.getMinutes());
+  const s = pad(d.getSeconds());
+  return `${y}${m}${day}_${h}${min}${s}`;
+}
+
+// WAV Encoder
+function encodeWAV(samples, sampleRate) {
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(buffer);
+  const writeStr = (offset, str) => {
+    for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+  };
+
+  writeStr(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  writeStr(8, "WAVE");
+  writeStr(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // Mono
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeStr(36, "data");
+  view.setUint32(40, samples.length * 2, true);
+
+  let offset = 44;
+  for (let i = 0; i < samples.length; i++, offset += 2) {
+    const s = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+  }
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+// File Download Helper
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.style.display = "none";
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 300);
+}
+
+// Metadata CSV Export
+downloadMetadataBtn.addEventListener("click", () => {
+  if (metadataRecords.length === 0) {
+    alert("No recordings saved in this session yet.");
+    return;
+  }
+  const headers = Object.keys(metadataRecords[0]);
+  const rows = [headers.join(",")];
+  for (const r of metadataRecords) {
+    rows.push(headers.map((h) => `"${r[h] || ""}"`).join(","));
+  }
+  const csvBlob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
+  downloadBlob(csvBlob, `metadata_session_${formatTimestamp(new Date())}.csv`);
+});
+
+</script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
-      latestLogEl.innerHTML = `Saved (#${sampleCount}): <b>${filename}</b>`;
-      latestLogEl.style.color = "#a6e3a1";
     }
-
-    function encodeWAV(samples, sampleRate) {
-      const buffer = new ArrayBuffer(44 + samples.length * 2);
-      const view = new DataView(buffer);
-      const writeStr = (offset, str) => { for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i)); };
-      writeStr(0, 'RIFF');
-      view.setUint32(4, 36 + samples.length * 2, true);
-      writeStr(8, 'WAVE');
-      writeStr(12, 'fmt ');
-      view.setUint32(16, 16, true);
-      view.setUint16(20, 1, true);
-      view.setUint16(22, 1, true);
-      view.setUint32(24, sampleRate, true);
-      view.setUint32(28, sampleRate * 2, true);
-      view.setUint16(32, 2, true);
-      view.setUint16(34, 16, true);
-      writeStr(36, 'data');
-      view.setUint32(40, samples.length * 2, true);
-
-      let offset = 44;
-      for (let i = 0; i < samples.length; i++, offset += 2) {
-        const s = Math.max(-1, Math.min(1, samples[i]));
-        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    let deferredPrompt;
+    const installBtn = document.getElementById('installAppBtn');
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installBtn) {
+        installBtn.style.display = 'inline-block';
+        installBtn.addEventListener('click', () => {
+          installBtn.style.display = 'none';
+          deferredPrompt.prompt();
+          deferredPrompt = null;
+        });
       }
-      return new Blob([buffer], { type: 'audio/wav' });
-    }
-
-    function downloadBlob(blob, filename) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.style.display = "none";
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 200);
-    }
-
-    downloadMetadataBtn.addEventListener("click", () => {
-      if (metadataRecords.length === 0) { alert("No recordings captured yet."); return; }
-      const headers = Object.keys(metadataRecords[0]);
-      const rows = [headers.join(",")];
-      for (const r of metadataRecords) rows.push(headers.map(h => `"${r[h] || ""}"`).join(","));
-      downloadBlob(new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" }), `metadata_session_${new Date().toISOString().slice(0, 10)}.csv`);
     });
   </script>
 </body>
