@@ -95,11 +95,24 @@ body {
   font-weight: 600;
   border-radius: 12px;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .pill-btn:active {
   background: #89b4fa;
   color: #11111b;
+}
+
+.mic-arm-btn {
+  background: #313244;
+  color: #fab387;
+  border: 1px solid #fab387;
+}
+
+.mic-arm-btn.armed {
+  background: #181825;
+  color: #a6e3a1;
+  border: 1px solid #a6e3a1;
 }
 
 /* Form Grid */
@@ -227,6 +240,8 @@ body {
   align-items: center;
   margin-bottom: 6px;
   font-size: 0.75rem;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .level-indicator {
@@ -613,6 +628,7 @@ body {
       <div class="vis-header">
         <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
         <span id="recordingTimer" class="timer-display">00:00.0</span>
+        <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">🎤 Arm Mic</button>
         <span id="clippingBadge" class="clipping-badge clean">SIGNAL READY</span>
       </div>
       <canvas id="waveformCanvas"></canvas>
@@ -677,27 +693,28 @@ body {
 
   <script>
 /**
- * Vehicle Horn Acoustic Data Acquisition Engine
- * Supports dual interaction modes (Tap-to-Toggle and Hold-to-Record),
- * 7-parameter filename schema, in-app review & quality control,
- * and multimodal vehicle photo acquisition.
+ * Vehicle Horn Acoustic Data Acquisition Engine - Step 2 Audio & Gesture Engine
+ * Implements zero-latency microphone pre-arming, pointer capture gesture stabilization,
+ * haptic vibration feedback, real-time waveform monitoring, DC-offset acoustic filtering,
+ * 7-parameter filename generation, and in-app quality review.
  */
 
 // Application State
 let activeMode = "tap"; // 'tap' or 'hold'
 let isRecording = false;
+let isMicArmed = false;
 let audioContext = null;
 let mediaStream = null;
 let scriptProcessor = null;
 let muteGain = null;
 let actualSampleRate = 48000;
 let recordedChunks = [];
+let liveMonitoringBuffer = new Float32Array(512);
 let recordingStartTime = 0;
 let timerInterval = null;
 
 let currentAudioBlob = null;
 let currentPhotoBlob = null;
-let currentPhotoFileName = null;
 let currentDurationSec = 0;
 let currentPeakDb = -100;
 let currentRmsDb = -100;
@@ -723,6 +740,7 @@ const photoThumbContainer = document.getElementById("photoThumbContainer");
 const photoThumb = document.getElementById("photoThumb");
 const removePhotoBtn = document.getElementById("removePhotoBtn");
 
+const armMicBtn = document.getElementById("armMicBtn");
 const levelIndicator = document.getElementById("levelIndicator");
 const recordingTimer = document.getElementById("recordingTimer");
 const clippingBadge = document.getElementById("clippingBadge");
@@ -744,6 +762,9 @@ const discardRecordingBtn = document.getElementById("discardRecordingBtn");
 const sampleCountEl = document.getElementById("sampleCount");
 const downloadMetadataBtn = document.getElementById("downloadMetadataBtn");
 const latestLogEl = document.getElementById("latestLog");
+
+// Prevent mobile context menu on long press
+mainRecordBtn.addEventListener("contextmenu", (e) => e.preventDefault());
 
 // Canvas Setup
 function resizeCanvas() {
@@ -774,7 +795,7 @@ function updateInstanceCounterDisplay() {
   globalSampleDisplay.textContent = `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`;
 }
 
-[vehicleClassSelect, vehicleModelInput, vehiclePlateInput].forEach(el => {
+[vehicleClassSelect, vehicleModelInput, vehiclePlateInput].forEach((el) => {
   el.addEventListener("input", updateInstanceCounterDisplay);
 });
 updateInstanceCounterDisplay();
@@ -841,47 +862,17 @@ modeHoldBtn.addEventListener("click", () => {
   recordInstruction.textContent = "Press and hold button while horn sounds, release to stop";
 });
 
-// Dual Interaction Mechanics on Main Record Button
-mainRecordBtn.addEventListener("click", async (e) => {
-  if (activeMode !== "tap") return;
-  e.preventDefault();
-  if (!isRecording) {
-    await startAudioRecording();
-  } else {
-    stopAudioRecording();
-  }
-});
-
-mainRecordBtn.addEventListener("pointerdown", async (e) => {
-  if (activeMode !== "hold") return;
-  e.preventDefault();
-  if (!isRecording) {
-    await startAudioRecording();
-  }
-});
-
-window.addEventListener("pointerup", (e) => {
-  if (activeMode === "hold" && isRecording) {
-    stopAudioRecording();
-  }
-});
-
-window.addEventListener("pointercancel", (e) => {
-  if (activeMode === "hold" && isRecording) {
-    stopAudioRecording();
-  }
-});
-
-// Core Audio Recording Logic
-async function startAudioRecording() {
-  if (reviewSection.style.display === "block") {
-    // If a previous clip is unreviewed, prompt user
-    if (!confirm("Start new recording? Current unreviewed clip will be discarded.")) {
-      return;
+// Zero-Latency Microphone Pre-warming (Arming)
+if (armMicBtn) {
+  armMicBtn.addEventListener("click", async () => {
+    if (!isMicArmed) {
+      await preArmMicrophone();
     }
-    reviewSection.style.display = "none";
-  }
+  });
+}
 
+async function preArmMicrophone() {
+  if (isMicArmed) return true;
   try {
     if (!audioContext || audioContext.state === "closed") {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -902,15 +893,12 @@ async function startAudioRecording() {
     }
 
     actualSampleRate = audioContext.sampleRate || 48000;
-    recordedChunks = [];
-
     const source = audioContext.createMediaStreamSource(mediaStream);
     scriptProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
     scriptProcessor.onaudioprocess = (e) => {
-      if (!isRecording) return;
       const input = e.inputBuffer.getChannelData(0);
-      recordedChunks.push(new Float32Array(input));
+      liveMonitoringBuffer = input;
 
       let peak = 0;
       for (let i = 0; i < input.length; i++) {
@@ -919,6 +907,10 @@ async function startAudioRecording() {
       }
       const peakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
       updateAudioLevel(peakDb);
+
+      if (isRecording) {
+        recordedChunks.push(new Float32Array(input));
+      }
     };
 
     muteGain = audioContext.createGain();
@@ -927,26 +919,99 @@ async function startAudioRecording() {
     scriptProcessor.connect(muteGain);
     muteGain.connect(audioContext.destination);
 
-    isRecording = true;
-    recordingStartTime = performance.now();
-
-    mainRecordBtn.classList.remove("idle");
-    mainRecordBtn.classList.add("recording");
-    recordInstruction.textContent = activeMode === "tap" ? "Recording... Tap again to STOP" : "Recording... Release to STOP";
-
-    // Start Live Timer
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      const elapsed = (performance.now() - recordingStartTime) / 1000;
-      const mins = Math.floor(elapsed / 60);
-      const secs = (elapsed % 60).toFixed(1);
-      recordingTimer.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(4, "0")}`;
-    }, 50);
-
+    isMicArmed = true;
+    if (armMicBtn) {
+      armMicBtn.textContent = "🟢 Mic Armed (0ms)";
+      armMicBtn.classList.add("armed");
+    }
     requestAnimationFrame(renderWaveform);
+    return true;
   } catch (err) {
+    if (armMicBtn) armMicBtn.textContent = "❌ Mic Error";
     alert("Microphone Error: " + err.message);
+    return false;
   }
+}
+
+// Dual Interaction Mechanics with Pointer Capture
+let isPointerHeld = false;
+
+mainRecordBtn.addEventListener("click", async (e) => {
+  if (activeMode !== "tap") return;
+  e.preventDefault();
+  if (!isRecording) {
+    await startAudioRecording();
+  } else {
+    stopAudioRecording();
+  }
+});
+
+mainRecordBtn.addEventListener("pointerdown", async (e) => {
+  if (activeMode !== "hold") return;
+  e.preventDefault();
+  isPointerHeld = true;
+  try {
+    mainRecordBtn.setPointerCapture(e.pointerId);
+  } catch {}
+  await startAudioRecording();
+});
+
+mainRecordBtn.addEventListener("pointerup", (e) => {
+  if (activeMode !== "hold") return;
+  e.preventDefault();
+  if (isPointerHeld) {
+    isPointerHeld = false;
+    try {
+      mainRecordBtn.releasePointerCapture(e.pointerId);
+    } catch {}
+    if (isRecording) stopAudioRecording();
+  }
+});
+
+mainRecordBtn.addEventListener("pointercancel", (e) => {
+  if (activeMode !== "hold") return;
+  if (isPointerHeld) {
+    isPointerHeld = false;
+    try {
+      mainRecordBtn.releasePointerCapture(e.pointerId);
+    } catch {}
+    if (isRecording) stopAudioRecording();
+  }
+});
+
+// Core Audio Recording Logic
+async function startAudioRecording() {
+  if (reviewSection.style.display === "block") {
+    reviewSection.style.display = "none";
+  }
+
+  // Ensure mic is armed
+  if (!isMicArmed) {
+    const ok = await preArmMicrophone();
+    if (!ok) return;
+  }
+
+  recordedChunks = [];
+  isRecording = true;
+  recordingStartTime = performance.now();
+
+  // Haptic feedback (short buzz on start)
+  if (navigator.vibrate) {
+    try { navigator.vibrate(40); } catch {}
+  }
+
+  mainRecordBtn.classList.remove("idle");
+  mainRecordBtn.classList.add("recording");
+  recordInstruction.textContent = activeMode === "tap" ? "Recording... Tap again to STOP" : "Recording... Release to STOP";
+
+  // Start Live Timer
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const elapsed = (performance.now() - recordingStartTime) / 1000;
+    const mins = Math.floor(elapsed / 60);
+    const secs = (elapsed % 60).toFixed(1);
+    recordingTimer.textContent = `${String(mins).padStart(2, "0")}:${String(secs).padStart(4, "0")}`;
+  }, 50);
 }
 
 function stopAudioRecording() {
@@ -954,20 +1019,16 @@ function stopAudioRecording() {
   isRecording = false;
   clearInterval(timerInterval);
 
+  // Haptic feedback (double buzz on stop)
+  if (navigator.vibrate) {
+    try { navigator.vibrate([30, 40, 30]); } catch {}
+  }
+
   mainRecordBtn.classList.remove("recording");
   mainRecordBtn.classList.add("idle");
   recordInstruction.textContent = activeMode === "tap"
     ? "Tap button once when horn starts, tap again when horn stops"
     : "Press and hold button while horn sounds, release to stop";
-
-  if (scriptProcessor) {
-    scriptProcessor.disconnect();
-    scriptProcessor = null;
-  }
-  if (muteGain) {
-    muteGain.disconnect();
-    muteGain = null;
-  }
 
   // Flatten recorded Float32Array chunks
   let totalLength = 0;
@@ -985,7 +1046,17 @@ function stopAudioRecording() {
     return;
   }
 
-  // Audio Stats
+  // Remove DC Offset (1st order High-Pass filter R=0.995)
+  let prevX = 0, prevY = 0;
+  for (let i = 0; i < mergedAudio.length; i++) {
+    const x = mergedAudio[i];
+    const y = x - prevX + 0.995 * prevY;
+    prevX = x;
+    prevY = y;
+    mergedAudio[i] = y;
+  }
+
+  // Compute True Peak & RMS dBFS
   let peak = 0, sumSq = 0;
   for (let i = 0; i < mergedAudio.length; i++) {
     const val = Math.abs(mergedAudio[i]);
@@ -995,7 +1066,7 @@ function stopAudioRecording() {
   currentPeakDb = peak > 1e-6 ? 20 * Math.log10(peak) : -100;
   currentRmsDb = sumSq > 0 ? 10 * Math.log10(sumSq / mergedAudio.length) : -100;
 
-  // Encode to WAV Blob
+  // Encode to uncompressed 16-bit WAV Blob
   currentAudioBlob = encodeWAV(mergedAudio, actualSampleRate);
 
   // Load into Review Player
@@ -1003,7 +1074,7 @@ function stopAudioRecording() {
   audioPlayback.src = audioUrl;
   clipDurationDisplay.textContent = `${currentDurationSec.toFixed(2)}s`;
 
-  // Compute Target Filenames for Review Details
+  // Compute Target Filenames
   const now = new Date();
   const timeStr = formatTimestamp(now);
   const sampleId = `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`;
@@ -1045,22 +1116,22 @@ function updateAudioLevel(peakDb) {
 }
 
 function renderWaveform() {
-  if (!isRecording) return;
+  if (!isMicArmed) return;
   const width = canvas.width, height = canvas.height;
   canvasCtx.clearRect(0, 0, width, height);
   canvasCtx.lineWidth = 2 * window.devicePixelRatio;
-  canvasCtx.strokeStyle = "#89b4fa";
+  canvasCtx.strokeStyle = isRecording ? "#f38ba8" : "#89b4fa";
   canvasCtx.beginPath();
 
-  if (recordedChunks.length > 0) {
-    const lastChunk = recordedChunks[recordedChunks.length - 1];
-    const sliceWidth = width / lastChunk.length;
+  const buf = liveMonitoringBuffer;
+  if (buf && buf.length > 0) {
+    const sliceWidth = width / buf.length;
     let x = 0;
-    for (let i = 0; i < lastChunk.length; i += 4) {
-      const y = (0.5 + lastChunk[i] * 0.45) * height;
+    for (let i = 0; i < buf.length; i += 2) {
+      const y = (0.5 + buf[i] * 0.45) * height;
       if (i === 0) canvasCtx.moveTo(x, y);
       else canvasCtx.lineTo(x, y);
-      x += sliceWidth * 4;
+      x += sliceWidth * 2;
     }
   }
   canvasCtx.stroke();
@@ -1149,7 +1220,7 @@ function formatTimestamp(d) {
   return `${y}${m}${day}_${h}${min}${s}`;
 }
 
-// WAV Encoder
+// WAV Encoder (16-bit PCM RIFF format)
 function encodeWAV(samples, sampleRate) {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
   const view = new DataView(buffer);

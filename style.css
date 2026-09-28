@@ -88,11 +88,24 @@ body {
   font-weight: 600;
   border-radius: 12px;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .pill-btn:active {
   background: #89b4fa;
   color: #11111b;
+}
+
+.mic-arm-btn {
+  background: #313244;
+  color: #fab387;
+  border: 1px solid #fab387;
+}
+
+.mic-arm-btn.armed {
+  background: #181825;
+  color: #a6e3a1;
+  border: 1px solid #a6e3a1;
 }
 
 /* Form Grid */
@@ -220,6 +233,8 @@ body {
   align-items: center;
   margin-bottom: 6px;
   font-size: 0.75rem;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .level-indicator {
