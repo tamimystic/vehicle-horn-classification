@@ -45,6 +45,9 @@ Thumbs.db
 *.log
 acoustic_collector/logs/*.log
 
-# Dataset audio files (Optional: keep large raw WAVs out of git repo, track with Git LFS or external drive)
-# Uncomment the line below if raw data exceeds GitHub's 100MB limit:
-# data/01_raw_field_recordings/*.wav
+# Dataset audio and photo files (keep large binary files out of git)
+Dataset/**/*.wav
+Dataset/**/*.jpg
+!Dataset/**/.gitkeep
+data/01_raw_field_recordings/*.wav
+data/02_segmented_events/*.wav

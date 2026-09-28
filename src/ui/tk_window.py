@@ -15,8 +15,8 @@ class TkMainWindow:
         self.key_to_class = {c["key_shortcut"]: c for c in self.classes_data}
 
         self.root = tk.Tk()
-        self.root.title("Vehicle Horn Acoustic Data Collector")
-        self.root.geometry("850x660")
+        self.root.title("Vehicle Horn Acoustic Data Collector (Desktop Suite)")
+        self.root.geometry("900x680")
         self.root.configure(bg="#1e1e2e")
 
         self.init_ui()
@@ -30,25 +30,30 @@ class TkMainWindow:
         header = tk.Frame(self.root, bg="#181825", padx=15, pady=10)
         header.pack(fill=tk.X, padx=10, pady=8)
         tk.Label(header, text="Vehicle Horn Acoustic Data Collector", font=("Segoe UI", 16, "bold"), fg="#89b4fa", bg="#181825").pack(side=tk.LEFT)
-        tk.Label(header, text="ZERO-DSP (RAW PCM)", font=("Segoe UI", 9, "bold"), fg="#11111b", bg="#a6e3a1", padx=8, pady=2).pack(side=tk.RIGHT)
+        tk.Label(header, text="DUAL-LAYER DATASET", font=("Segoe UI", 9, "bold"), fg="#11111b", bg="#a6e3a1", padx=8, pady=2).pack(side=tk.RIGHT)
 
-        params = tk.LabelFrame(self.root, text=" Session Parameters ", font=("Segoe UI", 10, "bold"), fg="#89b4fa", bg="#181825", padx=12, pady=8)
+        params = tk.LabelFrame(self.root, text=" Vehicle & Session Parameters ", font=("Segoe UI", 10, "bold"), fg="#89b4fa", bg="#181825", padx=12, pady=8)
         params.pack(fill=tk.X, padx=10, pady=4)
 
         tk.Label(params, text="Location:", fg="#cdd6f4", bg="#181825").grid(row=0, column=0, padx=4, pady=4, sticky=tk.W)
-        self.loc_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=22)
+        self.loc_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=18)
         self.loc_entry.insert(0, "Gabtoli_Terminal")
         self.loc_entry.grid(row=0, column=1, padx=4, pady=4)
 
         tk.Label(params, text="Distance:", fg="#cdd6f4", bg="#181825").grid(row=0, column=2, padx=4, pady=4, sticky=tk.W)
-        self.dist_combo = ttk.Combobox(params, values=["3m", "5m", "7.5m", "10m", "15m", "Overbridge_45deg"], width=12)
+        self.dist_combo = ttk.Combobox(params, values=["1m", "3m", "5m", "7m", "10m", "15m"], width=8)
         self.dist_combo.set("5m")
         self.dist_combo.grid(row=0, column=3, padx=4, pady=4)
 
-        tk.Label(params, text="SLM (dBA):", fg="#cdd6f4", bg="#181825").grid(row=0, column=4, padx=4, pady=4, sticky=tk.W)
-        self.spl_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=10)
-        self.spl_entry.insert(0, "95.0")
-        self.spl_entry.grid(row=0, column=5, padx=4, pady=4)
+        tk.Label(params, text="Model:", fg="#cdd6f4", bg="#181825").grid(row=0, column=4, padx=4, pady=4, sticky=tk.W)
+        self.model_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=16)
+        self.model_entry.insert(0, "Hino_AK1J")
+        self.model_entry.grid(row=0, column=5, padx=4, pady=4)
+
+        tk.Label(params, text="Plate/ID:", fg="#cdd6f4", bg="#181825").grid(row=0, column=6, padx=4, pady=4, sticky=tk.W)
+        self.plate_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=18)
+        self.plate_entry.insert(0, "DhakaMetro-Ba-14-8923")
+        self.plate_entry.grid(row=0, column=7, padx=4, pady=4)
 
         meter = tk.Frame(self.root, bg="#181825", padx=12, pady=6)
         meter.pack(fill=tk.X, padx=10, pady=4)
@@ -90,13 +95,12 @@ class TkMainWindow:
             self.trigger_class(self.key_to_class[key])
 
     def trigger_class(self, class_info):
-        try:
-            spl_val = float(self.spl_entry.get().strip() or "90.0")
-        except ValueError:
-            spl_val = 90.0
         params = {
             "location": self.loc_entry.get().strip().replace(" ", "_"),
-            "distance": self.dist_combo.get(), "measured_spl": spl_val,
+            "distance": self.dist_combo.get(),
+            "vehicle_model": self.model_entry.get().strip().replace(" ", "_"),
+            "license_plate": self.plate_entry.get().strip().replace(" ", "_"),
+            "measured_spl": 90.0,
             "angle_deg": 45, "mic_height_m": 1.5, "elevation_type": "Ground_Level",
             "weather": "Dry_Sunny", "annotator_id": "RESEARCHER_1"
         }

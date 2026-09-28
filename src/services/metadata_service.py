@@ -11,6 +11,7 @@ from src.utils.logger import logger
 
 class HornEventMetadata(BaseModel):
     sample_id: str
+    instance_id: Optional[str] = "S01"
     filename: str
     sha256_hash: str
     sample_rate_hz: int = 48000
@@ -30,6 +31,9 @@ class HornEventMetadata(BaseModel):
     elevation_type: str = "Ground_Level"
     class_id: str
     vehicle_class: str
+    vehicle_model: Optional[str] = "Unknown"
+    license_plate: Optional[str] = "Unknown"
+    photo_filename: Optional[str] = ""
     legal_status: str = "Legal_Standard"
     horn_actuation_type: str = "Standard"
     vehicle_instance_id: Optional[str] = "N/A"

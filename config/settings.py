@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 BASE_DIR = PROJECT_ROOT
 DATA_DIR = PROJECT_ROOT / "data"
+DATASET_DIR = PROJECT_ROOT / "Dataset"
 METADATA_DIR = PROJECT_ROOT / "metadata"
 
 class AudioSettings(BaseModel):
@@ -24,6 +25,10 @@ class AudioSettings(BaseModel):
 class PathSettings(BaseModel):
     raw_recordings_dir: Path = DATA_DIR / "01_raw_field_recordings"
     segmented_dir: Path = DATA_DIR / "02_segmented_events"
+    dataset_dir: Path = DATASET_DIR
+    raw_by_class_dir: Path = DATASET_DIR / "Raw_By_Class"
+    instances_dir: Path = DATASET_DIR / "Instances_By_Vehicle"
+    vehicle_photos_dir: Path = DATASET_DIR / "Vehicle_Photos"
     metadata_csv: Path = METADATA_DIR / "metadata_master.csv"
     metadata_json: Path = METADATA_DIR / "metadata_master.json"
     logs_dir: Path = BASE_DIR / "logs"
@@ -42,6 +47,9 @@ class AppConfig(BaseModel):
     def ensure_directories(self):
         self.paths.raw_recordings_dir.mkdir(parents=True, exist_ok=True)
         self.paths.segmented_dir.mkdir(parents=True, exist_ok=True)
+        self.paths.raw_by_class_dir.mkdir(parents=True, exist_ok=True)
+        self.paths.instances_dir.mkdir(parents=True, exist_ok=True)
+        self.paths.vehicle_photos_dir.mkdir(parents=True, exist_ok=True)
         self.paths.metadata_csv.parent.mkdir(parents=True, exist_ok=True)
         self.paths.logs_dir.mkdir(parents=True, exist_ok=True)
 
