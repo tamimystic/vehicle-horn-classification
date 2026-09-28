@@ -65,6 +65,31 @@ body {
   margin-top: 4px;
 }
 
+.nav-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: #89b4fa;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid #45475a;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #313244;
+  transition: all 0.15s ease;
+}
+
+.nav-link:hover, .nav-link:active {
+  background: #89b4fa;
+  color: #11111b;
+  border-color: #89b4fa;
+}
+
 /* Generic Card */
 .card {
   background: #181825;
@@ -608,15 +633,19 @@ body {
         <span class="badge zero-dsp">RAW AUDIO (NO AGC)</span>
       </div>
       <p class="subtitle">Standardized Acoustic & Multimodal Acquisition Suite</p>
+      <div class="nav-links">
+        <a href="docs.html" class="nav-link" title="Open comprehensive user manual and system guide">User Manual & Documentation</a>
+        <a href="https://github.com/tamimystic/vehicle-horn-classification" target="_blank" rel="noopener" class="nav-link">GitHub Repository</a>
+      </div>
     </header>
 
     <!-- Session & Vehicle Metadata Card -->
     <section class="card metadata-card">
       <div class="card-header">
-        <span class="card-title">📋 Vehicle & Session Metadata</span>
+        <span class="card-title">Vehicle & Session Metadata</span>
         <div class="header-action-group">
-          <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct auto-saving">📁 Bind Folder</button>
-          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS</button>
+          <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct disk writing">Bind Folder</button>
+          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">GPS Locate</button>
         </div>
       </div>
 
@@ -673,10 +702,10 @@ body {
 
         <div class="photo-capture-box">
           <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none;">
-          <button type="button" id="snapPhotoBtn" class="action-btn photo-btn">📷 Snap Photo</button>
+          <button type="button" id="snapPhotoBtn" class="action-btn photo-btn">Snap Photo</button>
           <div id="photoThumbContainer" class="photo-thumb-container" style="display:none;">
             <img id="photoThumb" class="photo-thumb" alt="Vehicle Photo">
-            <button type="button" id="removePhotoBtn" class="photo-remove-btn" title="Remove photo">✕</button>
+            <button type="button" id="removePhotoBtn" class="photo-remove-btn" title="Remove photo">X</button>
           </div>
         </div>
       </div>
@@ -687,7 +716,7 @@ body {
       <div class="vis-header">
         <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
         <span id="recordingTimer" class="timer-display">00:00.0</span>
-        <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">🎤 Arm Mic</button>
+        <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">Arm Mic (0ms)</button>
         <span id="clippingBadge" class="clipping-badge clean">SIGNAL READY</span>
       </div>
       <canvas id="waveformCanvas"></canvas>
@@ -698,8 +727,8 @@ body {
       <div class="mode-selector-row">
         <span class="mode-label">Record Mode:</span>
         <div class="mode-toggle">
-          <button type="button" id="modeTapBtn" class="mode-btn active">⏺️ Tap to Start / Stop</button>
-          <button type="button" id="modeHoldBtn" class="mode-btn">🤏 Hold to Record</button>
+          <button type="button" id="modeTapBtn" class="mode-btn active">Tap Mode (Start / Stop)</button>
+          <button type="button" id="modeHoldBtn" class="mode-btn">Hold Mode (Hold / Release)</button>
         </div>
       </div>
 
@@ -714,7 +743,7 @@ body {
     <!-- Post-Recording Review & Quality Control Card -->
     <section id="reviewSection" class="card review-card" style="display:none;">
       <div class="review-header">
-        <span class="card-title">🎧 Quality Review Before Saving</span>
+        <span class="card-title">Audio Quality Review</span>
         <span id="clipDurationDisplay" class="clip-duration">--s</span>
       </div>
       <p class="review-hint">Listen to the clip to ensure clean horn sound without wind or speech interference:</p>
@@ -729,10 +758,10 @@ body {
 
       <div class="review-actions">
         <button type="button" id="saveRecordingBtn" class="btn-save">
-          💾 Save Audio & Photo
+          Save Audio & Photo
         </button>
         <button type="button" id="discardRecordingBtn" class="btn-discard">
-          🗑️ Discard / Retake
+          Discard / Retake
         </button>
       </div>
     </section>
@@ -742,13 +771,13 @@ body {
       <div class="stats-row">
         <div>
           Saved Samples: <strong id="sampleCount">0</strong>
-          <span id="dirStatusBadge" class="dir-badge" style="display:none;">📁 Direct Auto-Save Active</span>
+          <span id="dirStatusBadge" class="dir-badge" style="display:none;">Direct Disk Write Active</span>
         </div>
         <div class="action-btn-group">
-          <button id="installAppBtn" class="action-btn install-btn" style="display:none;">📲 Install App</button>
-          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">📦 Export ZIP</button>
-          <button type="button" id="downloadMetadataBtn" class="action-btn">📥 CSV</button>
-          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">🔄 Reset</button>
+          <button id="installAppBtn" class="action-btn install-btn" style="display:none;">Install App</button>
+          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">Export ZIP</button>
+          <button type="button" id="downloadMetadataBtn" class="action-btn">Export CSV</button>
+          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">Reset Session</button>
         </div>
       </div>
       <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
@@ -890,19 +919,19 @@ gpsBtn.addEventListener("click", () => {
     alert("Geolocation is not supported by your browser.");
     return;
   }
-  gpsBtn.textContent = "⏳ Locating...";
+  gpsBtn.textContent = "Locating...";
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude.toFixed(4);
       const lon = pos.coords.longitude.toFixed(4);
       locationInput.value = `GPS_${lat}_${lon}`;
-      gpsBtn.textContent = "📍 GPS Set";
-      setTimeout(() => (gpsBtn.textContent = "📍 GPS"), 2500);
+      gpsBtn.textContent = "GPS Set";
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2500);
     },
     (err) => {
-      gpsBtn.textContent = "📍 GPS Failed";
+      gpsBtn.textContent = "GPS Failed";
       alert("GPS Error: " + err.message);
-      setTimeout(() => (gpsBtn.textContent = "📍 GPS"), 2000);
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2000);
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
@@ -1005,13 +1034,13 @@ async function preArmMicrophone() {
 
     isMicArmed = true;
     if (armMicBtn) {
-      armMicBtn.textContent = "🟢 Mic Armed (0ms)";
+      armMicBtn.textContent = "Mic Armed (0ms)";
       armMicBtn.classList.add("armed");
     }
     requestAnimationFrame(renderWaveform);
     return true;
   } catch (err) {
-    if (armMicBtn) armMicBtn.textContent = "❌ Mic Error";
+    if (armMicBtn) armMicBtn.textContent = "Mic Error";
     alert("Microphone Error: " + err.message);
     return false;
   }
@@ -1318,10 +1347,10 @@ if (selectDirBtn) {
     }
     try {
       rootDirectoryHandle = await window.showDirectoryPicker({ mode: "readwrite" });
-      selectDirBtn.textContent = "📁 Folder Bound";
+      selectDirBtn.textContent = "Folder Bound";
       selectDirBtn.classList.add("bound");
       dirStatusBadge.style.display = "inline-block";
-      dirStatusBadge.textContent = "📁 Direct Auto-Save Active";
+      dirStatusBadge.textContent = "Direct Disk Write Active";
       latestLogEl.textContent = "Dataset folder bound! Recordings will auto-save directly to disk.";
     } catch (err) {
       if (err.name !== "AbortError") {
@@ -1592,7 +1621,7 @@ exportZipBtn.addEventListener("click", async () => {
     return;
   }
 
-  exportZipBtn.textContent = "⏳ Generating ZIP...";
+  exportZipBtn.textContent = "Generating ZIP...";
   exportZipBtn.disabled = true;
 
   try {
@@ -1642,7 +1671,7 @@ exportZipBtn.addEventListener("click", async () => {
   } catch (err) {
     alert("ZIP Export Failed: " + err.message);
   } finally {
-    exportZipBtn.textContent = "📦 Export ZIP";
+    exportZipBtn.textContent = "Export ZIP";
     exportZipBtn.disabled = false;
   }
 });

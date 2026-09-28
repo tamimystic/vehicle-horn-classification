@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>User Manual & Documentation - Vehicle Horn Acoustic Suite</title>
+  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#1e1e2e">
+  <style>
+    .docs-container {
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .docs-header {
+      background: #181825;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #313244;
+    }
+    .docs-header h1 {
+      font-size: 1.35rem;
+      color: #89b4fa;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .docs-header p {
+      font-size: 0.8rem;
+      color: #a6adc8;
+      line-height: 1.5;
+    }
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #313244;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .nav-btn-link {
+      background: #89b4fa;
+      color: #11111b;
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: inline-block;
+      transition: filter 0.15s;
+    }
+    .nav-btn-link:hover { filter: brightness(1.1); }
+    .toc-card {
+      background: #181825;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid #313244;
+    }
+    .toc-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fab387;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .toc-list {
+      list-style-type: decimal;
+      padding-left: 20px;
+      font-size: 0.8rem;
+      color: #bac2de;
+      line-height: 1.7;
+    }
+    .toc-list a {
+      color: #89b4fa;
+      text-decoration: none;
+    }
+    .toc-list a:hover { text-decoration: underline; }
+    .doc-section {
+      background: #181825;
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid #313244;
+    }
+    .doc-section h2 {
+      font-size: 1.1rem;
+      color: #fab387;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #313244;
+      padding-bottom: 6px;
+    }
+    .doc-section h3 {
+      font-size: 0.92rem;
+      color: #89b4fa;
+      margin: 12px 0 6px 0;
+    }
+    .doc-section p, .doc-section li {
+      font-size: 0.82rem;
+      color: #cdd6f4;
+      line-height: 1.6;
+    }
+    .doc-section ul, .doc-section ol {
+      padding-left: 20px;
+      margin-bottom: 10px;
+    }
+    .doc-callout {
+      background: #11111b;
+      border-left: 4px solid #89b4fa;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      margin: 10px 0;
+      font-size: 0.78rem;
+      color: #bac2de;
+    }
+    .doc-callout.warning { border-left-color: #fab387; }
+    .doc-callout.success { border-left-color: #a6e3a1; }
+    .code-block {
+      background: #11111b;
+      border: 1px solid #313244;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 0.78rem;
+      color: #a6e3a1;
+      overflow-x: auto;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.76rem;
+    }
+    .data-table th, .data-table td {
+      border: 1px solid #313244;
+      padding: 8px 10px;
+      text-align: left;
+    }
+    .data-table th {
+      background: #11111b;
+      color: #89b4fa;
+      font-weight: 700;
+    }
+    .data-table tr:nth-child(even) { background: #161622; }
+    .back-to-top {
+      text-align: right;
+      font-size: 0.72rem;
+      margin-top: 10px;
+    }
+    .back-to-top a {
+      color: #a6adc8;
+      text-decoration: none;
+    }
+    .back-to-top a:hover { color: #89b4fa; }
+  </style>
+</head>
+<body>
+  <div class="docs-container">
+    <header class="docs-header">
+      <h1>Vehicle Horn Acoustic Data Collector</h1>
+      <p>Official Field Operations Manual, Technical Architecture, and Acquisition Protocol</p>
+      <div class="nav-bar">
+        <a href="index.html" class="nav-btn-link">&larr; Return to Live Recorder</a>
+        <a href="https://github.com/tamimystic/vehicle-horn-classification" target="_blank" rel="noopener" class="nav-btn-link">View GitHub Repository</a>
+      </div>
+    </header>
+
+    <section class="toc-card">
+      <div class="toc-title">Table of Contents</div>
+      <ol class="toc-list">
+        <li><a href="#section-1">System Overview & Empirical Research Rationale</a></li>
+        <li><a href="#section-2">Hardware Setup & Smartphone Rig Guidelines</a></li>
+        <li><a href="#section-3">Microphone Pre-Arming (Zero-Latency Standby)</a></li>
+        <li><a href="#section-4">Session & Vehicle Metadata Entry (7-Parameter Schema)</a></li>
+        <li><a href="#section-5">Dual Recording Modes: Tap Mode vs. Hold Mode</a></li>
+        <li><a href="#section-6">Live Oscilloscope & Peak dBFS Metering</a></li>
+        <li><a href="#section-7">Human-in-the-Loop Quality Review & Rejection</a></li>
+        <li><a href="#section-8">Multimodal Vehicle Photo Capture & Segregation</a></li>
+        <li><a href="#section-9">Dual-Layer Dataset Hierarchy (Class-Level vs. Instance-Level)</a></li>
+        <li><a href="#section-10">Direct Local Disk Writing (File System Access API)</a></li>
+        <li><a href="#section-11">Offline Persistence & Standalone ZIP Dataset Export</a></li>
+        <li><a href="#section-12">Master Metadata Catalog (metadata.csv Specification)</a></li>
+        <li><a href="#section-13">Desktop Python Suite & PyInstaller Executable Builds</a></li>
+        <li><a href="#section-14">Field Troubleshooting & Frequently Asked Questions</a></li>
+      </ol>
+    </section>
+
+    <!-- Section 1 -->
+    <article id="section-1" class="doc-section">
+      <h2>1. System Overview & Empirical Research Rationale</h2>
+      <p>
+        The Vehicle Horn Acoustic Data Acquisition Suite is an open-source, production-grade instrumentation system designed for field collection of vehicle horn acoustic emissions and illegal hydraulic horns in Bangladesh traffic environments (such as Dhaka metropolis corridors and highway intersections).
+      </p>
+      <p>
+        In high-density developing urban traffic, acoustic noise pollution exceeds hazardous levels (often surpassing 105 dBA to 120 dBA). Automated acoustic detection of illegal multi-tone hydraulic horns requires pristine, unadulterated acoustic benchmarks. Conventional smartphone recorders employ non-linear dynamic range compression (DRC), aggressive automatic gain control (AGC), and frequency-selective noise suppression, which destroy acoustic attack transients and introduce severe spectral distortion.
+      </p>
+      <p>
+        This software suite bypasses all digital signal processing (Zero-DSP Raw Audio) to acquire linear, uncompressed 16-bit / 24-bit PCM WAV audio alongside synchronized photographic evidence and comprehensive tabular metadata.
+      </p>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 2 -->
+    <article id="section-2" class="doc-section">
+      <h2>2. Hardware Setup & Smartphone Rig Guidelines</h2>
+      <p>
+        The system can be operated either via a smartphone (Chrome or Safari mobile browser) or a field laptop.
+      </p>
+      <h3>Recommended Field Rig Configuration:</h3>
+      <ul>
+        <li><strong>Primary Capture Device:</strong> Any modern Android or iOS smartphone running Chrome 100+ or Safari 15+.</li>
+        <li><strong>Acoustic Transducer:</strong> Calibrated external USB-C / Lightning measurement microphone (e.g., Dayton Audio iMM-6, R&oslash;de VideoMic Me, or factory internal smartphone mic with wind muff).</li>
+        <li><strong>Wind Protection:</strong> Synthetic fur windscreen (deadcat) or high-density foam windscreen fitted over the microphone capsule to eliminate wind shear pops.</li>
+        <li><strong>Physical Positioning:</strong> Standard measurement distance of 5 meters from the traffic lane, at an angle of 45 degrees relative to oncoming traffic, elevated 1.5 meters above ground level.</li>
+      </ul>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 3 -->
+    <article id="section-3" class="doc-section">
+      <h2>3. Microphone Pre-Arming (Zero-Latency Standby)</h2>
+      <p>
+        In dynamic field scenarios, vehicle horn blasts occur abruptly. If a recording system initializes the microphone hardware only upon pressing record, browser audio driver initialization and permission checks introduce a 500ms to 1500ms delay, completely missing the horn's acoustic onset transient (attack phase).
+      </p>
+      <div class="doc-callout success">
+        <strong>Pre-Arming Protocol:</strong> Before beginning an observation shift, tap the <code>Arm Mic (0ms)</code> button once in the visualizer card. Grant browser microphone permission when prompted.
+      </div>
+      <p>
+        Once armed, the indicator displays <code>[ARMED: 0ms]</code> in bright green. The audio engine runs a continuous, silent background monitoring loop that computes real-time peak dBFS and renders ambient background waveforms. When an actual horn occurs, pressing Record starts capturing samples instantly with <strong>zero milliseconds latency</strong>.
+      </p>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 4 -->
+    <article id="section-4" class="doc-section">
+      <h2>4. Session & Vehicle Metadata Entry (7-Parameter Schema)</h2>
+      <p>
+        To ensure complete scientific repeatability and prevent unlabelled orphan files, every audio clip and photograph is named according to a strict 7-parameter schema:
+      </p>
+      <div class="code-block">
+[SampleID]_[InstanceID]_[Location]_[Distance]_[VehicleClass]_[VehicleModel]_[VehiclePlate]_[Timestamp].wav
+      </div>
+      <h3>Form Parameters:</h3>
+      <ul>
+        <li><strong>Location / Site:</strong> The geographical site or intersection (e.g., <code>Gabtoli_Terminal</code>, <code>Farmgate_Cross</code>). Use the <code>GPS Locate</code> button to auto-populate coordinates.</li>
+        <li><strong>Distance:</strong> Geometric distance from transducer to the target vehicle (options: <code>1m</code>, <code>3m</code>, <code>5m</code>, <code>7m</code>, <code>10m</code>, <code>15m</code>). Default is <code>5m</code>.</li>
+        <li><strong>Vehicle Class:</strong> Selection across 9 standardized acoustic classes:
+          <ol>
+            <li><code>Bus</code> (Air/Electric Dual Pneumatic)</li>
+            <li><code>Hydraulic_Horn</code> (Banned extreme SPL >105 dBA multi-tone)</li>
+            <li><code>Truck</code> (Commercial Heavy Lorry)</li>
+            <li><code>Private_Car</code> (Sedan / SUV / Microbus pair)</li>
+            <li><code>Motorcycle</code> (High-frequency commuter disc)</li>
+            <li><code>CNG_Autorickshaw</code> (3-wheeler electromagnetic buzzer)</li>
+            <li><code>Easybike_Leguna</code> (Battery auto-rickshaw electronic chime)</li>
+            <li><code>Rickshaw_Bell</code> (Double metallic chime / bulb horn)</li>
+            <li><code>Background_Traffic_Noise</code> (Congestion idle, engine roar, tire wash - negative baseline)</li>
+          </ol>
+        </li>
+        <li><strong>Vehicle Name & Model:</strong> The manufacturer and model chassis (e.g., <code>Hino_AK1J</code>, <code>Tata_LP410</code>, <code>Yamaha_FZ</code>).</li>
+        <li><strong>Plate / Vehicle ID:</strong> Registration license number (e.g., <code>DhakaMetro-Ba-14-8923</code>).</li>
+      </ul>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 5 -->
+    <article id="section-5" class="doc-section">
+      <h2>5. Dual Recording Modes: Tap Mode vs. Hold Mode</h2>
+      <p>
+        Different field environments and researcher preferences necessitate flexible interaction mechanics. The suite provides two independent, hardware-stabilized recording modes accessible via the mode toggle switch:
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Interaction Workflow</th>
+            <th>Ergonomic Advantage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Tap Mode (Toggle)</strong></td>
+            <td>
+              1. Tap the big central button when the horn begins.<br>
+              2. Button pulses red and displays a stop square.<br>
+              3. Tap the button a second time when the horn ends.
+            </td>
+            <td>Best for relaxed handheld operation; eliminates finger fatigue during longer sustained horns (e.g., 3s-4s bus air horns).</td>
+          </tr>
+          <tr>
+            <td><strong>Hold Mode (Push-to-Talk)</strong></td>
+            <td>
+              1. Press and hold thumb on the button while the horn sounds.<br>
+              2. Lift thumb off the button the moment the horn ends.
+            </td>
+            <td>Fastest human reflex response; ideal for micro-taps and short commuter beeps (0.4s-0.8s). Uses Pointer Capture so sliding thumbs do not drop the record state.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="doc-callout">
+        <strong>Haptic Feedback:</strong> When operating outdoors in harsh sunlight, physical tactile vibration confirms actions: a single 40ms pulse upon recording onset, and a double-pulse upon recording termination.
+      </div>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 6 -->
+    <article id="section-6" class="doc-section">
+      <h2>6. Live Oscilloscope & Peak dBFS Metering</h2>
+      <p>
+        The visualizer card contains a dual-rate time-domain oscilloscope rendered on HTML5 canvas and calibrated decibel full-scale (dBFS) level meters.
+      </p>
+      <ul>
+        <li><strong>Clean Signal (Peak &lt; -6.0 dBFS):</strong> Badge shows <code>SIGNAL CLEAN</code> in green. Optimum dynamic headroom.</li>
+        <li><strong>High Signal (-6.0 dBFS &le; Peak &lt; -0.5 dBFS):</strong> Badge shows <code>HIGH LEVEL</code> in yellow. Good SNR, close to full scale.</li>
+        <li><strong>Clipping Warning (Peak &ge; -0.5 dBFS):</strong> Badge shows <code>! CLIPPING WARN !</code> in red. The acoustic SPL exceeded microphone ADC maximum input, resulting in non-linear waveform flat-topping. Clips marked with clipping should be evaluated and discarded.</li>
+      </ul>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 7 -->
+    <article id="section-7" class="doc-section">
+      <h2>7. Human-in-the-Loop Quality Review & Rejection</h2>
+      <p>
+        To prevent erroneous, clipped, or contaminated audio files from corrupting the dataset, recordings are <strong>never automatically committed to storage</strong> without human review.
+      </p>
+      <p>
+        Immediately upon stopping a recording, the <strong>Audio Quality Review</strong> card appears:
+      </p>
+      <ol>
+        <li>The native HTML5 audio player allows instant listening to verify that the target horn is distinct and unmasked by pedestrian speech or wind pops.</li>
+        <li>The exact duration (e.g., <code>1.42s</code>) and target dual-layer paths are previewed.</li>
+        <li><strong>Save Audio & Photo (Green):</strong> Commits the audio and photo to the dual-layer storage hierarchy, updates <code>metadata.csv</code>, and increments sample counters.</li>
+        <li><strong>Discard / Retake (Red):</strong> Purges the in-memory audio buffer immediately. Counters remain intact, preserving clean sequential indexing.</li>
+      </ol>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 8 -->
+    <article id="section-8" class="doc-section">
+      <h2>8. Multimodal Vehicle Photo Capture & Segregation</h2>
+      <p>
+        To preserve clean audio loading pipelines in machine learning frameworks (e.g., PyTorch <code>torchaudio</code> or <code>librosa</code>), photographic imagery is <strong>strictly segregated from audio folders</strong>.
+      </p>
+      <ul>
+        <li>Click <code>Snap Photo</code> to invoke the smartphone camera or device file picker.</li>
+        <li>A thumbnail preview appears with an <code>X</code> clear button.</li>
+        <li>When committed, photographs are saved into a dedicated directory:
+          <code>Dataset/Vehicle_Photos/[SampleID]_[InstanceID]...jpg</code>
+        </li>
+        <li>The base filename matches the audio file 1-to-1, and the master CSV records the relative path in the <code>photo_filename</code> column.</li>
+        <li><strong>Cross-Contamination Protection:</strong> When changing vehicle class, model, or plate input, the application automatically clears any previously captured photo to prevent accidental attachment to subsequent vehicles.</li>
+      </ul>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 9 -->
+    <article id="section-9" class="doc-section">
+      <h2>9. Dual-Layer Dataset Hierarchy</h2>
+      <p>
+        Academic machine learning benchmarks for vehicle acoustic classification face a severe risk of <strong>Data Leakage</strong>: if multiple horn samples from the same physical bus are randomly partitioned between training and test folds, the model learns the idiosyncratic engine hum or spectral resonance of that vehicle rather than general class features.
+      </p>
+      <p>
+        To enable both global class training and rigorous <code>GroupKFold</code> vehicle-instance cross-validation, the suite organizes every sample into two concurrent physical layers:
+      </p>
+      <div class="code-block">
+Dataset/
+|-- Raw_By_Class/
+|   |-- Bus/
+|   |   |-- BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_20260929_003500.wav
+|   |   `-- BDHORN_0002_S02_Gabtoli_5m_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_20260929_003510.wav
+|   `-- Motorcycle/
+|
+|-- Instances_By_Vehicle/
+|   |-- Bus/
+|   |   |-- Hino_AK1J_DhakaMetro-Ba-14-8923/
+|   |   |   |-- BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_20260929_003500.wav
+|   |   |   `-- BDHORN_0002_S02_Gabtoli_5m_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_20260929_003510.wav
+|   |   `-- Tata_LP410_DhakaMetro-Ga-11-2233/
+|   `-- Motorcycle/
+|
+|-- Vehicle_Photos/
+|   |-- BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_20260929_003500.jpg
+|   `-- ...
+`-- metadata.csv
+      </div>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 10 -->
+    <article id="section-10" class="doc-section">
+      <h2>10. Direct Local Disk Writing (File System Access API)</h2>
+      <p>
+        On desktop Chrome, Edge, and supported Chromium mobile browsers, researchers can bypass browser download popups completely:
+      </p>
+      <ol>
+        <li>Click <code>Bind Folder</code> in the metadata header.</li>
+        <li>Select your local repository folder (e.g., <code>vehicle horn classification</code>).</li>
+        <li>Grant read-write permission when prompted by the browser.</li>
+        <li>The status badge displays <code>Direct Disk Write Active</code>.</li>
+      </ol>
+      <p>
+        Once bound, every saved audio clip, vehicle photo, and CSV entry is written directly to your physical hard drive in the dual-layer structure with zero download prompts.
+      </p>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 11 -->
+    <article id="section-11" class="doc-section">
+      <h2>11. Offline Persistence & Standalone ZIP Dataset Export</h2>
+      <p>
+        In field environments without stable internet connectivity or on browsers that lack direct directory binding (e.g., iOS Safari), the application relies on an enterprise-grade client-side persistence pipeline:
+      </p>
+      <ul>
+        <li><strong>IndexedDB Offline Engine:</strong> Every recorded WAV file, JPEG image, and metadata row is stored in an encrypted client-side IndexedDB database (<code>BDHornCollectorDB</code>). If the phone runs out of battery or the browser tab closes, all data and sample counters are automatically restored upon reopening.</li>
+        <li><strong>Pure JavaScript ZIP Generator:</strong> Click <code>Export ZIP</code> at the end of a field collection shift. A zero-dependency, Store-mode PKZip generator packages all audio clips, photos, and <code>metadata.csv</code> into a single structured archive (<code>BDHORN_Dataset_Export_[Timestamp].zip</code>) ready for extraction onto a lab workstation.</li>
+      </ul>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 12 -->
+    <article id="section-12" class="doc-section">
+      <h2>12. Master Metadata Catalog (metadata.csv Specification)</h2>
+      <p>
+        The relational metadata catalog maintains 14 standardized columns:
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Description & Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>sample_id</code></td><td>string</td><td>Global unique sequential identifier (e.g., <code>BDHORN_0001</code>)</td></tr>
+          <tr><td><code>instance_id</code></td><td>string</td><td>Instance-local sequential index for this specific vehicle (e.g., <code>S01</code>)</td></tr>
+          <tr><td><code>filename</code></td><td>string</td><td>Standard 7-parameter WAV filename</td></tr>
+          <tr><td><code>audio_filename</code></td><td>string</td><td>Redundant alias for SQL / Pandas join compatibility</td></tr>
+          <tr><td><code>photo_filename</code></td><td>string</td><td>Filename of matched photograph in <code>Vehicle_Photos/</code></td></tr>
+          <tr><td><code>vehicle_class</code></td><td>string</td><td>Class label from 9-class acoustic taxonomy</td></tr>
+          <tr><td><code>vehicle_model</code></td><td>string</td><td>Vehicle make and model (e.g., <code>Hino_AK1J</code>)</td></tr>
+          <tr><td><code>license_plate</code></td><td>string</td><td>Vehicle registration number (e.g., <code>DhakaMetro-Ba-14-8923</code>)</td></tr>
+          <tr><td><code>location</code></td><td>string</td><td>Collection site or GPS coordinates</td></tr>
+          <tr><td><code>distance_m</code></td><td>string</td><td>Physical recording distance (e.g., <code>5m</code>)</td></tr>
+          <tr><td><code>duration_sec</code></td><td>float</td><td>Exact natural clip length in seconds (e.g., <code>1.45</code>)</td></tr>
+          <tr><td><code>peak_dbfs</code></td><td>float</td><td>Maximum instantaneous peak amplitude in dBFS</td></tr>
+          <tr><td><code>rms_dbfs</code></td><td>float</td><td>Root-mean-square amplitude in dBFS</td></tr>
+          <tr><td><code>sample_rate</code></td><td>int</td><td>ADC sampling frequency in Hertz (e.g., <code>48000</code>)</td></tr>
+          <tr><td><code>timestamp</code></td><td>ISO 8601</td><td>UTC ISO timestamp of event acquisition</td></tr>
+        </tbody>
+      </table>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 13 -->
+    <article id="section-13" class="doc-section">
+      <h2>13. Desktop Python Suite & PyInstaller Executable Builds</h2>
+      <p>
+        In addition to the mobile PWA web app, a high-performance Python desktop application is provided for laptop monitoring rigs:
+      </p>
+      <h3>Running on Desktop:</h3>
+      <ul>
+        <li><strong>One-Click Launcher:</strong> Double-click <code>run_desktop.bat</code> in the repository root.</li>
+        <li><strong>Command-Line:</strong> Run <code>python main.py</code> in a terminal.</li>
+        <li><strong>Web Server Mode:</strong> Run <code>python main.py --web</code> to serve the web application to local Wi-Fi devices.</li>
+      </ul>
+      <h3>Compiling Standalone Windows Executable (.exe):</h3>
+      <div class="code-block">
+python build_app.py
+      </div>
+      <p>
+        This executes PyInstaller with aggressive dependency pruning, producing a self-contained executable under <code>dist/VehicleHornCollector/VehicleHornCollector.exe</code> that runs on clean Windows machines without requiring a Python environment.
+      </p>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 14 -->
+    <article id="section-14" class="doc-section">
+      <h2>14. Field Troubleshooting & Frequently Asked Questions</h2>
+      <h3>Q1: The browser asks for microphone permission every time.</h3>
+      <p>Ensure the website is loaded via HTTPS or localhost. On Android, tap the lock icon in the Chrome URL bar, select "Permissions", and set Microphone to "Allow". Tap "Install App" to install the PWA for permanent permission retention.</p>
+      
+      <h3>Q2: Audio sounds faint or low in level.</h3>
+      <p>Ensure your smartphone microphone port is free of dust or pocket lint. If using an external USB microphone, verify that the hardware gain switch is set to high, and stand within 5 meters of target traffic lanes.</p>
+
+      <h3>Q3: How do I export data from an iPhone without direct folder binding?</h3>
+      <p>On iOS Safari, tap <code>Export ZIP</code> in the stats card at the bottom of the page. Safari will download the complete dual-layer structured ZIP file into the "Files" app, which can then be shared via AirDrop or USB cable to a workstation.</p>
+
+      <h3>Q4: How do I run automated verification tests?</h3>
+      <div class="code-block">
+pytest tests/
+      </div>
+      <p>All automated unit tests verify ring buffer safety, Pydantic schema validation, dual-layer folder creation, and 7-parameter filename conformance.</p>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+  </div>
+</body>
+</html>

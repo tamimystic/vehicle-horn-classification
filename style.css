@@ -58,6 +58,31 @@ body {
   margin-top: 4px;
 }
 
+.nav-links {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: #89b4fa;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border: 1px solid #45475a;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #313244;
+  transition: all 0.15s ease;
+}
+
+.nav-link:hover, .nav-link:active {
+  background: #89b4fa;
+  color: #11111b;
+  border-color: #89b4fa;
+}
+
 /* Generic Card */
 .card {
   background: #181825;

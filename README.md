@@ -1,73 +1,138 @@
 # Vehicle Horn Acoustic Data Acquisition Suite
-> **Project:** Standardized Acoustic Data Acquisition System for Vehicle Horn & Hydraulic Horn Research in Heterogeneous Traffic  
-> **Objective:** Production-grade software suite for acquiring uncompressed raw audio (PCM WAV), vehicle plate imagery, and multidimensional metadata for deep learning classification benchmarks.
+
+## Live Web Application & Mobile PWA Field Collector
+### [https://tamimystic.github.io/vehicle-horn-classification/](https://tamimystic.github.io/vehicle-horn-classification/)
+*(Zero setup required. Open directly in Chrome or Safari on any smartphone or computer to capture, review, and export acoustic data.)*
+
+* **Interactive User Manual:** [https://tamimystic.github.io/vehicle-horn-classification/docs.html](https://tamimystic.github.io/vehicle-horn-classification/docs.html)
+* **GitHub Repository:** [https://github.com/tamimystic/vehicle-horn-classification](https://github.com/tamimystic/vehicle-horn-classification)
 
 ---
 
-## Key Features
+## Abstract & Research Objective
 
-* **Flat Repository Architecture:** Self-contained within the root workspace without nested sub-projects or configuration splits.
-* **Zero-DSP Raw Audio Capture (No AGC):** Bypasses all hardware automatic gain control, dynamic range compression, and software noise suppression to capture unadulterated 24-bit/16-bit linear PCM audio.
-* **Dual-Layer Dataset Hierarchy:**
-  - **Layer A (Class-Level Raw):** `Dataset/Raw_By_Class/<VehicleClass>/` for global sequential class-balanced model training.
-  - **Layer B (Instance-Level Structured):** `Dataset/Instances_By_Vehicle/<VehicleClass>/<Model>_<PlateNumber>/` for vehicle-specific `GroupKFold` cross-validation preventing data leakage.
-  - **Photo Layer:** `Dataset/Vehicle_Photos/` for multimodal license plate image tracking.
-* **Standard 7-Parameter Filename Convention:**
-  `[SampleID]_[InstanceID]_[Location]_[Distance]_[VehicleClass]_[VehicleModel]_[VehiclePlate]_[Timestamp].wav`
-* **Dual Recording Modes:**
-  1. **Tap Mode:** Tap button to start, tap again to stop.
-  2. **Hold Mode:** Press and hold button while horn sounds, release to stop (Pointer Capture stabilized).
-* **In-App Quality Review & Playback:** Listen to the recorded clip immediately before saving; discard corrupted/windy clips without polluting dataset sequence counters.
-* **Zero-Latency Microphone Pre-Arming:** Standby loop pre-authorizes the audio hardware pipeline for 0ms onset latency.
-* **Direct File System Auto-Saving & Offline Standalone ZIP Export:**
-  - Direct folder writing on Desktop via File System Access API.
-  - Client-side IndexedDB persistence and instant zero-dependency dual-layer ZIP generation on mobile phones.
+Urban traffic in developing metropolitan regions such as Dhaka, Bangladesh represents one of the most acoustically dense and chaotic soundscapes in the world. High-volume, non-lane-based traffic comprised of buses, commercial trucks, motorized three-wheelers, private vehicles, motorcycles, and human-powered rickshaws creates persistent acoustic noise levels that routinely exceed safe environmental standards (frequently surpassing 105 dBA to 120 dBA). Among these sound sources, prohibited multi-tone pneumatic "hydraulic" horns present a severe public health hazard and statutory violation.
+
+To train, benchmark, and deploy automated acoustic classification models (such as Audio Spectrogram Transformers, Convolutional Neural Networks, and edge micro-controllers), researchers require high-fidelity, standardized empirical acoustic datasets. Conventional consumer audio recording software fails catastrophically in this task: native smartphone operating systems apply non-linear dynamic range compression (DRC), aggressive automatic gain control (AGC), and frequency-selective noise suppression that mutilate attack transients and distort spectral harmonics.
+
+The **Vehicle Horn Acoustic Data Acquisition Suite** is a zero-cost, laboratory-grade software instrument engineered to acquire unadulterated, linear 16-bit and 24-bit PCM WAV audio, synchronized vehicle registration plate imagery, and multidimensional tabular metadata directly from commodity mobile hardware and field laptop rigs.
 
 ---
 
-## File and Directory Architecture
+## System Architecture & Key Engineering Innovations
+
+### 1. Zero-DSP Linear Audio Pipeline
+Bypasses all software automatic gain control, dynamic range compression, and acoustic echo cancellation via low-level Web Audio API and PortAudio bindings:
+```
+Acoustic Transducer -> Unprocessed ADC Stream -> ScriptProcessor / Circular RAM -> 16/24-Bit Linear PCM WAV
+```
+This preserves the full Attack-Sustain-Decay-Release (ADSR) envelope, true peak decibels relative to full scale (dBFS), and raw spectral energy distribution.
+
+### 2. Zero-Latency Microphone Pre-Arming
+Field horn blasts occur abruptly with attack transients lasting under 50 milliseconds. Traditional recorders suffer from 500ms to 1500ms driver latency when initializing audio streams. The suite features a dedicated pre-arming standby loop: activating `Arm Mic (0ms)` maintains a live, zero-allocation circular buffer and real-time dBFS monitoring, enabling instantaneous sample ingestion the microsecond a horn sounds.
+
+### 3. Dual Hardware-Stabilized Recording Modes
+Field researchers face diverse physical constraints (e.g., roadside traffic glare, vehicle speed, one-handed grip):
+* **Tap Mode (Toggle):** Tap once to commence recording; tap again to terminate. Ideal for sustained commercial air horns and relaxed handheld observation.
+* **Hold Mode (Push-to-Talk):** Press and hold the primary thumb-zone button; release immediately when the horn terminates. Stabilized with Pointer Capture API (`setPointerCapture`) so that physical finger movement or screen moisture does not drop recording state.
+* **Tactile Haptic Feedback:** Physical vibration pulses confirm trigger events without requiring visual gaze diversion from oncoming traffic (40ms onset pulse, double 30ms termination pulse).
+
+### 4. Human-in-the-Loop Quality Review & Rejection
+To protect dataset integrity from ambient contamination (e.g., pedestrian speech, sudden wind gusts, mechanical collisions), no recording is committed to storage automatically. An in-app audio player renders the captured clip immediately, allowing researchers to evaluate signal-to-noise ratio (SNR) and commit or discard the clip without corrupting global indexing counters.
+
+### 5. Dual-Layer Dataset Hierarchy & Anti-Leakage Architecture
+A critical flaw in acoustic machine learning research is **Data Leakage**: when multiple horn blasts from the exact same vehicle chassis are randomly partitioned across training and evaluation splits, models memorize vehicle-specific engine harmonics or microphone placement characteristics rather than generalized horn acoustics. To enforce strict `GroupKFold` cross-validation, the suite organizes recordings into two concurrent physical layers:
+* **Layer A (Class-Level Raw):** `Dataset/Raw_By_Class/<VehicleClass>/` contains all clips organized by acoustic class and indexed sequentially via a global identifier (`BDHORN_0001`, `BDHORN_0002`).
+* **Layer B (Instance-Level Structured):** `Dataset/Instances_By_Vehicle/<VehicleClass>/<Model>_<PlateNumber>/` aggregates all recordings belonging to that specific physical vehicle, indexing them by both the global identifier and an instance-local counter (`S01`, `S02`).
+* **Segregated Photo Layer:** `Dataset/Vehicle_Photos/` stores high-resolution vehicle and license plate photographs named with identical base identifiers to eliminate non-audio file clutter inside acoustic training folders.
+
+### 6. Standard 7-Parameter Filename Convention
+Every audio file and photograph encodes its complete contextual provenance in its filename:
+```
+[SampleID]_[InstanceID]_[Location]_[Distance]_[VehicleClass]_[VehicleModel]_[VehiclePlate]_[Timestamp].wav
+```
+*Example Audio:* `BDHORN_0001_S01_GabtoliTerminal_5m_Bus_HinoAK1J_DhakaMetroBa148923_20260929_003500.wav`  
+*Example Photo:* `BDHORN_0001_S01_GabtoliTerminal_5m_Bus_HinoAK1J_DhakaMetroBa148923_20260929_003500.jpg`
+
+### 7. Dual Export Engine: Direct Disk Writing & Standalone ZIP
+* **Direct File System Access API:** Chromium-based browsers on laptops and Android allow binding a target directory directly. Committing a sample writes dual-layer files and appends to `metadata.csv` on the physical drive with zero download popups.
+* **Offline IndexedDB & Pure JS ZIP Generator:** iOS Safari and field mobile devices cache all audio blobs, images, and tabular rows in an internal IndexedDB database (`BDHornCollectorDB`). At the end of a shift, a zero-dependency Store-mode PKZip generator compiles the complete dual-layer folder hierarchy into an export archive (`BDHORN_Dataset_Export_[Timestamp].zip`).
+
+---
+
+## Standardized 9-Class Acoustic Taxonomy
+
+The taxonomy reflects the empirical vehicle distribution of Bangladesh roadways as standardized in `config/taxonomy.json`:
+
+| Class ID | Class Name | Display Label | Dominant Frequency | Legal / Regulatory Status | Acoustic Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **C01** | `Hydraulic_Horn` | Hydraulic Horn (Banned) | 1000 - 8000 Hz | Illegal / Prohibited | High-SPL (>105 dBA), multi-tone trumpet pneumatic blast. |
+| **C02** | `Bus` | Bus (Air / Electric) | 400 - 2500 Hz | Legal Standard | Pneumatic dual air horn or standard high-pitch dual electric horn. |
+| **C03** | `Truck` | Truck / Heavy Lorry | 200 - 1500 Hz | Legal Standard | Deep resonant electric or low-frequency pneumatic horn. |
+| **C04** | `Private_Car` | Private Car / SUV | 400 - 800 Hz | Legal Standard | Dual-disc harmonic snail horn pair on sedans, microbuses, and SUVs. |
+| **C05** | `Motorcycle` | Motorcycle | 500 - 3000 Hz | Legal Standard | Single-disc high-frequency electric diaphragm horn. |
+| **C06** | `CNG_Autorickshaw` | CNG Auto-rickshaw | 800 - 3500 Hz | Legal Standard | Sharp piercing electromagnetic buzzer on 4-stroke 3-wheelers. |
+| **C07** | `Easybike_Leguna` | Easybike / Leguna | 600 - 3000 Hz | Regulated | Battery auto-rickshaw electronic melody horn or light buzzer. |
+| **C08** | `Rickshaw_Bell` | Rickshaw Bell / Bulb | 1500 - 6000 Hz | Legal Standard | Dual metallic chime ("Tung-Tung") or mechanical rubber bulb horn. |
+| **C09** | `Background_Traffic_Noise` | Background Traffic Noise | 20 - 20000 Hz | Ambient Negative | Congestion rumble, engine idle, tire friction without horn events. |
+
+---
+
+## Repository Directory Architecture
 
 ```
 vehicle horn classification/
-├── main.py                     # Unified launcher (Desktop GUI, Web Server, CLI)
-├── requirements.txt            # Python dependencies
-├── README.md                   # Project documentation
-├── HARDWARE_GUIDE.md           # Low-cost field hardware rig assembly guide
-├── plan.md                     # Comprehensive academic research blueprint
-├── system.md                   # System engineering & calibration manual
-├── .gitignore                  # Git tracking exclusion rules
+├── main.py                     # Unified entrypoint (Tkinter/PyQt6 GUI, Web Server, CLI)
+├── requirements.txt            # Python dependencies (sounddevice, soundfile, pydantic, etc.)
+├── README.md                   # Primary system and research documentation
+├── HARDWARE_GUIDE.md           # Field acoustic rig assembly and calibration specifications
+├── plan.md                     # Comprehensive academic research roadmap
+├── system.md                   # Engineering calibration and measurement manual
+├── .gitignore                  # Git tracking exclusion rules (ignores raw binaries, tracks structure)
 │
 ├── index.html                  # Mobile web app interface (PWA & GitHub Pages ready)
-├── style.css                   # Mobile-first dark theme stylesheet
-├── app.js                      # Browser audio ingestion engine & WAV encoder
-├── standalone_collector.html   # Single-file standalone offline web collector
-├── manifest.json               # Progressive Web App manifest
-├── sw.js                       # Service worker for offline caching (v2)
-├── icon-192.png, icon-512.png  # PWA application icons
+├── docs.html                   # Comprehensive standalone user manual and operations guide
+├── style.css                   # Responsive dark-theme stylesheet
+├── app.js                      # Web Audio API engine, IndexedDB manager, ZIP generator
+├── standalone_collector.html   # Single-file bundled offline HTML tool
+├── manifest.json               # Progressive Web App manifest definition
+├── sw.js                       # Service worker for offline asset caching (v2)
+├── icon-192.png, icon-512.png  # PWA application iconography
 ├── run_desktop.bat             # One-click Windows desktop launcher
 ├── run_web.bat                 # One-click local web server launcher
-├── build_app.py                # Standalone executable compiler (PyInstaller)
+├── build_app.py                # Standalone Windows executable compiler (PyInstaller)
+├── VehicleHornCollector.spec   # PyInstaller build specification
 │
 ├── config/                     # Configuration definitions
-│   ├── settings.py             # Global paths and audio acquisition parameters
-│   └── taxonomy.json           # 9-class acoustic taxonomy & frequency bands
+│   ├── settings.py             # Global paths, audio sample rates, buffer thresholds
+│   └── taxonomy.json           # Formal 9-class acoustic taxonomy definitions
 │
-├── src/                        # Core Python application
-│   ├── core/                   # Audio ingestion engine, circular buffer, DSP processor
-│   ├── services/               # Event audio slicer & relational metadata logger
-│   ├── ui/                     # Tkinter / PyQt GUI and real-time visualizers
-│   └── utils/                  # Rotating file and console logger
+├── src/                        # Core Python application package
+│   ├── core/                   # Audio engine, circular ring buffer, DSP filter suite
+│   ├── services/               # Dual-layer file exporter and metadata service
+│   ├── ui/                     # Desktop graphical interfaces
+│   │   ├── tk_window.py        # Native zero-dependency Tkinter interface
+│   │   ├── main_window.py      # High-performance PyQt6 interface
+│   │   ├── styles.py           # Desktop styling definitions
+│   │   └── components/         # PyQt6 visualizer widgets and session panels
+│   └── utils/                  # Rotating logging utilities
 │
 ├── tests/                      # Automated unit test suite
-│   ├── test_dual_layer.py      # Dual-layer file routing & 7-parameter filename tests
-│   ├── test_ring_buffer.py     # Circular buffer boundary & wraparound tests
-│   └── test_metadata.py        # Pydantic schema and storage integrity tests
+│   ├── test_dual_layer.py      # Dual-layer directory routing & 7-parameter filename validation
+│   ├── test_ring_buffer.py     # Circular memory buffer boundary and wraparound safety
+│   └── test_metadata.py        # Pydantic schema validation and persistence integrity
 │
-├── Dataset/                    # Standardized structured dataset
-│   ├── Raw_By_Class/           # Layer A: Class-level global sequences
+├── Dataset/                    # Standardized Dual-Layer Research Dataset Store
+│   ├── Raw_By_Class/           # Layer A: Global sequential class folders
+│   │   ├── Bus/
+│   │   ├── Hydraulic_Horn/
+│   │   └── ...
 │   ├── Instances_By_Vehicle/   # Layer B: Vehicle-specific instance folders
-│   ├── Vehicle_Photos/         # Dedicated vehicle and license plate photos
-│   └── metadata.csv            # Master dataset relational catalog
+│   │   ├── Bus/
+│   │   │   └── HinoAK1J_DhakaMetroBa148923/
+│   │   └── ...
+│   ├── Vehicle_Photos/         # Multimodal photographic registry
+│   └── metadata.csv            # Master relational catalog
 │
 └── metadata/                   # Legacy metadata archives
     ├── metadata_master.csv
@@ -76,46 +141,83 @@ vehicle horn classification/
 
 ---
 
-## Usage Guide
+## Operations Guide
 
-### Option 1: Mobile Smartphone App (Field Data Acquisition)
+### 1. Mobile Smartphone Deployment (Field Acquisition)
 
-> **Live Hosted Web App (Zero Configuration):**  
-> Open on your smartphone browser (Chrome or Safari):  
-> **https://tamimystic.github.io/vehicle-horn-classification/**
-> - **Runs anywhere in the field:** Works over 4G/5G cellular data without needing your PC turned on.
-> - **PWA Offline Support:** Tap **"Install App"** on the webpage to add an app icon to your phone screen. Works 100% offline without internet.
+**Option A: Hosted Web Application (Zero Installation)**  
+Navigate to: **[https://tamimystic.github.io/vehicle-horn-classification/](https://tamimystic.github.io/vehicle-horn-classification/)**  
+1. Open in Google Chrome (Android) or Safari (iOS).
+2. Tap **"Install App"** to add the tool to your home screen as a standalone Progressive Web App.
+3. Tap **"Arm Mic (0ms)"** once to pre-authorize hardware capture.
+4. Input location, distance, vehicle class, vehicle model, and license plate.
+5. Tap **"Snap Photo"** to record vehicle visual evidence.
+6. Trigger recordings using **Tap Mode** or **Hold Mode**.
+7. Audit the clip in the review player, then click **"Save Audio & Photo"**.
+8. At the conclusion of a session, click **"Export ZIP"** to download the complete dual-layer dataset.
 
-**To run the local web server on your computer:**  
-Double-click `run_web.bat` or run:
+**Option B: Local Machine Web Server**  
+Launch a local server accessible by any device on the local Wi-Fi network:
 ```powershell
 python main.py --web
 ```
+Or double-click `run_web.bat`.
 
 ---
 
-### Option 2: Desktop GUI Application (Windows PC / Laptop)
+### 2. Desktop Workstation Deployment (Laptop Rig)
 
 **Method A: One-Click Desktop Launcher**  
-Double-click `run_desktop.bat` in the project root folder.
+Double-click `run_desktop.bat` in the repository root.
 
 **Method B: Command-Line Launch**
 ```powershell
 python main.py
 ```
 
-**Method C: Build Standalone Executable (`.exe`)**
+**Method C: Compile Standalone Executable (.exe)**  
+To package a standalone executable for field laptops without Python installed:
 ```powershell
 python build_app.py
 ```
-This generates `dist/VehicleHornCollector/VehicleHornCollector.exe` using PyInstaller.
+The compiled application is generated in `dist/VehicleHornCollector/VehicleHornCollector.exe`.
 
 ---
 
-## Verification & Testing
+## Verification & Automated Test Suite
 
-Run the automated test suite:
+The test suite validates data structures, circular buffer wraparound logic, schema boundaries, and dual-layer export integrity:
 ```powershell
 pytest tests/
 ```
-All tests verify zero buffer truncation, metadata schema constraints, dual-layer folder routing, and 7-parameter filename adherence.
+All 7 unit tests must report clean passes prior to committing dataset modifications.
+
+---
+
+## Master Metadata Specification (`metadata.csv`)
+
+| Header Field | Type | Description | Example |
+| :--- | :--- | :--- | :--- |
+| `sample_id` | String | Unique sequential dataset identifier | `BDHORN_0001` |
+| `instance_id` | String | Vehicle-specific sample counter | `S01` |
+| `filename` | String | Standard 7-parameter WAV filename | `BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_Plate_20260929.wav` |
+| `audio_filename` | String | Database alias for file resolution | `BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_Plate_20260929.wav` |
+| `photo_filename` | String | Matching photograph filename | `BDHORN_0001_S01_Gabtoli_5m_Bus_Hino_Plate_20260929.jpg` |
+| `vehicle_class` | String | Target category from 9-class taxonomy | `Bus` |
+| `vehicle_model` | String | Vehicle manufacturer chassis / model | `Hino_AK1J` |
+| `license_plate` | String | Official vehicle registration number | `DhakaMetro-Ba-14-8923` |
+| `location` | String | Site name or GPS coordinate string | `Gabtoli_Terminal` |
+| `distance_m` | String | Distance between transducer and vehicle | `5m` |
+| `duration_sec` | Float | Natural clip length in seconds | `1.84` |
+| `peak_dbfs` | Float | True peak instantaneous amplitude | `-3.45` |
+| `rms_dbfs` | Float | True root-mean-square amplitude | `-14.20` |
+| `sample_rate` | Integer | Sampling frequency in Hertz | `48000` |
+| `timestamp` | ISO 8601 | Universal UTC acquisition timestamp | `2026-09-29T00:35:00.000Z` |
+
+---
+
+## Ethical Statement & Licensing
+
+* **Acoustic Privacy:** In accordance with acoustic privacy standards, microphone gains and measurement distances are calibrated specifically for high-amplitude vehicular signaling (>85 dBA). Human speech in public rights-of-way falls below the dynamic quantization threshold of the measurement rig.
+* **Photographic Integrity:** Vehicle registration photographs are collected strictly for research verification of vehicle class and physical horn positioning under the academic fair-use doctrine.
+* **Software License:** Released under the MIT Open Source License. Academic publications utilizing this software suite or resulting datasets should cite this repository.

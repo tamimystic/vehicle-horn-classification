@@ -132,19 +132,19 @@ gpsBtn.addEventListener("click", () => {
     alert("Geolocation is not supported by your browser.");
     return;
   }
-  gpsBtn.textContent = "⏳ Locating...";
+  gpsBtn.textContent = "Locating...";
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const lat = pos.coords.latitude.toFixed(4);
       const lon = pos.coords.longitude.toFixed(4);
       locationInput.value = `GPS_${lat}_${lon}`;
-      gpsBtn.textContent = "📍 GPS Set";
-      setTimeout(() => (gpsBtn.textContent = "📍 GPS"), 2500);
+      gpsBtn.textContent = "GPS Set";
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2500);
     },
     (err) => {
-      gpsBtn.textContent = "📍 GPS Failed";
+      gpsBtn.textContent = "GPS Failed";
       alert("GPS Error: " + err.message);
-      setTimeout(() => (gpsBtn.textContent = "📍 GPS"), 2000);
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2000);
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
@@ -247,13 +247,13 @@ async function preArmMicrophone() {
 
     isMicArmed = true;
     if (armMicBtn) {
-      armMicBtn.textContent = "🟢 Mic Armed (0ms)";
+      armMicBtn.textContent = "Mic Armed (0ms)";
       armMicBtn.classList.add("armed");
     }
     requestAnimationFrame(renderWaveform);
     return true;
   } catch (err) {
-    if (armMicBtn) armMicBtn.textContent = "❌ Mic Error";
+    if (armMicBtn) armMicBtn.textContent = "Mic Error";
     alert("Microphone Error: " + err.message);
     return false;
   }
@@ -560,10 +560,10 @@ if (selectDirBtn) {
     }
     try {
       rootDirectoryHandle = await window.showDirectoryPicker({ mode: "readwrite" });
-      selectDirBtn.textContent = "📁 Folder Bound";
+      selectDirBtn.textContent = "Folder Bound";
       selectDirBtn.classList.add("bound");
       dirStatusBadge.style.display = "inline-block";
-      dirStatusBadge.textContent = "📁 Direct Auto-Save Active";
+      dirStatusBadge.textContent = "Direct Disk Write Active";
       latestLogEl.textContent = "Dataset folder bound! Recordings will auto-save directly to disk.";
     } catch (err) {
       if (err.name !== "AbortError") {
@@ -834,7 +834,7 @@ exportZipBtn.addEventListener("click", async () => {
     return;
   }
 
-  exportZipBtn.textContent = "⏳ Generating ZIP...";
+  exportZipBtn.textContent = "Generating ZIP...";
   exportZipBtn.disabled = true;
 
   try {
@@ -884,7 +884,7 @@ exportZipBtn.addEventListener("click", async () => {
   } catch (err) {
     alert("ZIP Export Failed: " + err.message);
   } finally {
-    exportZipBtn.textContent = "📦 Export ZIP";
+    exportZipBtn.textContent = "Export ZIP";
     exportZipBtn.disabled = false;
   }
 });

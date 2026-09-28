@@ -17,15 +17,19 @@
         <span class="badge zero-dsp">RAW AUDIO (NO AGC)</span>
       </div>
       <p class="subtitle">Standardized Acoustic & Multimodal Acquisition Suite</p>
+      <div class="nav-links">
+        <a href="docs.html" class="nav-link" title="Open comprehensive user manual and system guide">User Manual & Documentation</a>
+        <a href="https://github.com/tamimystic/vehicle-horn-classification" target="_blank" rel="noopener" class="nav-link">GitHub Repository</a>
+      </div>
     </header>
 
     <!-- Session & Vehicle Metadata Card -->
     <section class="card metadata-card">
       <div class="card-header">
-        <span class="card-title">📋 Vehicle & Session Metadata</span>
+        <span class="card-title">Vehicle & Session Metadata</span>
         <div class="header-action-group">
-          <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct auto-saving">📁 Bind Folder</button>
-          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">📍 GPS</button>
+          <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct disk writing">Bind Folder</button>
+          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">GPS Locate</button>
         </div>
       </div>
 
@@ -82,10 +86,10 @@
 
         <div class="photo-capture-box">
           <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none;">
-          <button type="button" id="snapPhotoBtn" class="action-btn photo-btn">📷 Snap Photo</button>
+          <button type="button" id="snapPhotoBtn" class="action-btn photo-btn">Snap Photo</button>
           <div id="photoThumbContainer" class="photo-thumb-container" style="display:none;">
             <img id="photoThumb" class="photo-thumb" alt="Vehicle Photo">
-            <button type="button" id="removePhotoBtn" class="photo-remove-btn" title="Remove photo">✕</button>
+            <button type="button" id="removePhotoBtn" class="photo-remove-btn" title="Remove photo">X</button>
           </div>
         </div>
       </div>
@@ -96,7 +100,7 @@
       <div class="vis-header">
         <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
         <span id="recordingTimer" class="timer-display">00:00.0</span>
-        <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">🎤 Arm Mic</button>
+        <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">Arm Mic (0ms)</button>
         <span id="clippingBadge" class="clipping-badge clean">SIGNAL READY</span>
       </div>
       <canvas id="waveformCanvas"></canvas>
@@ -107,8 +111,8 @@
       <div class="mode-selector-row">
         <span class="mode-label">Record Mode:</span>
         <div class="mode-toggle">
-          <button type="button" id="modeTapBtn" class="mode-btn active">⏺️ Tap to Start / Stop</button>
-          <button type="button" id="modeHoldBtn" class="mode-btn">🤏 Hold to Record</button>
+          <button type="button" id="modeTapBtn" class="mode-btn active">Tap Mode (Start / Stop)</button>
+          <button type="button" id="modeHoldBtn" class="mode-btn">Hold Mode (Hold / Release)</button>
         </div>
       </div>
 
@@ -123,7 +127,7 @@
     <!-- Post-Recording Review & Quality Control Card -->
     <section id="reviewSection" class="card review-card" style="display:none;">
       <div class="review-header">
-        <span class="card-title">🎧 Quality Review Before Saving</span>
+        <span class="card-title">Audio Quality Review</span>
         <span id="clipDurationDisplay" class="clip-duration">--s</span>
       </div>
       <p class="review-hint">Listen to the clip to ensure clean horn sound without wind or speech interference:</p>
@@ -138,10 +142,10 @@
 
       <div class="review-actions">
         <button type="button" id="saveRecordingBtn" class="btn-save">
-          💾 Save Audio & Photo
+          Save Audio & Photo
         </button>
         <button type="button" id="discardRecordingBtn" class="btn-discard">
-          🗑️ Discard / Retake
+          Discard / Retake
         </button>
       </div>
     </section>
@@ -151,13 +155,13 @@
       <div class="stats-row">
         <div>
           Saved Samples: <strong id="sampleCount">0</strong>
-          <span id="dirStatusBadge" class="dir-badge" style="display:none;">📁 Direct Auto-Save Active</span>
+          <span id="dirStatusBadge" class="dir-badge" style="display:none;">Direct Disk Write Active</span>
         </div>
         <div class="action-btn-group">
-          <button id="installAppBtn" class="action-btn install-btn" style="display:none;">📲 Install App</button>
-          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">📦 Export ZIP</button>
-          <button type="button" id="downloadMetadataBtn" class="action-btn">📥 CSV</button>
-          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">🔄 Reset</button>
+          <button id="installAppBtn" class="action-btn install-btn" style="display:none;">Install App</button>
+          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">Export ZIP</button>
+          <button type="button" id="downloadMetadataBtn" class="action-btn">Export CSV</button>
+          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">Reset Session</button>
         </div>
       </div>
       <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
