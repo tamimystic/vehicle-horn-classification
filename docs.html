@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>User Manual & Documentation - Vehicle Horn Acoustic Suite</title>
+  <title>User Manual & Field Operations Guide - Vehicle Horn Acoustic Suite</title>
   <link rel="stylesheet" href="style.css">
   <meta name="theme-color" content="#1e1e2e">
   <style>
     .docs-container {
-      max-width: 850px;
+      max-width: 860px;
       margin: 0 auto;
       padding: 16px 12px;
       display: flex;
@@ -17,18 +17,18 @@
     }
     .docs-header {
       background: #181825;
-      padding: 16px;
+      padding: 18px;
       border-radius: 12px;
       border: 1px solid #313244;
     }
     .docs-header h1 {
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       color: #89b4fa;
       font-weight: 800;
       margin-bottom: 6px;
     }
     .docs-header p {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: #a6adc8;
       line-height: 1.5;
     }
@@ -36,8 +36,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 12px;
-      padding-top: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid #313244;
       flex-wrap: wrap;
       gap: 8px;
@@ -46,34 +46,117 @@
       background: #89b4fa;
       color: #11111b;
       text-decoration: none;
-      font-size: 0.75rem;
+      font-size: 0.76rem;
       font-weight: 700;
-      padding: 6px 12px;
+      padding: 7px 14px;
       border-radius: 8px;
       display: inline-block;
       transition: filter 0.15s;
     }
     .nav-btn-link:hover { filter: brightness(1.1); }
+    
+    /* Quick Start Banner */
+    .quick-start-box {
+      background: linear-gradient(135deg, rgba(137, 180, 250, 0.15), rgba(166, 227, 161, 0.10));
+      border: 1.5px solid #89b4fa;
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .quick-start-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #313244;
+      padding-bottom: 8px;
+    }
+    .quick-start-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #89b4fa;
+    }
+    .quick-start-badge {
+      background: #a6e3a1;
+      color: #11111b;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .quick-steps-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .quick-step-card {
+      background: #181825;
+      border: 1px solid #313244;
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .step-badge {
+      background: #89b4fa;
+      color: #11111b;
+      font-weight: 800;
+      font-size: 0.8rem;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-body {
+      flex: 1;
+    }
+    .step-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fab387;
+      margin-bottom: 3px;
+    }
+    .step-desc {
+      font-size: 0.8rem;
+      color: #cdd6f4;
+      line-height: 1.45;
+    }
+    .bilingual-hint {
+      font-size: 0.76rem;
+      color: #a6adc8;
+      margin-top: 4px;
+      font-style: normal;
+      background: rgba(49, 50, 68, 0.4);
+      padding: 4px 8px;
+      border-radius: 4px;
+      border-left: 3px solid #89b4fa;
+    }
+
     .toc-card {
       background: #181825;
-      padding: 14px 18px;
+      padding: 16px 20px;
       border-radius: 12px;
       border: 1px solid #313244;
     }
     .toc-title {
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       font-weight: 700;
       color: #fab387;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .toc-list {
       list-style-type: decimal;
       padding-left: 20px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: #bac2de;
-      line-height: 1.7;
+      line-height: 1.8;
     }
     .toc-list a {
       color: #89b4fa;
@@ -82,21 +165,21 @@
     .toc-list a:hover { text-decoration: underline; }
     .doc-section {
       background: #181825;
-      padding: 18px;
+      padding: 20px;
       border-radius: 12px;
       border: 1px solid #313244;
     }
     .doc-section h2 {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       color: #fab387;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       border-bottom: 1px solid #313244;
-      padding-bottom: 6px;
+      padding-bottom: 8px;
     }
     .doc-section h3 {
-      font-size: 0.92rem;
+      font-size: 0.95rem;
       color: #89b4fa;
-      margin: 12px 0 6px 0;
+      margin: 14px 0 6px 0;
     }
     .doc-section p, .doc-section li {
       font-size: 0.82rem;
@@ -110,11 +193,12 @@
     .doc-callout {
       background: #11111b;
       border-left: 4px solid #89b4fa;
-      padding: 10px 14px;
+      padding: 12px 14px;
       border-radius: 0 8px 8px 0;
-      margin: 10px 0;
-      font-size: 0.78rem;
+      margin: 12px 0;
+      font-size: 0.8rem;
       color: #bac2de;
+      line-height: 1.5;
     }
     .doc-callout.warning { border-left-color: #fab387; }
     .doc-callout.success { border-left-color: #a6e3a1; }
@@ -122,13 +206,13 @@
       background: #11111b;
       border: 1px solid #313244;
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 10px 14px;
       font-family: Consolas, Monaco, "Courier New", monospace;
       font-size: 0.78rem;
       color: #a6e3a1;
       overflow-x: auto;
-      margin: 8px 0;
-      line-height: 1.4;
+      margin: 10px 0;
+      line-height: 1.45;
     }
     .data-table {
       width: 100%;
@@ -147,10 +231,21 @@
       font-weight: 700;
     }
     .data-table tr:nth-child(even) { background: #161622; }
+    .btn-tag {
+      background: #313244;
+      color: #89b4fa;
+      border: 1px solid #45475a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.72rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
     .back-to-top {
       text-align: right;
       font-size: 0.72rem;
-      margin-top: 10px;
+      margin-top: 12px;
     }
     .back-to-top a {
       color: #a6adc8;
@@ -163,30 +258,115 @@
   <div class="docs-container">
     <header class="docs-header">
       <h1>Vehicle Horn Acoustic Data Collector</h1>
-      <p>Official Field Operations Manual, Technical Architecture, and Acquisition Protocol</p>
+      <p>Official Field Operations Manual, Technical Architecture, and Complete User Guide</p>
       <div class="nav-bar">
         <a href="index.html" class="nav-btn-link">&larr; Return to Live Recorder</a>
-        <a href="https://github.com/tamimystic/vehicle-horn-classification" target="_blank" rel="noopener" class="nav-btn-link">View GitHub Repository</a>
+        <a href="https://github.com/tamimystic/vehicle-horn-classification" target="_blank" rel="noopener" class="nav-btn-link">GitHub Repository</a>
       </div>
     </header>
 
+    <!-- Quick Start Card -->
+    <section class="quick-start-box">
+      <div class="quick-start-header">
+        <span class="quick-start-title">Quick Start: 5-Step Field Walkthrough</span>
+        <span class="quick-start-badge">FIELD PROTOCOL</span>
+      </div>
+      <div class="quick-steps-grid">
+        <div class="quick-step-card">
+          <div class="step-badge">1</div>
+          <div class="step-body">
+            <div class="step-title">Arm Microphone (Zero Latency Standby)</div>
+            <div class="step-desc">
+              Tap the <span class="btn-tag">Arm Mic (0ms)</span> button once. Grant microphone access when prompted. The status indicator will turn green: <code>[ARMED: 0ms]</code>. This pre-warms the audio pipeline so recordings start instantly with zero hardware delay.
+            </div>
+            <div class="bilingual-hint">
+              বাংলা নির্দেশিকা: ব্রাউজারে প্রবেশ করে প্রথমে "Arm Mic (0ms)" বাটনে চাপ দিন এবং মাইক্রোফোন পারমিশন Allow করুন। এটি গ্রিন হলে বুঝতে পারবেন কোনো ল্যাটেন্সি ছাড়া রেকর্ড করার জন্য প্রস্তুত।
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-step-card">
+          <div class="step-badge">2</div>
+          <div class="step-body">
+            <div class="step-title">Auto-Detect Exact Location via GPS</div>
+            <div class="step-desc">
+              Tap the <span class="btn-tag">GPS Locate</span> button. The phone activates its high-precision satellite receiver (GPS / GLONASS). If connected to cellular data, it automatically performs reverse geocoding to identify your exact neighborhood and city (e.g., <code>Kalabagan_Dhaka</code>, <code>Farmgate_Dhaka</code>). If offline, it automatically populates exact satellite coordinates with meter precision.
+            </div>
+            <div class="bilingual-hint">
+              বাংলা নির্দেশিকা: আপনি যেই জায়গায় দাঁড়িয়ে বা বসে আছেন, সেই নিখুঁত লোকেশন পেতে "GPS Locate" বাটনে ক্লিক করুন। মোবাইলের জিপিএস স্বয়ংক্রিয়ভাবে আপনার এলাকার নাম এবং ৩-৫ মিটার নির্ভুল স্থানাঙ্ক বক্সে বসিয়ে দিবে।
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-step-card">
+          <div class="step-badge">3</div>
+          <div class="step-body">
+            <div class="step-title">Set Vehicle Metadata & Snap Photo</div>
+            <div class="step-desc">
+              Select the <strong>Vehicle Class</strong> from the dropdown (e.g., Bus, Hydraulic Horn, Truck, Private Car). Enter the manufacturer model and registration plate number. Tap <span class="btn-tag">Snap Photo</span> to photograph the vehicle and license plate.
+            </div>
+            <div class="bilingual-hint">
+              বাংলা নির্দেশিকা: গাড়ির ধরন (বাস, হাইড্রোলিক হর্ন, ট্রাক ইত্যাদি) সিলেক্ট করুন। মডেল ও প্লেট নাম্বার লিখুন এবং "Snap Photo" চেপে গাড়ির স্পষ্ট ছবি তুলুন।
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-step-card">
+          <div class="step-badge">4</div>
+          <div class="step-body">
+            <div class="step-title">Record the Vehicle Horn Blast</div>
+            <div class="step-desc">
+              Choose your interaction mode:
+              <ul>
+                <li><strong>Tap Mode:</strong> Tap the big red button once when the horn starts; tap again when it stops.</li>
+                <li><strong>Hold Mode:</strong> Press and hold thumb on the button while the horn sounds; release immediately when the horn finishes.</li>
+              </ul>
+            </div>
+            <div class="bilingual-hint">
+              বাংলা নির্দেশিকা: হর্ন বাজামাত্রই ট্যাপ মোডে একবার ক্লিক করে শুরু করুন এবং আবার ক্লিক করে শেষ করুন; অথবা হোল্ড মোডে চেপে ধরে রাখুন এবং হর্ন শেষ হলে ছেড়ে দিন।
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-step-card">
+          <div class="step-badge">5</div>
+          <div class="step-body">
+            <div class="step-title">Review Quality, Save & Export</div>
+            <div class="step-desc">
+              Listen to the audio playback immediately in the <strong>Audio Quality Review</strong> card.
+              <ul>
+                <li>If the horn is clean and uncorrupted, tap <span class="btn-tag">Save Audio & Photo</span> (Green).</li>
+                <li>If there is pedestrian noise or wind blast, tap <span class="btn-tag">Discard / Retake</span> (Red).</li>
+                <li>At the end of your shift, tap <span class="btn-tag">Export ZIP</span> to download the full dual-layer dataset.</li>
+              </ul>
+            </div>
+            <div class="bilingual-hint">
+              বাংলা নির্দেশিকা: রেকর্ড শেষ হওয়ার সাথে সাথে অডিও প্লেয়ারে শুনে নিন। শব্দ পরিষ্কার হলে "Save Audio & Photo" চাপুন, আর বাতিল করতে চাইলে "Discard / Retake" চাপুন। দিনশেষে "Export ZIP" চেপে পুরো ডেটাসেট ডাউনলোড করুন।
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table of Contents -->
     <section class="toc-card">
-      <div class="toc-title">Table of Contents</div>
+      <div class="toc-title">Comprehensive System Table of Contents</div>
       <ol class="toc-list">
         <li><a href="#section-1">System Overview & Empirical Research Rationale</a></li>
         <li><a href="#section-2">Hardware Setup & Smartphone Rig Guidelines</a></li>
         <li><a href="#section-3">Microphone Pre-Arming (Zero-Latency Standby)</a></li>
-        <li><a href="#section-4">Session & Vehicle Metadata Entry (7-Parameter Schema)</a></li>
-        <li><a href="#section-5">Dual Recording Modes: Tap Mode vs. Hold Mode</a></li>
-        <li><a href="#section-6">Live Oscilloscope & Peak dBFS Metering</a></li>
-        <li><a href="#section-7">Human-in-the-Loop Quality Review & Rejection</a></li>
-        <li><a href="#section-8">Multimodal Vehicle Photo Capture & Segregation</a></li>
-        <li><a href="#section-9">Dual-Layer Dataset Hierarchy (Class-Level vs. Instance-Level)</a></li>
-        <li><a href="#section-10">Direct Local Disk Writing (File System Access API)</a></li>
-        <li><a href="#section-11">Offline Persistence & Standalone ZIP Dataset Export</a></li>
-        <li><a href="#section-12">Master Metadata Catalog (metadata.csv Specification)</a></li>
-        <li><a href="#section-13">Desktop Python Suite & PyInstaller Executable Builds</a></li>
-        <li><a href="#section-14">Field Troubleshooting & Frequently Asked Questions</a></li>
+        <li><a href="#section-4">Exact Location Auto-Detection via GPS & Reverse Geocoding</a></li>
+        <li><a href="#section-5">Complete Button-by-Button Interface Reference</a></li>
+        <li><a href="#section-6">Dual Recording Modes: Tap Mode vs. Hold Mode</a></li>
+        <li><a href="#section-7">Live Oscilloscope & Peak dBFS Metering</a></li>
+        <li><a href="#section-8">Human-in-the-Loop Quality Review & Rejection</a></li>
+        <li><a href="#section-9">Multimodal Vehicle Photo Capture & Segregation</a></li>
+        <li><a href="#section-10">Dual-Layer Dataset Hierarchy (Class-Level vs. Instance-Level)</a></li>
+        <li><a href="#section-11">Direct Local Disk Writing (File System Access API)</a></li>
+        <li><a href="#section-12">Offline Persistence & Standalone ZIP Dataset Export</a></li>
+        <li><a href="#section-13">Master Metadata Catalog (metadata.csv Specification)</a></li>
+        <li><a href="#section-14">Desktop Python Suite & PyInstaller Executable Builds</a></li>
+        <li><a href="#section-15">Field Troubleshooting & Frequently Asked Questions</a></li>
       </ol>
     </section>
 
@@ -238,39 +418,132 @@
 
     <!-- Section 4 -->
     <article id="section-4" class="doc-section">
-      <h2>4. Session & Vehicle Metadata Entry (7-Parameter Schema)</h2>
+      <h2>4. Exact Location Auto-Detection via GPS & Reverse Geocoding</h2>
       <p>
-        To ensure complete scientific repeatability and prevent unlabelled orphan files, every audio clip and photograph is named according to a strict 7-parameter schema:
+        A frequent question during field operations is: <em>"Can clicking the GPS button pinpoint the exact spot where I am sitting or standing, and automatically fill it in?"</em>
       </p>
-      <div class="code-block">
-[SampleID]_[InstanceID]_[Location]_[Distance]_[VehicleClass]_[VehicleModel]_[VehiclePlate]_[Timestamp].wav
+      <div class="doc-callout success">
+        <strong>Yes, absolutely!</strong> The <code>GPS Locate</code> button activates your device's native hardware satellite positioning chip and resolves both high-precision numerical coordinates and human-readable area names automatically.
       </div>
-      <h3>Form Parameters:</h3>
-      <ul>
-        <li><strong>Location / Site:</strong> The geographical site or intersection (e.g., <code>Gabtoli_Terminal</code>, <code>Farmgate_Cross</code>). Use the <code>GPS Locate</code> button to auto-populate coordinates.</li>
-        <li><strong>Distance:</strong> Geometric distance from transducer to the target vehicle (options: <code>1m</code>, <code>3m</code>, <code>5m</code>, <code>7m</code>, <code>10m</code>, <code>15m</code>). Default is <code>5m</code>.</li>
-        <li><strong>Vehicle Class:</strong> Selection across 9 standardized acoustic classes:
-          <ol>
-            <li><code>Bus</code> (Air/Electric Dual Pneumatic)</li>
-            <li><code>Hydraulic_Horn</code> (Banned extreme SPL >105 dBA multi-tone)</li>
-            <li><code>Truck</code> (Commercial Heavy Lorry)</li>
-            <li><code>Private_Car</code> (Sedan / SUV / Microbus pair)</li>
-            <li><code>Motorcycle</code> (High-frequency commuter disc)</li>
-            <li><code>CNG_Autorickshaw</code> (3-wheeler electromagnetic buzzer)</li>
-            <li><code>Easybike_Leguna</code> (Battery auto-rickshaw electronic chime)</li>
-            <li><code>Rickshaw_Bell</code> (Double metallic chime / bulb horn)</li>
-            <li><code>Background_Traffic_Noise</code> (Congestion idle, engine roar, tire wash - negative baseline)</li>
-          </ol>
+
+      <h3>How the GPS Auto-Detection Pipeline Works:</h3>
+      <ol>
+        <li>
+          <strong>Hardware Satellite Receiver Activation:</strong> When you tap <code>GPS Locate</code>, the browser calls the W3C Geolocation API with <code>enableHighAccuracy: true</code>. On smartphones, this powers on the physical GNSS chip (GPS, GLONASS, Galileo) rather than relying on coarse cell-tower approximations.
         </li>
-        <li><strong>Vehicle Name & Model:</strong> The manufacturer and model chassis (e.g., <code>Hino_AK1J</code>, <code>Tata_LP410</code>, <code>Yamaha_FZ</code>).</li>
-        <li><strong>Plate / Vehicle ID:</strong> Registration license number (e.g., <code>DhakaMetro-Ba-14-8923</code>).</li>
-      </ul>
+        <li>
+          <strong>Sub-Meter Coordinate Precision:</strong> The hardware captures your exact latitude and longitude with up to 5 decimal places (which represents a spatial resolution of approximately 1.1 meters) alongside your true error margin (e.g., <code>+/-3m</code>). The button immediately updates to display: <code>GPS Set (+/-3m)</code>.
+        </li>
+        <li>
+          <strong>Automatic Reverse Geocoding (Client-Side):</strong> If your phone has cellular data or Wi-Fi, the app queries BigDataCloud reverse geocoding to resolve the administrative area, neighborhood, and city name (for example, <code>Kalabagan_Dhaka</code>, <code>Farmgate_Dhaka</code>, or <code>Mirpur10_Dhaka</code>). This cleaned, filename-safe string is automatically written into the <strong>Location / Site</strong> input field.
+        </li>
+        <li>
+          <strong>Offline Highway Fallback:</strong> If you are collecting samples in remote highway corridors without mobile data, the app detects the network state and automatically falls back to high-resolution satellite coordinates: <code>GPS_23.75085_90.39234</code>.
+        </li>
+        <li>
+          <strong>Live Status Hint:</strong> A green indicator directly below the input displays: <code>Exact Spot: Kalabagan, Dhaka (GPS: 23.75085, 90.39234 | Accuracy: +/-3m)</code>.
+        </li>
+      </ol>
+
+      <div class="doc-callout warning">
+        <strong>Field Tip for High Accuracy:</strong> Ensure "Location" (GPS) is turned ON in your phone's Android / iOS quick settings, and allow browser location access when prompted. For best satellite reception, avoid operating directly under dense concrete underpasses.
+      </div>
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
     <!-- Section 5 -->
     <article id="section-5" class="doc-section">
-      <h2>5. Dual Recording Modes: Tap Mode vs. Hold Mode</h2>
+      <h2>5. Complete Button-by-Button Interface Reference</h2>
+      <p>
+        A complete guide explaining what each button does on the web collector interface:
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Button / Element</th>
+            <th>Location</th>
+            <th>Primary Function & Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>User Manual</code></td>
+            <td>Top Banner</td>
+            <td>Opens this comprehensive documentation and operations guide.</td>
+          </tr>
+          <tr>
+            <td><code>Bind Folder</code></td>
+            <td>Metadata Header</td>
+            <td>Binds a local hard drive folder via Chromium File System Access API for direct, pop-up-free file saving.</td>
+          </tr>
+          <tr>
+            <td><code>GPS Locate</code></td>
+            <td>Metadata Header</td>
+            <td>Acquires high-precision satellite coordinates and auto-populates exact location and neighborhood address.</td>
+          </tr>
+          <tr>
+            <td><code>Snap Photo</code></td>
+            <td>Vehicle Form</td>
+            <td>Opens phone camera or file browser to capture vehicle registration plate photo.</td>
+          </tr>
+          <tr>
+            <td><code>Remove Photo (X)</code></td>
+            <td>Photo Thumbnail</td>
+            <td>Clears current photographic preview without affecting vehicle metadata.</td>
+          </tr>
+          <tr>
+            <td><code>Arm Mic (0ms)</code></td>
+            <td>Visualizer Card</td>
+            <td>Pre-authorizes and pre-warms the audio pipeline for zero-latency recording triggers.</td>
+          </tr>
+          <tr>
+            <td><code>Tap Mode</code></td>
+            <td>Controls Bar</td>
+            <td>Switches interaction to toggle mode (tap to start, tap to stop). Best for sustained horns.</td>
+          </tr>
+          <tr>
+            <td><code>Hold Mode</code></td>
+            <td>Controls Bar</td>
+            <td>Switches interaction to push-to-talk mode (press and hold while horn sounds). Best for short beeps.</td>
+          </tr>
+          <tr>
+            <td><code>Main Record Button</code></td>
+            <td>Center Circle</td>
+            <td>Primary tactile trigger with Pointer Capture and haptic vibration feedback.</td>
+          </tr>
+          <tr>
+            <td><code>Save Audio & Photo</code></td>
+            <td>Review Card</td>
+            <td>Commits audio and photo to dual-layer folders, updates metadata.csv, and increments counters.</td>
+          </tr>
+          <tr>
+            <td><code>Discard / Retake</code></td>
+            <td>Review Card</td>
+            <td>Discards noisy or clipped recording from memory without altering global sequential counters.</td>
+          </tr>
+          <tr>
+            <td><code>Export ZIP</code></td>
+            <td>Session Card</td>
+            <td>Compiles entire dual-layer hierarchy, WAV files, photos, and metadata.csv into a downloadable ZIP.</td>
+          </tr>
+          <tr>
+            <td><code>Export CSV</code></td>
+            <td>Session Card</td>
+            <td>Exports master tabular catalog as a standalone CSV file.</td>
+          </tr>
+          <tr>
+            <td><code>Reset Session</code></td>
+            <td>Session Card</td>
+            <td>Clears cached IndexedDB records and resets instance counters for a new observation shift.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section 6 -->
+    <article id="section-6" class="doc-section">
+      <h2>6. Dual Recording Modes: Tap Mode vs. Hold Mode</h2>
       <p>
         Different field environments and researcher preferences necessitate flexible interaction mechanics. The suite provides two independent, hardware-stabilized recording modes accessible via the mode toggle switch:
       </p>
@@ -308,9 +581,9 @@
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 6 -->
-    <article id="section-6" class="doc-section">
-      <h2>6. Live Oscilloscope & Peak dBFS Metering</h2>
+    <!-- Section 7 -->
+    <article id="section-7" class="doc-section">
+      <h2>7. Live Oscilloscope & Peak dBFS Metering</h2>
       <p>
         The visualizer card contains a dual-rate time-domain oscilloscope rendered on HTML5 canvas and calibrated decibel full-scale (dBFS) level meters.
       </p>
@@ -322,9 +595,9 @@
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 7 -->
-    <article id="section-7" class="doc-section">
-      <h2>7. Human-in-the-Loop Quality Review & Rejection</h2>
+    <!-- Section 8 -->
+    <article id="section-8" class="doc-section">
+      <h2>8. Human-in-the-Loop Quality Review & Rejection</h2>
       <p>
         To prevent erroneous, clipped, or contaminated audio files from corrupting the dataset, recordings are <strong>never automatically committed to storage</strong> without human review.
       </p>
@@ -340,9 +613,9 @@
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 8 -->
-    <article id="section-8" class="doc-section">
-      <h2>8. Multimodal Vehicle Photo Capture & Segregation</h2>
+    <!-- Section 9 -->
+    <article id="section-9" class="doc-section">
+      <h2>9. Multimodal Vehicle Photo Capture & Segregation</h2>
       <p>
         To preserve clean audio loading pipelines in machine learning frameworks (e.g., PyTorch <code>torchaudio</code> or <code>librosa</code>), photographic imagery is <strong>strictly segregated from audio folders</strong>.
       </p>
@@ -358,9 +631,9 @@
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 9 -->
-    <article id="section-9" class="doc-section">
-      <h2>9. Dual-Layer Dataset Hierarchy</h2>
+    <!-- Section 10 -->
+    <article id="section-10" class="doc-section">
+      <h2>10. Dual-Layer Dataset Hierarchy</h2>
       <p>
         Academic machine learning benchmarks for vehicle acoustic classification face a severe risk of <strong>Data Leakage</strong>: if multiple horn samples from the same physical bus are randomly partitioned between training and test folds, the model learns the idiosyncratic engine hum or spectral resonance of that vehicle rather than general class features.
       </p>
@@ -391,9 +664,9 @@ Dataset/
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 10 -->
-    <article id="section-10" class="doc-section">
-      <h2>10. Direct Local Disk Writing (File System Access API)</h2>
+    <!-- Section 11 -->
+    <article id="section-11" class="doc-section">
+      <h2>11. Direct Local Disk Writing (File System Access API)</h2>
       <p>
         On desktop Chrome, Edge, and supported Chromium mobile browsers, researchers can bypass browser download popups completely:
       </p>
@@ -409,9 +682,9 @@ Dataset/
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 11 -->
-    <article id="section-11" class="doc-section">
-      <h2>11. Offline Persistence & Standalone ZIP Dataset Export</h2>
+    <!-- Section 12 -->
+    <article id="section-12" class="doc-section">
+      <h2>12. Offline Persistence & Standalone ZIP Dataset Export</h2>
       <p>
         In field environments without stable internet connectivity or on browsers that lack direct directory binding (e.g., iOS Safari), the application relies on an enterprise-grade client-side persistence pipeline:
       </p>
@@ -422,9 +695,9 @@ Dataset/
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 12 -->
-    <article id="section-12" class="doc-section">
-      <h2>12. Master Metadata Catalog (metadata.csv Specification)</h2>
+    <!-- Section 13 -->
+    <article id="section-13" class="doc-section">
+      <h2>13. Master Metadata Catalog (metadata.csv Specification)</h2>
       <p>
         The relational metadata catalog maintains 14 standardized columns:
       </p>
@@ -457,9 +730,9 @@ Dataset/
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 13 -->
-    <article id="section-13" class="doc-section">
-      <h2>13. Desktop Python Suite & PyInstaller Executable Builds</h2>
+    <!-- Section 14 -->
+    <article id="section-14" class="doc-section">
+      <h2>14. Desktop Python Suite & PyInstaller Executable Builds</h2>
       <p>
         In addition to the mobile PWA web app, a high-performance Python desktop application is provided for laptop monitoring rigs:
       </p>
@@ -479,19 +752,24 @@ python build_app.py
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
-    <!-- Section 14 -->
-    <article id="section-14" class="doc-section">
-      <h2>14. Field Troubleshooting & Frequently Asked Questions</h2>
-      <h3>Q1: The browser asks for microphone permission every time.</h3>
+    <!-- Section 15 -->
+    <article id="section-15" class="doc-section">
+      <h2>15. Field Troubleshooting & Frequently Asked Questions</h2>
+      <h3>Q1: How do I get the exact location where I am standing or sitting?</h3>
+      <p>
+        Simply tap the <code>GPS Locate</code> button in the Vehicle & Session Metadata card. The application will activate the device's hardware GPS receiver. When coordinates are received, the button updates to show the precision (e.g., <code>GPS Set (+/-3m)</code>) and automatically fills in your local neighborhood and city name.
+      </p>
+
+      <h3>Q2: The browser asks for microphone permission every time.</h3>
       <p>Ensure the website is loaded via HTTPS or localhost. On Android, tap the lock icon in the Chrome URL bar, select "Permissions", and set Microphone to "Allow". Tap "Install App" to install the PWA for permanent permission retention.</p>
       
-      <h3>Q2: Audio sounds faint or low in level.</h3>
+      <h3>Q3: Audio sounds faint or low in level.</h3>
       <p>Ensure your smartphone microphone port is free of dust or pocket lint. If using an external USB microphone, verify that the hardware gain switch is set to high, and stand within 5 meters of target traffic lanes.</p>
 
-      <h3>Q3: How do I export data from an iPhone without direct folder binding?</h3>
+      <h3>Q4: How do I export data from an iPhone without direct folder binding?</h3>
       <p>On iOS Safari, tap <code>Export ZIP</code> in the stats card at the bottom of the page. Safari will download the complete dual-layer structured ZIP file into the "Files" app, which can then be shared via AirDrop or USB cable to a workstation.</p>
 
-      <h3>Q4: How do I run automated verification tests?</h3>
+      <h3>Q5: How do I run automated verification tests?</h3>
       <div class="code-block">
 pytest tests/
       </div>

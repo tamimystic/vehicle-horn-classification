@@ -45,6 +45,7 @@ const vehicleClassSelect = document.getElementById("vehicleClassSelect");
 const vehicleModelInput = document.getElementById("vehicleModelInput");
 const vehiclePlateInput = document.getElementById("vehiclePlateInput");
 const gpsBtn = document.getElementById("gpsBtn");
+const gpsStatusHint = document.getElementById("gpsStatusHint");
 const selectDirBtn = document.getElementById("selectDirBtn");
 const dirStatusBadge = document.getElementById("dirStatusBadge");
 
@@ -126,27 +127,99 @@ function updateInstanceCounterDisplay() {
   });
 });
 
-// Geolocation Auto-Detect
+// High-Precision Hardware Geolocation Auto-Detect & Reverse Geocoding
 gpsBtn.addEventListener("click", () => {
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
     return;
   }
   gpsBtn.textContent = "Locating...";
+  if (gpsStatusHint) {
+    gpsStatusHint.textContent = "Acquiring high-precision hardware coordinates (GPS / Wi-Fi)...";
+    gpsStatusHint.className = "gps-hint";
+  }
+
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const lat = pos.coords.latitude.toFixed(4);
-      const lon = pos.coords.longitude.toFixed(4);
-      locationInput.value = `GPS_${lat}_${lon}`;
-      gpsBtn.textContent = "GPS Set";
-      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2500);
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = Math.round(pos.coords.accuracy || 0);
+      const latStr = lat.toFixed(5);
+      const lonStr = lon.toFixed(5);
+
+      let resolvedName = `GPS_${lat.toFixed(4)}_${lon.toFixed(4)}`;
+      gpsBtn.textContent = acc > 0 ? `GPS Set (+/-${acc}m)` : "GPS Set";
+
+      if (gpsStatusHint) {
+        gpsStatusHint.textContent = `Acquired GPS: ${latStr}, ${lonStr} (+/-${acc}m). Resolving address...`;
+        gpsStatusHint.className = "gps-hint active";
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          const locality = (data.locality || "").trim();
+          const city = (data.city || data.principalSubdivision || "").trim();
+
+          if (locality && city) {
+            const cleanLoc = sanitize(locality);
+            const cleanCity = sanitize(city);
+            resolvedName = cleanLoc.toLowerCase().includes(cleanCity.toLowerCase()) ? cleanLoc : `${cleanLoc}_${cleanCity}`;
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `Exact Spot: ${locality}, ${city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+            }
+          } else if (locality) {
+            resolvedName = sanitize(locality);
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `Exact Spot: ${locality} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+            }
+          } else if (city) {
+            resolvedName = sanitize(city);
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `City: ${city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+            }
+          } else {
+            resolvedName = `GPS_${latStr}_${lonStr}`;
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `Exact GPS: ${latStr}, ${lonStr} (Accuracy: +/-${acc}m)`;
+            }
+          }
+        }
+      } catch {
+        // Offline field fallback
+        resolvedName = `GPS_${latStr}_${lonStr}`;
+        if (gpsStatusHint) {
+          gpsStatusHint.textContent = `Offline Exact Coordinates: ${latStr}, ${lonStr} (Accuracy: +/-${acc}m)`;
+        }
+      }
+
+      locationInput.value = resolvedName;
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 3500);
     },
     (err) => {
       gpsBtn.textContent = "GPS Failed";
-      alert("GPS Error: " + err.message);
-      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2000);
+      let msg = err.message;
+      if (err.code === 1) {
+        msg = "Permission denied. Please allow location access in your browser.";
+      } else if (err.code === 2) {
+        msg = "Position unavailable. Please turn on device GPS/Location service.";
+      } else if (err.code === 3) {
+        msg = "GPS timed out. Please try again with outdoor sky visibility.";
+      }
+      if (gpsStatusHint) {
+        gpsStatusHint.textContent = "GPS Error: " + msg;
+        gpsStatusHint.className = "gps-hint error";
+      }
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 3000);
     },
-    { enableHighAccuracy: true, timeout: 10000 }
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
   );
 });
 

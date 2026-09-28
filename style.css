@@ -83,6 +83,105 @@ body {
   border-color: #89b4fa;
 }
 
+/* Ultra Prominent User Manual Banner */
+.user-manual-banner {
+  background: linear-gradient(135deg, rgba(137, 180, 250, 0.18), rgba(180, 190, 254, 0.08));
+  border: 1.5px solid #89b4fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(137, 180, 250, 0.15);
+  transition: all 0.2s ease;
+}
+
+.user-manual-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(137, 180, 250, 0.25);
+  border-color: #b4befe;
+}
+
+.manual-cta-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: inherit;
+  gap: 12px;
+}
+
+.manual-cta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manual-cta-badge {
+  display: inline-block;
+  align-self: flex-start;
+  background: #89b4fa;
+  color: #11111b;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.manual-cta-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #89b4fa;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+}
+
+.manual-cta-sub {
+  font-size: 0.72rem;
+  color: #cdd6f4;
+  line-height: 1.3;
+}
+
+.manual-cta-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #89b4fa;
+  color: #11111b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.manual-cta-btn:hover .manual-cta-action {
+  background: #b4befe;
+  box-shadow: 0 2px 8px rgba(137, 180, 250, 0.4);
+}
+
+.manual-cta-arrow {
+  font-size: 0.9rem;
+}
+
+/* GPS Hint & Status */
+.gps-hint {
+  font-size: 0.68rem;
+  color: #6c7086;
+  margin-top: 4px;
+  line-height: 1.25;
+}
+
+.gps-hint.active {
+  color: #a6e3a1;
+  font-weight: 600;
+}
+
+.gps-hint.error {
+  color: #f38ba8;
+  font-weight: 600;
+}
+
 /* Generic Card */
 .card {
   background: #181825;

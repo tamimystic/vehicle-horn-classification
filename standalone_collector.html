@@ -90,6 +90,105 @@ body {
   border-color: #89b4fa;
 }
 
+/* Ultra Prominent User Manual Banner */
+.user-manual-banner {
+  background: linear-gradient(135deg, rgba(137, 180, 250, 0.18), rgba(180, 190, 254, 0.08));
+  border: 1.5px solid #89b4fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(137, 180, 250, 0.15);
+  transition: all 0.2s ease;
+}
+
+.user-manual-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(137, 180, 250, 0.25);
+  border-color: #b4befe;
+}
+
+.manual-cta-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: inherit;
+  gap: 12px;
+}
+
+.manual-cta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.manual-cta-badge {
+  display: inline-block;
+  align-self: flex-start;
+  background: #89b4fa;
+  color: #11111b;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.manual-cta-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #89b4fa;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+}
+
+.manual-cta-sub {
+  font-size: 0.72rem;
+  color: #cdd6f4;
+  line-height: 1.3;
+}
+
+.manual-cta-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #89b4fa;
+  color: #11111b;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.manual-cta-btn:hover .manual-cta-action {
+  background: #b4befe;
+  box-shadow: 0 2px 8px rgba(137, 180, 250, 0.4);
+}
+
+.manual-cta-arrow {
+  font-size: 0.9rem;
+}
+
+/* GPS Hint & Status */
+.gps-hint {
+  font-size: 0.68rem;
+  color: #6c7086;
+  margin-top: 4px;
+  line-height: 1.25;
+}
+
+.gps-hint.active {
+  color: #a6e3a1;
+  font-weight: 600;
+}
+
+.gps-hint.error {
+  color: #f38ba8;
+  font-weight: 600;
+}
+
 /* Generic Card */
 .card {
   background: #181825;
@@ -639,6 +738,21 @@ body {
       </div>
     </header>
 
+    <!-- Ultra Prominent User Manual Action Banner -->
+    <section class="user-manual-banner">
+      <a href="docs.html" class="manual-cta-btn" title="Open comprehensive user manual & operations guide">
+        <div class="manual-cta-left">
+          <span class="manual-cta-badge">USER MANUAL &bull; ব্যবহার নির্দেশিকা</span>
+          <span class="manual-cta-title">How to Use: Step-by-Step Field Guide</span>
+          <span class="manual-cta-sub">Tap here to view the complete guide on how to record, use GPS, and export data</span>
+        </div>
+        <div class="manual-cta-action">
+          <span class="manual-cta-text">Open Guide</span>
+          <span class="manual-cta-arrow">&rarr;</span>
+        </div>
+      </a>
+    </section>
+
     <!-- Session & Vehicle Metadata Card -->
     <section class="card metadata-card">
       <div class="card-header">
@@ -653,6 +767,7 @@ body {
         <div class="form-group col-2">
           <label for="locationInput">Location / Site:</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
+          <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect exact spot &amp; address</div>
         </div>
 
         <div class="form-group col-1">
@@ -832,6 +947,7 @@ const vehicleClassSelect = document.getElementById("vehicleClassSelect");
 const vehicleModelInput = document.getElementById("vehicleModelInput");
 const vehiclePlateInput = document.getElementById("vehiclePlateInput");
 const gpsBtn = document.getElementById("gpsBtn");
+const gpsStatusHint = document.getElementById("gpsStatusHint");
 const selectDirBtn = document.getElementById("selectDirBtn");
 const dirStatusBadge = document.getElementById("dirStatusBadge");
 
@@ -913,27 +1029,99 @@ function updateInstanceCounterDisplay() {
   });
 });
 
-// Geolocation Auto-Detect
+// High-Precision Hardware Geolocation Auto-Detect & Reverse Geocoding
 gpsBtn.addEventListener("click", () => {
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
     return;
   }
   gpsBtn.textContent = "Locating...";
+  if (gpsStatusHint) {
+    gpsStatusHint.textContent = "Acquiring high-precision hardware coordinates (GPS / Wi-Fi)...";
+    gpsStatusHint.className = "gps-hint";
+  }
+
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      const lat = pos.coords.latitude.toFixed(4);
-      const lon = pos.coords.longitude.toFixed(4);
-      locationInput.value = `GPS_${lat}_${lon}`;
-      gpsBtn.textContent = "GPS Set";
-      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2500);
+    async (pos) => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const acc = Math.round(pos.coords.accuracy || 0);
+      const latStr = lat.toFixed(5);
+      const lonStr = lon.toFixed(5);
+
+      let resolvedName = `GPS_${lat.toFixed(4)}_${lon.toFixed(4)}`;
+      gpsBtn.textContent = acc > 0 ? `GPS Set (+/-${acc}m)` : "GPS Set";
+
+      if (gpsStatusHint) {
+        gpsStatusHint.textContent = `Acquired GPS: ${latStr}, ${lonStr} (+/-${acc}m). Resolving address...`;
+        gpsStatusHint.className = "gps-hint active";
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          const locality = (data.locality || "").trim();
+          const city = (data.city || data.principalSubdivision || "").trim();
+
+          if (locality && city) {
+            const cleanLoc = sanitize(locality);
+            const cleanCity = sanitize(city);
+            resolvedName = cleanLoc.toLowerCase().includes(cleanCity.toLowerCase()) ? cleanLoc : `${cleanLoc}_${cleanCity}`;
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `Exact Spot: ${locality}, ${city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+            }
+          } else if (locality) {
+            resolvedName = sanitize(locality);
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `Exact Spot: ${locality} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+            }
+          } else if (city) {
+            resolvedName = sanitize(city);
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `City: ${city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+            }
+          } else {
+            resolvedName = `GPS_${latStr}_${lonStr}`;
+            if (gpsStatusHint) {
+              gpsStatusHint.textContent = `Exact GPS: ${latStr}, ${lonStr} (Accuracy: +/-${acc}m)`;
+            }
+          }
+        }
+      } catch {
+        // Offline field fallback
+        resolvedName = `GPS_${latStr}_${lonStr}`;
+        if (gpsStatusHint) {
+          gpsStatusHint.textContent = `Offline Exact Coordinates: ${latStr}, ${lonStr} (Accuracy: +/-${acc}m)`;
+        }
+      }
+
+      locationInput.value = resolvedName;
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 3500);
     },
     (err) => {
       gpsBtn.textContent = "GPS Failed";
-      alert("GPS Error: " + err.message);
-      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 2000);
+      let msg = err.message;
+      if (err.code === 1) {
+        msg = "Permission denied. Please allow location access in your browser.";
+      } else if (err.code === 2) {
+        msg = "Position unavailable. Please turn on device GPS/Location service.";
+      } else if (err.code === 3) {
+        msg = "GPS timed out. Please try again with outdoor sky visibility.";
+      }
+      if (gpsStatusHint) {
+        gpsStatusHint.textContent = "GPS Error: " + msg;
+        gpsStatusHint.className = "gps-hint error";
+      }
+      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 3000);
     },
-    { enableHighAccuracy: true, timeout: 10000 }
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
   );
 });
 
