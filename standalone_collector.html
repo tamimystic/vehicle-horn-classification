@@ -189,6 +189,63 @@ body {
   font-weight: 600;
 }
 
+/* Live GPS Detail Box */
+.gps-detail-box {
+  margin-top: 8px;
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gps-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.gps-detail-label {
+  color: #a6adc8;
+  font-weight: 500;
+}
+
+.gps-detail-val {
+  color: #89b4fa;
+  font-weight: 700;
+  text-align: right;
+  max-width: 65%;
+  word-break: break-word;
+}
+
+.gps-detail-val.success {
+  color: #a6e3a1;
+}
+
+.gps-map-link-row {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #1e1e2e;
+  text-align: right;
+}
+
+.gps-map-link {
+  color: #89b4fa;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: color 0.15s ease;
+}
+
+.gps-map-link:hover {
+  color: #a6e3a1;
+  text-decoration: underline;
+}
+
 /* Generic Card */
 .card {
   background: #181825;
@@ -768,6 +825,31 @@ body {
           <label for="locationInput">Location / Site:</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
           <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect exact spot &amp; address</div>
+          <div id="gpsDetailBox" class="gps-detail-box" style="display: none;">
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Exact Spot / Road:</span>
+              <span id="gpsSpotValue" class="gps-detail-val">Detecting...</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Thana / Area:</span>
+              <span id="gpsThanaValue" class="gps-detail-val">Detecting...</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">City / District:</span>
+              <span id="gpsCityValue" class="gps-detail-val">Detecting...</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Live Coordinates:</span>
+              <span id="gpsCoordValue" class="gps-detail-val">--</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Hardware Accuracy:</span>
+              <span id="gpsAccuracyValue" class="gps-detail-val">--</span>
+            </div>
+            <div class="gps-map-link-row">
+              <a id="gpsMapLink" href="#" target="_blank" rel="noopener" class="gps-map-link">View Exact Spot on Google Maps &rarr;</a>
+            </div>
+          </div>
         </div>
 
         <div class="form-group col-1">
@@ -948,6 +1030,19 @@ const vehicleModelInput = document.getElementById("vehicleModelInput");
 const vehiclePlateInput = document.getElementById("vehiclePlateInput");
 const gpsBtn = document.getElementById("gpsBtn");
 const gpsStatusHint = document.getElementById("gpsStatusHint");
+const gpsDetailBox = document.getElementById("gpsDetailBox");
+const gpsSpotValue = document.getElementById("gpsSpotValue");
+const gpsThanaValue = document.getElementById("gpsThanaValue");
+const gpsCityValue = document.getElementById("gpsCityValue");
+const gpsCoordValue = document.getElementById("gpsCoordValue");
+const gpsAccuracyValue = document.getElementById("gpsAccuracyValue");
+const gpsMapLink = document.getElementById("gpsMapLink");
+
+let liveGpsWatchId = null;
+let isLiveGpsActive = false;
+let lastGeocodedCoord = null;
+const lastLiveCoordinates = { lat: null, lon: null, accuracy: null, spot: "", thana: "", city: "" };
+
 const selectDirBtn = document.getElementById("selectDirBtn");
 const dirStatusBadge = document.getElementById("dirStatusBadge");
 
@@ -1029,87 +1124,263 @@ function updateInstanceCounterDisplay() {
   });
 });
 
-// High-Precision Hardware Geolocation Auto-Detect & Reverse Geocoding
+// Smart Bangladesh Thana & Administrative Resolver
+function resolveBangladeshThana(lat, lon, candidateText, candidateCity) {
+  const textLower = (candidateText || "").toLowerCase();
+  const cityLower = (candidateCity || "").toLowerCase();
+
+  // Rajshahi Metropolitan City (RCC)
+  if ((lat >= 24.33 && lat <= 24.43 && lon >= 88.54 && lon <= 88.66) || cityLower.includes("rajshahi")) {
+    const boaliaKeywords = [
+      "tikapara", "shaheb bazar", "saheb bazar", "sagorpara", "sagarpara", "alupatti", "alu patti",
+      "ranibazar", "rani bazar", "kumarpara", "kumar para", "ghoramara", "kadirgonj", "kadirganj",
+      "hetem khan", "hetemkhan", "kazihata", "kazi hata", "malopara", "malo para", "station road",
+      "shiroil", "boalia", "rampur boalia", "dorgah para", "sultanabad", "sericulture", "bornali"
+    ];
+    for (const kw of boaliaKeywords) {
+      if (textLower.includes(kw)) return "Boalia_Thana";
+    }
+    const motiharKeywords = ["motihar", "ru", "university", "kazla", "binodpur", "meherchandi", "talaimari", "kajla"];
+    for (const kw of motiharKeywords) {
+      if (textLower.includes(kw)) return "Motihar_Thana";
+    }
+    const rajparaKeywords = ["rajpara", "laxmipur", "court", "harupur", "sipahipara", "c&b"];
+    for (const kw of rajparaKeywords) {
+      if (textLower.includes(kw)) return "Rajpara_Thana";
+    }
+    const makhdumKeywords = ["shah makhdum", "nawdapara", "sopura", "airport", "railgate"];
+    for (const kw of makhdumKeywords) {
+      if (textLower.includes(kw)) return "Shah_Makhdum_Thana";
+    }
+    const chandrimaKeywords = ["chandrima", "bhodra", "choto bongram"];
+    for (const kw of chandrimaKeywords) {
+      if (textLower.includes(kw)) return "Chandrima_Thana";
+    }
+    // Default for urban core of Rajshahi
+    return "Boalia_Thana";
+  }
+
+  // Dhaka Metropolitan Thanas
+  if (lat >= 23.65 && lat <= 23.95 && lon >= 90.30 && lon <= 90.50) {
+    const dhakaThanas = [
+      { name: "Dhanmondi_Thana", keys: ["dhanmondi", "kalabagan", "panthapath", "science lab"] },
+      { name: "Tejgaon_Thana", keys: ["farmgate", "tejgaon", "kawran bazar", "monipuripara"] },
+      { name: "Mirpur_Thana", keys: ["mirpur", "pallabi", "senpara", "kazipara", "shewrapara"] },
+      { name: "Gulshan_Thana", keys: ["gulshan", "banani", "baridhara", "niketan"] },
+      { name: "Shahbagh_Thana", keys: ["shahbagh", "du", "tsc", "bangla motor"] },
+      { name: "Uttara_Thana", keys: ["uttara", "azampur", "jasimuddin"] },
+      { name: "Mohammadpur_Thana", keys: ["mohammadpur", "adabor", "ring road"] },
+      { name: "Motijheel_Thana", keys: ["motijheel", "dilkusha", "fakirapool", "arambagh"] }
+    ];
+    for (const dt of dhakaThanas) {
+      for (const k of dt.keys) {
+        if (textLower.includes(k)) return dt.name;
+      }
+    }
+  }
+
+  return "";
+}
+
+// Multi-Source Live Geocoding Function (Photon + Nominatim + BigDataCloud)
+async function fetchMultiSourceAddress(lat, lon) {
+  let spot = "";
+  let neighborhood = "";
+  let thana = "";
+  let city = "";
+  let fullAddress = "";
+
+  // 1. Query Photon for precise landmarks & roads
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&lang=en`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.features && data.features.length > 0) {
+        const p = data.features[0].properties || {};
+        if (p.name && p.name !== p.street && p.name !== p.city) spot = p.name;
+        if (p.street) spot = spot ? `${spot}_${p.street}` : p.street;
+        if (p.district) neighborhood = p.district;
+        if (p.city) city = p.city;
+      }
+    }
+  } catch {}
+
+  // 2. Query Nominatim for standardized administrative boundaries
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=en`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      fullAddress = data.display_name || "";
+      const road = addr.road || addr.pedestrian || addr.footway || "";
+      const suburb = addr.suburb || addr.neighbourhood || addr.residential || "";
+      const townCity = addr.city || addr.town || addr.municipality || "";
+
+      if (!spot && road) spot = road;
+      if (!neighborhood && suburb) neighborhood = suburb;
+      if (!city && townCity) city = townCity;
+    }
+  } catch {}
+
+  // 3. Fallback to BigDataCloud
+  if (!city || (!spot && !neighborhood)) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        if (!neighborhood && data.locality) neighborhood = data.locality;
+        if (!city && (data.city || data.principalSubdivision)) city = data.city || data.principalSubdivision;
+      }
+    } catch {}
+  }
+
+  // 4. Resolve exact Thana
+  const combinedText = `${spot} ${neighborhood} ${fullAddress}`;
+  thana = resolveBangladeshThana(lat, lon, combinedText, city);
+
+  const cleanSpot = sanitize(spot || neighborhood || "Spot");
+  const cleanThana = sanitize(thana || (city ? `${city}_Area` : "Thana"));
+  const cleanCity = sanitize(city || "BD");
+
+  return {
+    spot: spot || neighborhood || "Spot",
+    neighborhood: neighborhood,
+    thana: thana || (city ? `${city} Area` : ""),
+    city: city || "Bangladesh",
+    slug: `${cleanSpot}_${cleanThana}_${cleanCity}`,
+    fullAddress: fullAddress
+  };
+}
+
+// Live Location Update Handler
+async function handleLiveGpsPosition(pos) {
+  const lat = pos.coords.latitude;
+  const lon = pos.coords.longitude;
+  const acc = Math.round(pos.coords.accuracy || 0);
+  const latStr = lat.toFixed(6);
+  const lonStr = lon.toFixed(6);
+
+  lastLiveCoordinates.lat = lat;
+  lastLiveCoordinates.lon = lon;
+  lastLiveCoordinates.accuracy = acc;
+
+  if (gpsDetailBox) {
+    gpsDetailBox.style.display = "flex";
+  }
+  if (gpsCoordValue) {
+    gpsCoordValue.textContent = `${latStr} N, ${lonStr} E`;
+  }
+  if (gpsAccuracyValue) {
+    gpsAccuracyValue.textContent = `+/-${acc} meters (Live Hardware Lock)`;
+    gpsAccuracyValue.className = acc <= 10 ? "gps-detail-val success" : "gps-detail-val";
+  }
+  if (gpsMapLink) {
+    gpsMapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
+  }
+
+  gpsBtn.textContent = acc > 0 ? `Live GPS (Lock +/-${acc}m)` : "Live GPS: Active";
+
+  // Check if coordinates changed significantly (> 30 meters) to avoid excessive reverse geocoding queries
+  let shouldGeocode = false;
+  if (!lastGeocodedCoord) {
+    shouldGeocode = true;
+  } else {
+    const dLat = Math.abs(lat - lastGeocodedCoord.lat);
+    const dLon = Math.abs(lon - lastGeocodedCoord.lon);
+    if (dLat > 0.0003 || dLon > 0.0003) shouldGeocode = true;
+  }
+
+  if (shouldGeocode) {
+    lastGeocodedCoord = { lat, lon };
+    if (gpsStatusHint) {
+      gpsStatusHint.textContent = `Resolving exact spot & thana for ${latStr}, ${lonStr}...`;
+      gpsStatusHint.className = "gps-hint";
+    }
+
+    try {
+      const geo = await fetchMultiSourceAddress(lat, lon);
+      lastLiveCoordinates.spot = geo.spot;
+      lastLiveCoordinates.thana = geo.thana;
+      lastLiveCoordinates.city = geo.city;
+
+      if (gpsSpotValue) gpsSpotValue.textContent = geo.spot || "Exact Spot Detected";
+      if (gpsThanaValue) gpsThanaValue.textContent = geo.thana || "Local Thana";
+      if (gpsCityValue) gpsCityValue.textContent = geo.city || "District";
+
+      locationInput.value = geo.slug;
+
+      if (gpsStatusHint) {
+        gpsStatusHint.textContent = `Live Spot: ${geo.spot}, ${geo.thana}, ${geo.city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+        gpsStatusHint.className = "gps-hint active";
+      }
+    } catch {
+      // Fallback
+      const fallbackSlug = `GPS_${lat.toFixed(5)}_${lon.toFixed(5)}`;
+      locationInput.value = fallbackSlug;
+      if (gpsStatusHint) {
+        gpsStatusHint.textContent = `Offline Live GPS: ${latStr}, ${lonStr} (+/-${acc}m)`;
+        gpsStatusHint.className = "gps-hint active";
+      }
+    }
+  }
+}
+
+// Live GPS Toggle & Hardware Tracking Handler
 gpsBtn.addEventListener("click", () => {
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
     return;
   }
-  gpsBtn.textContent = "Locating...";
+
+  if (isLiveGpsActive) {
+    // Stop live tracking
+    if (liveGpsWatchId !== null) {
+      navigator.geolocation.clearWatch(liveGpsWatchId);
+      liveGpsWatchId = null;
+    }
+    isLiveGpsActive = false;
+    gpsBtn.textContent = "GPS Locate";
+    gpsBtn.classList.remove("active");
+    if (gpsStatusHint) {
+      gpsStatusHint.textContent = "Live GPS paused. Current location coordinates locked.";
+    }
+    return;
+  }
+
+  // Start live tracking
+  isLiveGpsActive = true;
+  gpsBtn.textContent = "Locating Live...";
+  gpsBtn.classList.add("active");
   if (gpsStatusHint) {
-    gpsStatusHint.textContent = "Acquiring high-precision hardware coordinates (GPS / Wi-Fi)...";
+    gpsStatusHint.textContent = "Acquiring live hardware satellite lock (GPS/GLONASS)...";
     gpsStatusHint.className = "gps-hint";
   }
 
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      const acc = Math.round(pos.coords.accuracy || 0);
-      const latStr = lat.toFixed(5);
-      const lonStr = lon.toFixed(5);
-
-      let resolvedName = `GPS_${lat.toFixed(4)}_${lon.toFixed(4)}`;
-      gpsBtn.textContent = acc > 0 ? `GPS Set (+/-${acc}m)` : "GPS Set";
-
-      if (gpsStatusHint) {
-        gpsStatusHint.textContent = `Acquired GPS: ${latStr}, ${lonStr} (+/-${acc}m). Resolving address...`;
-        gpsStatusHint.className = "gps-hint active";
-      }
-
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`, {
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (res.ok) {
-          const data = await res.json();
-          const locality = (data.locality || "").trim();
-          const city = (data.city || data.principalSubdivision || "").trim();
-
-          if (locality && city) {
-            const cleanLoc = sanitize(locality);
-            const cleanCity = sanitize(city);
-            resolvedName = cleanLoc.toLowerCase().includes(cleanCity.toLowerCase()) ? cleanLoc : `${cleanLoc}_${cleanCity}`;
-            if (gpsStatusHint) {
-              gpsStatusHint.textContent = `Exact Spot: ${locality}, ${city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
-            }
-          } else if (locality) {
-            resolvedName = sanitize(locality);
-            if (gpsStatusHint) {
-              gpsStatusHint.textContent = `Exact Spot: ${locality} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
-            }
-          } else if (city) {
-            resolvedName = sanitize(city);
-            if (gpsStatusHint) {
-              gpsStatusHint.textContent = `City: ${city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
-            }
-          } else {
-            resolvedName = `GPS_${latStr}_${lonStr}`;
-            if (gpsStatusHint) {
-              gpsStatusHint.textContent = `Exact GPS: ${latStr}, ${lonStr} (Accuracy: +/-${acc}m)`;
-            }
-          }
-        }
-      } catch {
-        // Offline field fallback
-        resolvedName = `GPS_${latStr}_${lonStr}`;
-        if (gpsStatusHint) {
-          gpsStatusHint.textContent = `Offline Exact Coordinates: ${latStr}, ${lonStr} (Accuracy: +/-${acc}m)`;
-        }
-      }
-
-      locationInput.value = resolvedName;
-      setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 3500);
-    },
+  // Use watchPosition for continuous real-time live refinement
+  liveGpsWatchId = navigator.geolocation.watchPosition(
+    handleLiveGpsPosition,
     (err) => {
       gpsBtn.textContent = "GPS Failed";
+      gpsBtn.classList.remove("active");
+      isLiveGpsActive = false;
       let msg = err.message;
       if (err.code === 1) {
-        msg = "Permission denied. Please allow location access in your browser.";
+        msg = "Permission denied. Please allow location access in your browser settings.";
       } else if (err.code === 2) {
         msg = "Position unavailable. Please turn on device GPS/Location service.";
       } else if (err.code === 3) {
@@ -1121,7 +1392,7 @@ gpsBtn.addEventListener("click", () => {
       }
       setTimeout(() => (gpsBtn.textContent = "GPS Locate"), 3000);
     },
-    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 });
 

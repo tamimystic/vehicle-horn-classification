@@ -53,6 +53,31 @@
           <label for="locationInput">Location / Site:</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
           <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect exact spot &amp; address</div>
+          <div id="gpsDetailBox" class="gps-detail-box" style="display: none;">
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Exact Spot / Road:</span>
+              <span id="gpsSpotValue" class="gps-detail-val">Detecting...</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Thana / Area:</span>
+              <span id="gpsThanaValue" class="gps-detail-val">Detecting...</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">City / District:</span>
+              <span id="gpsCityValue" class="gps-detail-val">Detecting...</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Live Coordinates:</span>
+              <span id="gpsCoordValue" class="gps-detail-val">--</span>
+            </div>
+            <div class="gps-detail-row">
+              <span class="gps-detail-label">Hardware Accuracy:</span>
+              <span id="gpsAccuracyValue" class="gps-detail-val">--</span>
+            </div>
+            <div class="gps-map-link-row">
+              <a id="gpsMapLink" href="#" target="_blank" rel="noopener" class="gps-map-link">View Exact Spot on Google Maps &rarr;</a>
+            </div>
+          </div>
         </div>
 
         <div class="form-group col-1">

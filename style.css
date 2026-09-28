@@ -182,6 +182,63 @@ body {
   font-weight: 600;
 }
 
+/* Live GPS Detail Box */
+.gps-detail-box {
+  margin-top: 8px;
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gps-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.gps-detail-label {
+  color: #a6adc8;
+  font-weight: 500;
+}
+
+.gps-detail-val {
+  color: #89b4fa;
+  font-weight: 700;
+  text-align: right;
+  max-width: 65%;
+  word-break: break-word;
+}
+
+.gps-detail-val.success {
+  color: #a6e3a1;
+}
+
+.gps-map-link-row {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #1e1e2e;
+  text-align: right;
+}
+
+.gps-map-link {
+  color: #89b4fa;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: color 0.15s ease;
+}
+
+.gps-map-link:hover {
+  color: #a6e3a1;
+  text-decoration: underline;
+}
+
 /* Generic Card */
 .card {
   background: #181825;
