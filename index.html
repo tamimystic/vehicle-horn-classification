@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Vehicle Horn Acoustic Data Collector</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="theme-color" content="#1e1e2e">
@@ -45,6 +47,7 @@
         <div class="header-action-group">
           <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct disk writing">Bind Folder</button>
           <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">GPS Locate</button>
+          <button type="button" id="mapPickerBtn" class="pill-btn" title="Pinpoint and adjust exact location on interactive map">Pin on Map</button>
         </div>
       </div>
 
@@ -52,7 +55,7 @@
         <div class="form-group col-2">
           <label for="locationInput">Location / Site:</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
-          <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect exact spot &amp; address</div>
+          <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect, or &quot;Pin on Map&quot; to drag pin to your exact spot</div>
           <div id="gpsDetailBox" class="gps-detail-box" style="display: none;">
             <div class="gps-detail-row">
               <span class="gps-detail-label">Exact Spot / Road:</span>
@@ -76,6 +79,27 @@
             </div>
             <div class="gps-map-link-row">
               <a id="gpsMapLink" href="#" target="_blank" rel="noopener" class="gps-map-link">View Exact Spot on Google Maps &rarr;</a>
+            </div>
+          </div>
+
+          <!-- Interactive Map Location Picker -->
+          <div id="mapPickerContainer" class="map-picker-container" style="display: none;">
+            <div class="map-picker-top">
+              <span class="map-picker-title">Pinpoint Exact Location on Map</span>
+              <button type="button" id="closeMapPickerBtn" class="pill-btn close-btn">Close Map</button>
+            </div>
+            <div class="map-search-row">
+              <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Search area, road, or landmark (e.g. Upashahar, Shaheb Bazar, Kazla)...">
+              <button type="button" id="mapSearchBtn" class="pill-btn">Search</button>
+            </div>
+            <div id="mapSearchResults" class="map-search-results" style="display: none;"></div>
+            <div id="interactiveMap" class="interactive-map"></div>
+            <div class="map-picker-footer">
+              <div class="map-selected-info">
+                <div id="mapSelectedSpot" class="map-spot-text">Drag pin or click map to choose your exact spot</div>
+                <div id="mapSelectedCoords" class="map-coords-text">--</div>
+              </div>
+              <button type="button" id="confirmMapSpotBtn" class="pill-btn confirm-spot-btn">Lock This Exact Spot</button>
             </div>
           </div>
         </div>

@@ -59,6 +59,20 @@ let isLiveGpsActive = false;
 let lastGeocodedCoord = null;
 const lastLiveCoordinates = { lat: null, lon: null, accuracy: null, spot: "", thana: "", city: "" };
 
+const mapPickerBtn = document.getElementById("mapPickerBtn");
+const mapPickerContainer = document.getElementById("mapPickerContainer");
+const closeMapPickerBtn = document.getElementById("closeMapPickerBtn");
+const mapSearchInput = document.getElementById("mapSearchInput");
+const mapSearchBtn = document.getElementById("mapSearchBtn");
+const mapSearchResults = document.getElementById("mapSearchResults");
+const mapSelectedSpot = document.getElementById("mapSelectedSpot");
+const mapSelectedCoords = document.getElementById("mapSelectedCoords");
+const confirmMapSpotBtn = document.getElementById("confirmMapSpotBtn");
+
+let leafletMap = null;
+let leafletMarker = null;
+let pendingMapLocation = null;
+
 const selectDirBtn = document.getElementById("selectDirBtn");
 const dirStatusBadge = document.getElementById("dirStatusBadge");
 
@@ -302,8 +316,13 @@ async function handleLiveGpsPosition(pos) {
     gpsCoordValue.textContent = `${latStr} N, ${lonStr} E`;
   }
   if (gpsAccuracyValue) {
-    gpsAccuracyValue.textContent = `+/-${acc} meters (Live Hardware Lock)`;
-    gpsAccuracyValue.className = acc <= 10 ? "gps-detail-val success" : "gps-detail-val";
+    if (acc > 150) {
+      gpsAccuracyValue.textContent = `+/-${acc}m (Wi-Fi/Broadband Estimate)`;
+      gpsAccuracyValue.className = "gps-detail-val warn";
+    } else {
+      gpsAccuracyValue.textContent = `+/-${acc} meters (Live Hardware Lock)`;
+      gpsAccuracyValue.className = acc <= 10 ? "gps-detail-val success" : "gps-detail-val";
+    }
   }
   if (gpsMapLink) {
     gpsMapLink.href = `https://www.google.com/maps?q=${lat},${lon}`;
@@ -341,8 +360,13 @@ async function handleLiveGpsPosition(pos) {
       locationInput.value = geo.slug;
 
       if (gpsStatusHint) {
-        gpsStatusHint.textContent = `Live Spot: ${geo.spot}, ${geo.thana}, ${geo.city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
-        gpsStatusHint.className = "gps-hint active";
+        if (acc > 150) {
+          gpsStatusHint.textContent = `Broadband/Wi-Fi detected: ${geo.spot}, ${geo.thana} (+/-${(acc/1000).toFixed(1)}km off on PC). Tap "Pin on Map" to drag pin to your exact spot!`;
+          gpsStatusHint.className = "gps-hint error";
+        } else {
+          gpsStatusHint.textContent = `Live Spot: ${geo.spot}, ${geo.thana}, ${geo.city} (GPS: ${latStr}, ${lonStr} | Accuracy: +/-${acc}m)`;
+          gpsStatusHint.className = "gps-hint active";
+        }
       }
     } catch {
       // Fallback
@@ -411,6 +435,188 @@ gpsBtn.addEventListener("click", () => {
     { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
   );
 });
+
+// Interactive Map Picker Logic
+function openMapPicker(targetLat, targetLon) {
+  if (!mapPickerContainer) return;
+  mapPickerContainer.style.display = "flex";
+
+  const defaultLat = targetLat || (lastLiveCoordinates.lat || 24.3730);
+  const defaultLon = targetLon || (lastLiveCoordinates.lon || 88.6109);
+
+  if (window.L) {
+    if (!leafletMap) {
+      leafletMap = L.map("interactiveMap").setView([defaultLat, defaultLon], 16);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap"
+      }).addTo(leafletMap);
+
+      leafletMarker = L.marker([defaultLat, defaultLon], { draggable: true }).addTo(leafletMap);
+
+      leafletMarker.on("dragend", async (e) => {
+        const pos = e.target.getLatLng();
+        await updateMapPinLocation(pos.lat, pos.lng);
+      });
+
+      leafletMap.on("click", async (e) => {
+        leafletMarker.setLatLng(e.latlng);
+        await updateMapPinLocation(e.latlng.lat, e.latlng.lng);
+      });
+    } else {
+      leafletMap.setView([defaultLat, defaultLon], 16);
+      leafletMarker.setLatLng([defaultLat, defaultLon]);
+    }
+    updateMapPinLocation(defaultLat, defaultLon);
+    setTimeout(() => {
+      if (leafletMap) leafletMap.invalidateSize();
+    }, 250);
+  }
+}
+
+async function updateMapPinLocation(lat, lon) {
+  const latStr = lat.toFixed(6);
+  const lonStr = lon.toFixed(6);
+  if (mapSelectedCoords) {
+    mapSelectedCoords.textContent = `${latStr} N, ${lonStr} E`;
+  }
+  if (mapSelectedSpot) {
+    mapSelectedSpot.textContent = "Resolving exact spot & thana for pinned location...";
+  }
+
+  try {
+    const geo = await fetchMultiSourceAddress(lat, lon);
+    pendingMapLocation = {
+      lat: lat,
+      lon: lon,
+      spot: geo.spot,
+      thana: geo.thana,
+      city: geo.city,
+      slug: geo.slug
+    };
+    if (mapSelectedSpot) {
+      mapSelectedSpot.textContent = `${geo.spot}, ${geo.thana}, ${geo.city}`;
+    }
+  } catch {
+    const fallbackSlug = `GPS_${lat.toFixed(5)}_${lon.toFixed(5)}`;
+    pendingMapLocation = {
+      lat: lat,
+      lon: lon,
+      spot: "Custom_Spot",
+      thana: "Boalia_Thana",
+      city: "Rajshahi",
+      slug: fallbackSlug
+    };
+    if (mapSelectedSpot) {
+      mapSelectedSpot.textContent = `Custom Spot: ${latStr}, ${lonStr}`;
+    }
+  }
+}
+
+async function searchMapLocation(query) {
+  if (!query || !query.trim()) return;
+  const q = query.trim();
+  if (mapSearchResults) {
+    mapSearchResults.innerHTML = `<div style="padding:8px;color:#a6adc8;font-size:0.72rem;">Searching...</div>`;
+    mapSearchResults.style.display = "flex";
+  }
+
+  try {
+    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q + " Rajshahi Bangladesh")}&limit=5`);
+    if (res.ok) {
+      const data = await res.json();
+      mapSearchResults.innerHTML = "";
+      if (data.features && data.features.length > 0) {
+        data.features.forEach((feat) => {
+          const p = feat.properties || {};
+          const coords = feat.geometry ? feat.geometry.coordinates : null;
+          if (coords) {
+            const item = document.createElement("div");
+            item.className = "map-search-item";
+            const name = p.name || p.street || "Place";
+            const district = p.district || p.city || p.county || "";
+            item.textContent = `${name}${district ? ` (${district})` : ""}`;
+            item.addEventListener("click", () => {
+              const lon = coords[0];
+              const lat = coords[1];
+              if (leafletMap && leafletMarker) {
+                leafletMap.setView([lat, lon], 17);
+                leafletMarker.setLatLng([lat, lon]);
+                updateMapPinLocation(lat, lon);
+              }
+              mapSearchResults.style.display = "none";
+              mapSearchInput.value = item.textContent;
+            });
+            mapSearchResults.appendChild(item);
+          }
+        });
+      } else {
+        mapSearchResults.innerHTML = `<div style="padding:8px;color:#f38ba8;font-size:0.72rem;">No matching places found. Try a neighborhood name (e.g. Upashahar, Shaheb Bazar, Kazla).</div>`;
+      }
+    }
+  } catch {
+    mapSearchResults.innerHTML = `<div style="padding:8px;color:#f38ba8;font-size:0.72rem;">Search request error.</div>`;
+  }
+}
+
+if (mapPickerBtn) {
+  mapPickerBtn.addEventListener("click", () => {
+    openMapPicker(lastLiveCoordinates.lat, lastLiveCoordinates.lon);
+  });
+}
+
+if (closeMapPickerBtn) {
+  closeMapPickerBtn.addEventListener("click", () => {
+    if (mapPickerContainer) mapPickerContainer.style.display = "none";
+  });
+}
+
+if (mapSearchBtn) {
+  mapSearchBtn.addEventListener("click", () => {
+    searchMapLocation(mapSearchInput.value);
+  });
+}
+
+if (mapSearchInput) {
+  mapSearchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      searchMapLocation(mapSearchInput.value);
+    }
+  });
+}
+
+if (confirmMapSpotBtn) {
+  confirmMapSpotBtn.addEventListener("click", () => {
+    if (pendingMapLocation) {
+      locationInput.value = pendingMapLocation.slug;
+      lastLiveCoordinates.lat = pendingMapLocation.lat;
+      lastLiveCoordinates.lon = pendingMapLocation.lon;
+      lastLiveCoordinates.accuracy = 0;
+      lastLiveCoordinates.spot = pendingMapLocation.spot;
+      lastLiveCoordinates.thana = pendingMapLocation.thana;
+      lastLiveCoordinates.city = pendingMapLocation.city;
+
+      if (gpsDetailBox) gpsDetailBox.style.display = "flex";
+      if (gpsSpotValue) gpsSpotValue.textContent = pendingMapLocation.spot || "Exact Spot Pinned";
+      if (gpsThanaValue) gpsThanaValue.textContent = pendingMapLocation.thana || "Local Thana";
+      if (gpsCityValue) gpsCityValue.textContent = pendingMapLocation.city || "District";
+      if (gpsCoordValue) gpsCoordValue.textContent = `${pendingMapLocation.lat.toFixed(6)} N, ${pendingMapLocation.lon.toFixed(6)} E`;
+      if (gpsAccuracyValue) {
+        gpsAccuracyValue.textContent = "Exact (Pinned on Map)";
+        gpsAccuracyValue.className = "gps-detail-val success";
+      }
+      if (gpsMapLink) {
+        gpsMapLink.href = `https://www.google.com/maps?q=${pendingMapLocation.lat},${pendingMapLocation.lon}`;
+      }
+      if (gpsStatusHint) {
+        gpsStatusHint.textContent = `Exact Spot Pinned: ${pendingMapLocation.spot}, ${pendingMapLocation.thana}, ${pendingMapLocation.city}`;
+        gpsStatusHint.className = "gps-hint active";
+      }
+    }
+    if (mapPickerContainer) mapPickerContainer.style.display = "none";
+  });
+}
 
 // Photo Capture Handlers
 snapPhotoBtn.addEventListener("click", () => photoFileInput.click());
