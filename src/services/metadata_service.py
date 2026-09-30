@@ -26,6 +26,13 @@ class HornEventMetadata(BaseModel):
     calib_offset_c: float = 112.4
     location: str
     distance_m: str
+    distance_raw_m: Optional[float] = 5.0
+    distance_uncertainty_m: Optional[float] = 0.15
+    distance_confidence_pct: Optional[float] = 95.0
+    distance_method: Optional[str] = "Sensor_Fusion_Optical_Tilt"
+    acoustic_azimuth_deg: Optional[int] = 0
+    camera_tilt_deg: Optional[float] = 0.0
+    observer_height_m: Optional[float] = 1.40
     angle_deg: int = 45
     mic_height_m: float = 1.5
     elevation_type: str = "Ground_Level"

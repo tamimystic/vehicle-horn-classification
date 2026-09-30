@@ -881,3 +881,210 @@ body {
   border-radius: 6px;
   word-break: break-all;
 }
+
+/* Live Optical Rangefinder & Viewfinder Styling */
+.rangefinder-card {
+  padding: 12px;
+  border-color: #45475a;
+}
+
+.active-range-btn {
+  background: #313244;
+  color: #89b4fa;
+  border-color: #89b4fa;
+}
+
+.active-range-btn.running {
+  background: #f38ba8;
+  color: #11111b;
+  border-color: #f38ba8;
+}
+
+.rangefinder-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.viewport-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 280px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  border: 1.5px solid #45475a;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+#rangefinderVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+#rangefinderCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hud-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 10px;
+}
+
+.hud-top-row, .hud-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-metric-box {
+  background: rgba(17, 17, 27, 0.8);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(137, 180, 250, 0.4);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.hud-metric-box.text-right, .hud-sub-metric.text-right {
+  text-align: right;
+}
+
+.hud-label {
+  display: block;
+  font-size: 0.56rem;
+  color: #89b4fa;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.hud-val-primary {
+  font-size: 1.15rem;
+  color: #a6e3a1;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.hud-val-secondary {
+  display: block;
+  font-size: 0.68rem;
+  color: #fab387;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.hud-sub-metric {
+  background: rgba(17, 17, 27, 0.8);
+  border: 1px solid #313244;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  color: #cdd6f4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.rangefinder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.range-ctrl-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.range-ctrl-group label {
+  font-size: 0.74rem;
+  color: #a6adc8;
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.range-ctrl-group select {
+  flex: 1;
+  background: #181825;
+  color: #cdd6f4;
+  border: 1px solid #45475a;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+}
+
+.range-ctrl-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.lock-dist-btn {
+  background: #a6e3a1;
+  color: #11111b;
+  border: none;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.lock-dist-btn:active {
+  background: #94e2d5;
+}
+
+.capture-frame-btn {
+  background: #89b4fa;
+  color: #11111b;
+  border: none;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.capture-frame-btn:active {
+  background: #74c7ec;
+}
+
+.auto-sync-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #cdd6f4;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.auto-sync-toggle input {
+  accent-color: #89b4fa;
+  width: 14px;
+  height: 14px;
+}
+
+.rangefinder-hint {
+  font-size: 0.68rem;
+  color: #a6adc8;
+  background: #181825;
+  border: 1px dashed #45475a;
+  padding: 6px 8px;
+  border-radius: 6px;
+  line-height: 1.35;
+}
+

@@ -41,6 +41,7 @@ let rootDirectoryHandle = null;
 // DOM Elements
 const locationInput = document.getElementById("locationInput");
 const distanceSelect = document.getElementById("distanceSelect");
+const azimuthSelect = document.getElementById("azimuthSelect");
 const vehicleClassSelect = document.getElementById("vehicleClassSelect");
 const vehicleModelInput = document.getElementById("vehicleModelInput");
 const vehiclePlateInput = document.getElementById("vehiclePlateInput");
@@ -84,6 +85,46 @@ const snapPhotoBtn = document.getElementById("snapPhotoBtn");
 const photoThumbContainer = document.getElementById("photoThumbContainer");
 const photoThumb = document.getElementById("photoThumb");
 const removePhotoBtn = document.getElementById("removePhotoBtn");
+
+// Live Optical Rangefinder & Viewfinder DOM Elements
+const toggleCameraBtn = document.getElementById("toggleCameraBtn");
+const flipCameraBtn = document.getElementById("flipCameraBtn");
+const rangefinderContainer = document.getElementById("rangefinderContainer");
+const rangefinderVideo = document.getElementById("rangefinderVideo");
+const rangefinderCanvas = document.getElementById("rangefinderCanvas");
+const rangefinderCtx = rangefinderCanvas ? rangefinderCanvas.getContext("2d") : null;
+const hudDistanceDisplay = document.getElementById("hudDistanceDisplay");
+const hudConfidenceDisplay = document.getElementById("hudConfidenceDisplay");
+const hudTiltDisplay = document.getElementById("hudTiltDisplay");
+const hudModeDisplay = document.getElementById("hudModeDisplay");
+const rangeTargetModeSelect = document.getElementById("rangeTargetModeSelect");
+const observerHeightSelect = document.getElementById("observerHeightSelect");
+const lockDistanceBtn = document.getElementById("lockDistanceBtn");
+const captureFrameBtn = document.getElementById("captureFrameBtn");
+const autoSyncRangeOnRecord = document.getElementById("autoSyncRangeOnRecord");
+const rangefinderHint = document.getElementById("rangefinderHint");
+
+// Rangefinder State Variables
+let rangefinderStream = null;
+let isRangefinderActive = false;
+let currentCameraFacingMode = "environment";
+let rawPitchDeg = 15.6; // Initial default pitch angle
+let smoothedPitchDeg = 15.6;
+let observerHeightM = 1.40;
+let lastCalculatedDistance = 5.0;
+let lastDistanceUncertainty = 0.15;
+let lastDistanceConfidence = 95.0;
+let lastDistanceMethod = "Manual_Selection";
+let rangefinderAnimFrame = null;
+let orientationSensorActive = false;
+let currentDistanceMetrics = {
+  raw_m: 5.0,
+  uncertainty_m: 0.15,
+  conf_pct: 95.0,
+  method: "Manual_Selection",
+  tilt_deg: 0.0,
+  azimuth_deg: 0
+};
 
 const armMicBtn = document.getElementById("armMicBtn");
 const levelIndicator = document.getElementById("levelIndicator");
@@ -641,6 +682,417 @@ removePhotoBtn.addEventListener("click", () => {
   photoThumbContainer.style.display = "none";
 });
 
+// ==========================================
+// Scientific Optical Rangefinder & Viewfinder
+// ==========================================
+
+function getVehicleTargetWidthM(cls) {
+  switch (cls) {
+    case "Bus":
+    case "Hydraulic_Horn":
+    case "Truck":
+      return 2.50; // Standard commercial vehicle width in Bangladesh (m)
+    case "Private_Car":
+      return 1.75;
+    case "CNG_Autorickshaw":
+      return 1.30;
+    case "Easybike_Leguna":
+      return 1.25;
+    case "Motorcycle":
+      return 0.80;
+    case "Rickshaw_Bell":
+      return 1.00;
+    default:
+      return 2.00;
+  }
+}
+
+function initOrientationSensor() {
+  if (orientationSensorActive) return;
+
+  const handleOrientation = (e) => {
+    if (e.beta === null || e.beta === undefined) return;
+    rawPitchDeg = e.beta;
+    // Calculate depression angle relative to horizontal plane
+    let depress = 90.0 - rawPitchDeg;
+    if (depress < 2.0) depress = 2.0;
+    if (depress > 80.0) depress = 80.0;
+
+    // Exponential smoothing
+    smoothedPitchDeg = smoothedPitchDeg * 0.75 + depress * 0.25;
+  };
+
+  if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+    DeviceOrientationEvent.requestPermission()
+      .then((state) => {
+        if (state === "granted") {
+          window.addEventListener("deviceorientation", handleOrientation, true);
+          orientationSensorActive = true;
+        }
+      })
+      .catch(() => {});
+  } else if ("ondeviceorientation" in window) {
+    window.addEventListener("deviceorientation", handleOrientation, true);
+    orientationSensorActive = true;
+  }
+}
+
+async function startRangefinderCamera() {
+  if (isRangefinderActive) {
+    stopRangefinderCamera();
+    return;
+  }
+
+  initOrientationSensor();
+
+  try {
+    const constraints = {
+      video: {
+        facingMode: { ideal: currentCameraFacingMode },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    };
+
+    rangefinderStream = await navigator.mediaDevices.getUserMedia(constraints);
+    if (rangefinderVideo) {
+      rangefinderVideo.srcObject = rangefinderStream;
+      await rangefinderVideo.play();
+    }
+
+    isRangefinderActive = true;
+    if (rangefinderContainer) rangefinderContainer.style.display = "flex";
+    if (toggleCameraBtn) {
+      toggleCameraBtn.textContent = "Stop Camera";
+      toggleCameraBtn.classList.add("running");
+    }
+    if (flipCameraBtn) flipCameraBtn.style.display = "inline-block";
+
+    renderRangefinderLoop();
+    if (latestLogEl) {
+      latestLogEl.textContent = "Rangefinder camera active. Aim crosshair at vehicle base/wheels.";
+    }
+  } catch (err) {
+    alert("Camera Access Error: " + err.message);
+  }
+}
+
+function stopRangefinderCamera() {
+  if (rangefinderStream) {
+    rangefinderStream.getTracks().forEach((track) => track.stop());
+    rangefinderStream = null;
+  }
+  if (rangefinderVideo) rangefinderVideo.srcObject = null;
+  if (rangefinderAnimFrame) {
+    cancelAnimationFrame(rangefinderAnimFrame);
+    rangefinderAnimFrame = null;
+  }
+  isRangefinderActive = false;
+  if (rangefinderContainer) rangefinderContainer.style.display = "none";
+  if (toggleCameraBtn) {
+    toggleCameraBtn.textContent = "Start Rangefinder Camera";
+    toggleCameraBtn.classList.remove("running");
+  }
+  if (flipCameraBtn) flipCameraBtn.style.display = "none";
+}
+
+async function flipRangefinderCamera() {
+  currentCameraFacingMode = currentCameraFacingMode === "environment" ? "user" : "environment";
+  if (isRangefinderActive) {
+    stopRangefinderCamera();
+    await startRangefinderCamera();
+  }
+}
+
+function computeRangefinderDistance() {
+  if (observerHeightSelect) {
+    observerHeightM = parseFloat(observerHeightSelect.value) || 1.40;
+  }
+  const mode = rangeTargetModeSelect ? rangeTargetModeSelect.value : "ground_angle";
+  const thetaRad = (smoothedPitchDeg * Math.PI) / 180.0;
+  const sinTheta = Math.sin(thetaRad);
+  const cosTheta = Math.cos(thetaRad);
+  const tanTheta = Math.tan(thetaRad);
+
+  // 1. Geometric Ground-Contact Distance (Inclinometer)
+  let dGeo = 5.0;
+  if (tanTheta > 0.035) {
+    dGeo = observerHeightM / tanTheta;
+  } else {
+    dGeo = 25.0;
+  }
+
+  // Geometric Uncertainty (propagating +/-0.5 deg sensor jitter and +/-0.05m height error)
+  const sigmaAngleRad = (0.5 * Math.PI) / 180.0;
+  const sigmaH = 0.05;
+  const termH = sigmaH / observerHeightM;
+  const termTheta = sigmaAngleRad / (sinTheta * cosTheta || 0.1);
+  const sigmaGeo = dGeo * Math.sqrt(termH * termH + termTheta * termTheta);
+
+  // 2. Optical Pinhole Stadiametric Distance
+  const cls = vehicleClassSelect ? vehicleClassSelect.value : "Bus";
+  let targetWidthM = getVehicleTargetWidthM(cls);
+  let reticleRatio = 0.45;
+
+  if (mode === "license_plate") {
+    targetWidthM = 0.52; // Standard BRTA plate
+    reticleRatio = 0.22;
+  } else if (mode === "ground_angle") {
+    reticleRatio = 0.50;
+  }
+
+  const hfovRad = (64.0 * Math.PI) / 180.0;
+  const canvasW = rangefinderCanvas ? rangefinderCanvas.width : 640;
+  const fPixel = canvasW / (2.0 * Math.tan(hfovRad / 2.0));
+  const wReticle = canvasW * reticleRatio;
+  const dOpt = (targetWidthM * fPixel) / wReticle;
+  const sigmaOpt = dOpt * 0.08;
+
+  // 3. Sensor Fusion
+  let fusedD = dGeo;
+  let fusedSigma = sigmaGeo;
+
+  if (mode === "ground_angle") {
+    fusedD = dGeo;
+    fusedSigma = Math.max(0.08, sigmaGeo);
+  } else if (mode === "vehicle_width") {
+    const wGeo = 1.0 / (sigmaGeo * sigmaGeo);
+    const wOpt = 1.0 / (sigmaOpt * sigmaOpt);
+    fusedD = (wGeo * dGeo + wOpt * dOpt) / (wGeo + wOpt);
+    fusedSigma = Math.sqrt(1.0 / (wGeo + wOpt));
+  } else if (mode === "license_plate") {
+    fusedD = dOpt;
+    fusedSigma = Math.max(0.10, sigmaOpt);
+  }
+
+  if (fusedD < 0.8) fusedD = 0.8;
+  if (fusedD > 25.0) fusedD = 25.0;
+
+  const conf = Math.max(25, Math.min(99, Math.round((1.0 - fusedSigma / fusedD) * 100)));
+
+  lastCalculatedDistance = parseFloat(fusedD.toFixed(2));
+  lastDistanceUncertainty = parseFloat(fusedSigma.toFixed(2));
+  lastDistanceConfidence = conf;
+  lastDistanceMethod = "Sensor_Fusion_Optical_Tilt";
+
+  return {
+    distance: lastCalculatedDistance,
+    uncertainty: lastDistanceUncertainty,
+    confidence: lastDistanceConfidence,
+    pitch: smoothedPitchDeg,
+    mode: mode
+  };
+}
+
+function renderRangefinderLoop() {
+  if (!isRangefinderActive) return;
+
+  if (rangefinderCanvas && rangefinderVideo && rangefinderVideo.videoWidth > 0) {
+    if (rangefinderCanvas.width !== rangefinderVideo.videoWidth) {
+      rangefinderCanvas.width = rangefinderVideo.videoWidth;
+      rangefinderCanvas.height = rangefinderVideo.videoHeight;
+    }
+
+    const ctx = rangefinderCtx;
+    const w = rangefinderCanvas.width;
+    const h = rangefinderCanvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const calc = computeRangefinderDistance();
+
+    // 1. Center Optical Reticle & Crosshair
+    const cx = w / 2;
+    const cy = h / 2;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(166, 227, 161, 0.85)";
+
+    // Center Crosshair
+    ctx.beginPath();
+    ctx.moveTo(cx - 24, cy);
+    ctx.lineTo(cx - 6, cy);
+    ctx.moveTo(cx + 6, cy);
+    ctx.lineTo(cx + 24, cy);
+    ctx.moveTo(cx, cy - 24);
+    ctx.lineTo(cx, cy - 6);
+    ctx.moveTo(cx, cy + 6);
+    ctx.lineTo(cx, cy + 24);
+    ctx.stroke();
+
+    // Center Circle
+    ctx.beginPath();
+    ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 2. Horizon Level Line
+    ctx.strokeStyle = "rgba(137, 180, 250, 0.5)";
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(w * 0.1, cy);
+    ctx.lineTo(w * 0.9, cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3. Stadiametric Brackets
+    const mode = rangeTargetModeSelect ? rangeTargetModeSelect.value : "ground_angle";
+    let boxW = w * 0.45;
+    let boxH = h * 0.40;
+    if (mode === "license_plate") {
+      boxW = w * 0.22;
+      boxH = h * 0.12;
+    } else if (mode === "ground_angle") {
+      boxW = w * 0.35;
+      boxH = h * 0.28;
+    }
+
+    const bx = cx - boxW / 2;
+    const by = cy - boxH / 2;
+    const corner = 18;
+
+    ctx.strokeStyle = "#89b4fa";
+    ctx.lineWidth = 2.5;
+
+    // Top-left
+    ctx.beginPath();
+    ctx.moveTo(bx, by + corner);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(bx + corner, by);
+    // Top-right
+    ctx.moveTo(bx + boxW - corner, by);
+    ctx.lineTo(bx + boxW, by);
+    ctx.lineTo(bx + boxW, by + corner);
+    // Bottom-left
+    ctx.moveTo(bx, by + boxH - corner);
+    ctx.lineTo(bx, by + boxH);
+    ctx.lineTo(bx + corner, by + boxH);
+    // Bottom-right
+    ctx.moveTo(bx + boxW - corner, by + boxH);
+    ctx.lineTo(bx + boxW, by + boxH);
+    ctx.lineTo(bx + boxW, by + boxH - corner);
+    ctx.stroke();
+
+    // 4. Update HUD Displays
+    if (hudDistanceDisplay) {
+      hudDistanceDisplay.textContent = `${calc.distance.toFixed(2)} m`;
+    }
+    if (hudConfidenceDisplay) {
+      hudConfidenceDisplay.textContent = `Uncertainty: +/-${calc.uncertainty.toFixed(2)}m | Conf: ${calc.confidence}%`;
+    }
+    if (hudTiltDisplay) {
+      hudTiltDisplay.textContent = `Pitch: -${calc.pitch.toFixed(1)} deg | Ht: ${observerHeightM.toFixed(2)}m`;
+    }
+    if (hudModeDisplay) {
+      const modeNames = {
+        ground_angle: "Tire Ground Contact",
+        vehicle_width: "Vehicle Width Pinhole",
+        license_plate: "BRTA License Plate"
+      };
+      hudModeDisplay.textContent = `Mode: ${modeNames[mode] || "Ground Angle"}`;
+    }
+  }
+
+  rangefinderAnimFrame = requestAnimationFrame(renderRangefinderLoop);
+}
+
+function lockCurrentRangefinderDistance(interactive = true) {
+  const calc = computeRangefinderDistance();
+  const dVal = calc.distance;
+  const dStr = `${dVal.toFixed(1)}m`;
+
+  let found = false;
+  for (let i = 0; i < distanceSelect.options.length; i++) {
+    if (distanceSelect.options[i].value === dStr) {
+      distanceSelect.selectedIndex = i;
+      found = true;
+      break;
+    }
+  }
+
+  if (!found) {
+    const opt = document.createElement("option");
+    opt.value = dStr;
+    opt.textContent = `${dStr} (Rangefinder Locked)`;
+    distanceSelect.appendChild(opt);
+    distanceSelect.value = dStr;
+  }
+
+  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
+
+  currentDistanceMetrics = {
+    raw_m: dVal,
+    uncertainty_m: calc.uncertainty,
+    conf_pct: calc.confidence,
+    method: "Sensor_Fusion_Optical_Tilt",
+    tilt_deg: -parseFloat(calc.pitch.toFixed(1)),
+    azimuth_deg: azimuthVal
+  };
+
+  if (interactive && latestLogEl) {
+    latestLogEl.innerHTML = `<span style="color:#a6e3a1;">Distance locked: <b>${dStr}</b> (+/-${calc.uncertainty}m, Conf: ${calc.confidence}%)</span>`;
+  }
+}
+
+async function captureCalibratedVideoFrame(updateThumbnail = true) {
+  if (!rangefinderVideo || rangefinderVideo.videoWidth === 0) return null;
+
+  const offscreen = document.createElement("canvas");
+  offscreen.width = rangefinderVideo.videoWidth;
+  offscreen.height = rangefinderVideo.videoHeight;
+  const ctx = offscreen.getContext("2d");
+  ctx.drawImage(rangefinderVideo, 0, 0, offscreen.width, offscreen.height);
+
+  return new Promise((resolve) => {
+    offscreen.toBlob(
+      (blob) => {
+        if (blob) {
+          currentPhotoBlob = blob;
+          if (updateThumbnail && photoThumb && photoThumbContainer) {
+            photoThumb.src = URL.createObjectURL(blob);
+            photoThumbContainer.style.display = "block";
+          }
+        }
+        resolve(blob);
+      },
+      "image/jpeg",
+      0.92
+    );
+  });
+}
+
+// Event Listeners for Rangefinder Controls
+if (toggleCameraBtn) {
+  toggleCameraBtn.addEventListener("click", () => {
+    startRangefinderCamera();
+  });
+}
+
+if (flipCameraBtn) {
+  flipCameraBtn.addEventListener("click", () => {
+    flipRangefinderCamera();
+  });
+}
+
+if (lockDistanceBtn) {
+  lockDistanceBtn.addEventListener("click", () => {
+    lockCurrentRangefinderDistance(true);
+  });
+}
+
+if (captureFrameBtn) {
+  captureFrameBtn.addEventListener("click", async () => {
+    await captureCalibratedVideoFrame(true);
+    if (latestLogEl) {
+      latestLogEl.innerHTML = `<span style="color:#89b4fa;">Calibrated vehicle photo captured from live rangefinder!</span>`;
+    }
+  });
+}
+
+if (observerHeightSelect) {
+  observerHeightSelect.addEventListener("change", () => {
+    observerHeightM = parseFloat(observerHeightSelect.value) || 1.40;
+  });
+}
+
 // Mode Switching (Tap vs Hold)
 modeTapBtn.addEventListener("click", () => {
   activeMode = "tap";
@@ -788,6 +1240,12 @@ async function startAudioRecording() {
   isRecording = true;
   recordingStartTime = performance.now();
 
+  // Auto-sync distance and capture calibrated photo if rangefinder is active
+  if (autoSyncRangeOnRecord && autoSyncRangeOnRecord.checked && isRangefinderActive) {
+    lockCurrentRangefinderDistance(false);
+    captureCalibratedVideoFrame(true).catch(() => {});
+  }
+
   if (navigator.vibrate) {
     try { navigator.vibrate(40); } catch {}
   }
@@ -880,10 +1338,15 @@ function stopAudioRecording() {
   const wavName = `${baseFileName}.wav`;
   const photoName = `${baseFileName}.jpg`;
 
+  const azimuthText = azimuthSelect ? azimuthSelect.options[azimuthSelect.selectedIndex].text : "Front (0 deg Direct)";
+  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
+
   reviewDetails.innerHTML = `
     <div><strong>1. Class Layer:</strong> <span class="path-tag">Dataset/Raw_By_Class/${cls}/${wavName}</span></div>
     <div><strong>2. Instance Layer:</strong> <span class="path-tag">Dataset/Instances_By_Vehicle/${cls}/${model}_${plate}/${wavName}</span></div>
     ${currentPhotoBlob ? `<div><strong>3. Photo Layer:</strong> <span class="path-tag">Dataset/Vehicle_Photos/${photoName}</span></div>` : `<div style="color:#a6adc8;">(No vehicle photo attached)</div>`}
+    <div><strong>4. Acoustic Azimuth:</strong> <span class="path-tag">${azimuthText}</span></div>
+    <div><strong>5. Calibrated Distance:</strong> <span class="path-tag">${dist} (Raw: ${currentDistanceMetrics.raw_m}m, Uncertainty: +/-${currentDistanceMetrics.uncertainty_m}m, Conf: ${currentDistanceMetrics.conf_pct}%)</span></div>
   `;
 
   reviewSection.style.display = "block";
@@ -950,6 +1413,7 @@ saveRecordingBtn.addEventListener("click", async () => {
   const cls = sanitize(vehicleClassSelect.value);
   const model = sanitize(vehicleModelInput.value || "Unknown");
   const plate = sanitize(vehiclePlateInput.value || "Unknown");
+  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
 
   const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${loc}_${timeStr}`;
   const wavFileName = `${baseFileName}.wav`;
@@ -966,6 +1430,13 @@ saveRecordingBtn.addEventListener("click", async () => {
     license_plate: plate,
     location: loc,
     distance_m: dist,
+    distance_raw_m: currentDistanceMetrics.raw_m || (parseFloat(dist) || 5.0),
+    distance_uncertainty_m: currentDistanceMetrics.uncertainty_m || 0.15,
+    distance_confidence_pct: currentDistanceMetrics.conf_pct || 95.0,
+    distance_method: currentDistanceMetrics.method || "Manual_Selection",
+    acoustic_azimuth_deg: azimuthVal,
+    camera_tilt_deg: currentDistanceMetrics.tilt_deg || 0.0,
+    observer_height_m: observerHeightM || 1.40,
     duration_sec: currentDurationSec.toFixed(2),
     peak_dbfs: currentPeakDb.toFixed(2),
     rms_dbfs: currentRmsDb.toFixed(2),

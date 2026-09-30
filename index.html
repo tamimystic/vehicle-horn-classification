@@ -116,7 +116,17 @@
           </select>
         </div>
 
-        <div class="form-group col-3">
+        <div class="form-group col-1">
+          <label for="azimuthSelect">Acoustic Azimuth:</label>
+          <select id="azimuthSelect">
+            <option value="0" selected>Front (0 deg Direct)</option>
+            <option value="90">Right Side (90 deg)</option>
+            <option value="180">Rear (180 deg Shielded)</option>
+            <option value="270">Left Side (270 deg)</option>
+          </select>
+        </div>
+
+        <div class="form-group col-2">
           <label for="vehicleClassSelect">Vehicle Class:</label>
           <select id="vehicleClassSelect">
             <option value="Bus" selected>Bus (Pneumatic Air / Dual Electric)</option>
@@ -156,6 +166,77 @@
             <img id="photoThumb" class="photo-thumb" alt="Vehicle Photo">
             <button type="button" id="removePhotoBtn" class="photo-remove-btn" title="Remove photo">X</button>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Optical Rangefinder & Viewfinder Card -->
+    <section class="card rangefinder-card">
+      <div class="card-header">
+        <span class="card-title">Live Optical Rangefinder & Viewfinder</span>
+        <div class="header-action-group">
+          <button type="button" id="toggleCameraBtn" class="pill-btn active-range-btn">Start Rangefinder Camera</button>
+          <button type="button" id="flipCameraBtn" class="pill-btn" style="display:none;" title="Switch camera">Flip Lens</button>
+        </div>
+      </div>
+
+      <div id="rangefinderContainer" class="rangefinder-container" style="display: none;">
+        <div class="viewport-wrapper">
+          <video id="rangefinderVideo" playsinline autoplay muted></video>
+          <canvas id="rangefinderCanvas"></canvas>
+          <div class="hud-overlay">
+            <div class="hud-top-row">
+              <div class="hud-metric-box">
+                <span class="hud-label">CALCULATED DISTANCE</span>
+                <span id="hudDistanceDisplay" class="hud-val-primary">-- m</span>
+              </div>
+              <div class="hud-metric-box text-right">
+                <span class="hud-label">ACCURACY & CONFIDENCE</span>
+                <span id="hudConfidenceDisplay" class="hud-val-secondary">Uncertainty: -- | Conf: --%</span>
+              </div>
+            </div>
+            <div class="hud-bottom-row">
+              <div class="hud-sub-metric">
+                <span id="hudTiltDisplay">Pitch: -- deg | Ht: 1.40m</span>
+              </div>
+              <div class="hud-sub-metric text-right">
+                <span id="hudModeDisplay">Mode: Ground Angle + Pinhole</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rangefinder-controls">
+          <div class="range-ctrl-group">
+            <label for="rangeTargetModeSelect">Range Mode:</label>
+            <select id="rangeTargetModeSelect">
+              <option value="ground_angle" selected>Tire Ground-Contact (Tilt Geometry)</option>
+              <option value="vehicle_width">Vehicle Body Width (Pinhole Photogrammetry)</option>
+              <option value="license_plate">BRTA License Plate (520mm Metric Baseline)</option>
+            </select>
+          </div>
+
+          <div class="range-ctrl-group">
+            <label for="observerHeightSelect">Observer Height (h):</label>
+            <select id="observerHeightSelect">
+              <option value="1.20">1.20 m (Sitting / Low)</option>
+              <option value="1.40" selected>1.40 m (Chest Level - Default)</option>
+              <option value="1.60">1.60 m (Eye Level)</option>
+              <option value="1.75">1.75 m (Tall / Stand)</option>
+            </select>
+          </div>
+
+          <div class="range-ctrl-actions">
+            <button type="button" id="lockDistanceBtn" class="pill-btn lock-dist-btn" title="Lock the current measured distance into Distance field">Lock Distance</button>
+            <button type="button" id="captureFrameBtn" class="pill-btn capture-frame-btn" title="Capture high-resolution calibrated photo">Capture Frame</button>
+            <label class="auto-sync-toggle">
+              <input type="checkbox" id="autoSyncRangeOnRecord" checked>
+              <span>Auto-Lock & Snap on Record</span>
+            </label>
+          </div>
+        </div>
+        <div id="rangefinderHint" class="rangefinder-hint">
+          Aim camera crosshair at the front bumper or bottom of tires. Distance updates in real-time.
         </div>
       </div>
     </section>

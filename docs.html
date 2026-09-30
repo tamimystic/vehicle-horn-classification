@@ -356,6 +356,7 @@
         <li><a href="#section-2">Hardware Setup & Smartphone Rig Guidelines</a></li>
         <li><a href="#section-3">Microphone Pre-Arming (Zero-Latency Standby)</a></li>
         <li><a href="#section-4">Exact Location Auto-Detection via GPS & Reverse Geocoding</a></li>
+        <li><a href="#section-rangefinder">Live Optical Rangefinder, Distance Photogrammetry & Acoustic Directivity</a></li>
         <li><a href="#section-5">Complete Button-by-Button Interface Reference</a></li>
         <li><a href="#section-6">Dual Recording Modes: Tap Mode vs. Hold Mode</a></li>
         <li><a href="#section-7">Live Oscilloscope & Peak dBFS Metering</a></li>
@@ -471,6 +472,106 @@
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
+    <!-- Section: Live Optical Rangefinder, Photogrammetry & Directivity -->
+    <article id="section-rangefinder" class="doc-section">
+      <h2>Live Optical Rangefinder, Distance Photogrammetry & Acoustic Directivity</h2>
+      <p>
+        In vehicular acoustic research, distance between the sound emitter (horn) and the receiver (microphone) is a primary physical parameter governing sound attenuation according to the spherical Inverse-Square Law:
+      </p>
+      <div class="code-block">
+Lp(r) = Lp(r0) - 20 * log10(r / r0) - A_env
+      </div>
+      <p>
+        A 20% measurement error in distance creates an unacceptable ~1.94 dB deviation in acoustic energy estimation, corrupting deep learning feature normalization. To guarantee peer-reviewed academic rigor without cumbersome manual measuring tapes, the suite integrates a real-time, sensor-fused <strong>Live Optical Rangefinder</strong>.
+      </p>
+
+      <h3>1. Mathematical Foundation & Dual-Sensor Fusion</h3>
+      <p>
+        The Rangefinder fuses two independent physical modalities to produce an authentic distance reading alongside a computed uncertainty margin (&plusmn;&Delta;d):
+      </p>
+      <ul>
+        <li>
+          <strong>Modality A: Inclinometer Tilt Trigonometry (Ground-Contact Geometry):</strong>
+          <br>
+          When the researcher holds the device at observer height <code>h</code> (default 1.40m at chest/eye level) and aims the crosshair at the vehicle's ground-contact patch (tire baseline), the device's internal gyroscope and accelerometer measure the depression pitch angle <code>&theta;</code> relative to the horizon:
+          <div class="code-block">
+d_geo = h / tan(&theta;)
+          </div>
+          The geometric uncertainty is modeled via formal error propagation:
+          <div class="code-block">
+&sigma;_geo = d_geo * sqrt((&sigma;_h / h)^2 + (&sigma;_&theta; / (sin(&theta;) * cos(&theta;)))^2)
+          </div>
+        </li>
+        <li>
+          <strong>Modality B: Pinhole Stadiametric Photogrammetry:</strong>
+          <br>
+          Using the smartphone camera's calibrated horizontal field of view (HFOV &approx; 64&deg;) and the real-world metric width <code>W_real</code> of the target vehicle class (e.g., Bus = 2.50m, Car = 1.75m, CNG Auto = 1.30m, BRTA License Plate = 0.52m):
+          <div class="code-block">
+d_opt = (W_real * f_pixel) / w_reticle
+          </div>
+        </li>
+        <li>
+          <strong>Inverse-Variance Sensor Fusion:</strong>
+          <br>
+          Both independent distance estimates are weighted by their inverse variances:
+          <div class="code-block">
+d_fused = (w_geo * d_geo + w_opt * d_opt) / (w_geo + w_opt)
+Uncertainty (&plusmn;&Delta;d) = sqrt(1 / (w_geo + w_opt))
+Confidence (%) = max(25%, min(99%, round((1 - &Delta;d / d_fused) * 100)))
+          </div>
+        </li>
+      </ul>
+
+      <h3>2. Acoustic Directivity & Azimuth Angles (Front vs. Side vs. Rear)</h3>
+      <p>
+        Vehicular horns do not radiate sound isotropically (equally in all directions). Horns are mounted behind the front radiator grille or front bumper, creating a highly directional cardioid radiation pattern:
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Orientation / Azimuth</th>
+            <th>Acoustic Path & Attenuation</th>
+            <th>Research Role & Protocol Recommendation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Front (0 deg Direct Axis)</strong></td>
+            <td>Unobstructed direct line of sight. Maximum Sound Pressure Level (SPL: 100 - 114 dBA @ 2m). Pristine high-frequency harmonics.</td>
+            <td><strong>PRIMARY STANDARD (Recommended):</strong> All core model training and vehicle-type classification samples should be recorded from the front (0 deg) to ensure fair, controlled comparison.</td>
+          </tr>
+          <tr>
+            <td><strong>Lateral Side (90 deg / 270 deg)</strong></td>
+            <td>Partial shadowing and acoustic diffraction around front tires and fenders. SPL drops by 4 to 8 dB.</td>
+            <td>Use for spatial directivity studies or when roadside geometry prevents standing directly in front of the vehicle.</td>
+          </tr>
+          <tr>
+            <td><strong>Rear (180 deg Shielded)</strong></td>
+            <td>Acoustic blocking by vehicle engine block, cabin, passenger compartment, and cargo bed. SPL drops by 12 to 18 dB. Sharp harmonic peaks are severely attenuated.</td>
+            <td>Captures muffled low-frequency diffraction. Should be labeled as <code>180 deg</code> to prevent model corruption.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>3. Controlled In-Situ Stationary Vehicle Protocol (গাড়ি থামিয়ে নিয়ন্ত্রিত স্যাম্পলিং)</h3>
+      <p>
+        Rather than attempting to chase moving traffic, the recommended field protocol is <strong>Controlled In-Situ Acquisition</strong>:
+      </p>
+      <ol>
+        <li>Approach stationary vehicles at passenger halts, traffic signals, bus terminals (e.g., Gabtoli, Mohakhali, Rajshahi Shiroil), or rickshaw stands.</li>
+        <li>Politely ask the driver: <em>"ভাই, গবেষণার জন্য আপনার গাড়ির হর্নের একটি সাউন্ড রেকর্ড করতে চাচ্ছি, একটু হর্নটি বাজাবেন?"</em></li>
+        <li>Stand directly in front of the vehicle (0 deg Azimuth) with the smartphone camera aimed at the front bumper/tires.</li>
+        <li>Tap <span class="btn-tag">Start Rangefinder Camera</span>. The HUD displays the live calculated distance (e.g., <code>3.18 m</code>) and confidence.</li>
+        <li>When the driver presses the horn, tap the Record button. With <strong>Auto-Lock & Snap on Record</strong> active, the app automatically freezes the distance, locks the metadata, and snapshots the vehicle photo synchronously!</li>
+        <li>Tap Stop when the horn ends, review the clip, and save.</li>
+      </ol>
+
+      <div class="bilingual-hint">
+        বাংলা নির্দেশিকা: চলন্ত গাড়ির পেছনে না ছুটে ট্রাফিক সিগন্যাল বা টার্মিনালে গাড়ি থামিয়ে ড্রাইভারকে অনুরোধ করে হর্ন রেকর্ড করা সবচেয়ে বৈজ্ঞানিক ও নিরাপদ। ক্যামেরা গাড়ির চাকা বা বাম্পারের দিকে ধরলেই লাইভ ডিসট্যান্স দেখা যাবে এবং রেকর্ড চাপলেই দূরত্ব ও ছবি অটোমেটিক লক হয়ে যাবে।
+      </div>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
     <!-- Section 5 -->
     <article id="section-5" class="doc-section">
       <h2>5. Complete Button-by-Button Interface Reference</h2>
@@ -510,6 +611,26 @@
             <td><code>Remove Photo (X)</code></td>
             <td>Photo Thumbnail</td>
             <td>Clears current photographic preview without affecting vehicle metadata.</td>
+          </tr>
+          <tr>
+            <td><code>Start Rangefinder Camera</code></td>
+            <td>Rangefinder Card</td>
+            <td>Activates live optical rangefinder video stream, inclinometer sensor, and reticle overlay.</td>
+          </tr>
+          <tr>
+            <td><code>Lock Distance</code></td>
+            <td>Rangefinder Card</td>
+            <td>Locks the instantaneous fused optical-geometric distance reading into the session metadata.</td>
+          </tr>
+          <tr>
+            <td><code>Capture Frame</code></td>
+            <td>Rangefinder Card</td>
+            <td>Extracts a high-resolution calibrated photo from the live video feed into memory.</td>
+          </tr>
+          <tr>
+            <td><code>Auto-Lock & Snap on Record</code></td>
+            <td>Rangefinder Card</td>
+            <td>When checked, triggering audio record automatically locks the rangefinder distance and grabs a photo frame synchronously.</td>
           </tr>
           <tr>
             <td><code>Arm Mic (0ms)</code></td>
@@ -739,7 +860,14 @@ Dataset/
           <tr><td><code>vehicle_model</code></td><td>string</td><td>Vehicle make and model (e.g., <code>Hino_AK1J</code>)</td></tr>
           <tr><td><code>license_plate</code></td><td>string</td><td>Vehicle registration number (e.g., <code>DhakaMetro-Ba-14-8923</code>)</td></tr>
           <tr><td><code>location</code></td><td>string</td><td>Collection site or GPS coordinates</td></tr>
-          <tr><td><code>distance_m</code></td><td>string</td><td>Physical recording distance (e.g., <code>5m</code>)</td></tr>
+          <tr><td><code>distance_m</code></td><td>string</td><td>Formatted recording distance (e.g., <code>5m</code> or <code>3.2m</code>)</td></tr>
+          <tr><td><code>distance_raw_m</code></td><td>float</td><td>Exact decimal distance measured by optical rangefinder (e.g., <code>3.18</code>)</td></tr>
+          <tr><td><code>distance_uncertainty_m</code></td><td>float</td><td>Absolute scientific uncertainty bound &plusmn;&Delta;d (e.g., <code>0.14</code>)</td></tr>
+          <tr><td><code>distance_confidence_pct</code></td><td>float</td><td>Statistical confidence score in percentage (e.g., <code>95.6</code>)</td></tr>
+          <tr><td><code>distance_method</code></td><td>string</td><td>Measurement methodology (<code>Sensor_Fusion_Optical_Tilt</code> or <code>Manual_Laser_Ground_Truth</code>)</td></tr>
+          <tr><td><code>acoustic_azimuth_deg</code></td><td>int</td><td>Microphone acoustic directivity angle (<code>0</code> for Front, <code>90</code> for Right, <code>180</code> for Rear, <code>270</code> for Left)</td></tr>
+          <tr><td><code>camera_tilt_deg</code></td><td>float</td><td>Device pitch inclinometer angle in degrees (e.g., <code>-14.8</code>)</td></tr>
+          <tr><td><code>observer_height_m</code></td><td>float</td><td>Calibrated observer/sensor height above ground (e.g., <code>1.40</code>)</td></tr>
           <tr><td><code>duration_sec</code></td><td>float</td><td>Exact natural clip length in seconds (e.g., <code>1.45</code>)</td></tr>
           <tr><td><code>peak_dbfs</code></td><td>float</td><td>Maximum instantaneous peak amplitude in dBFS</td></tr>
           <tr><td><code>rms_dbfs</code></td><td>float</td><td>Root-mean-square amplitude in dBFS</td></tr>

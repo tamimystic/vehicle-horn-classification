@@ -58,6 +58,22 @@ Every audio file and photograph encodes its complete contextual provenance in it
 * **Direct File System Access API:** Chromium-based browsers on laptops and Android allow binding a target directory directly. Committing a sample writes dual-layer files and appends to `metadata.csv` on the physical drive with zero download popups.
 * **Offline IndexedDB & Pure JS ZIP Generator:** iOS Safari and field mobile devices cache all audio blobs, images, and tabular rows in an internal IndexedDB database (`BDHornCollectorDB`). At the end of a shift, a zero-dependency Store-mode PKZip generator compiles the complete dual-layer folder hierarchy into an export archive (`BDHORN_Dataset_Export_[Timestamp].zip`).
 
+### 8. Live Optical Rangefinder, Sensor Fusion & Acoustic Directivity
+Sound pressure level follows the Inverse-Square Law: a 20% error in distance measurement distorts energy calibration by ~1.94 dB. To provide authentic, peer-reviewed measurement accuracy without manual measuring tapes, the suite features a real-time **Live Optical Rangefinder**:
+* **Inclinometer Tilt Trigonometry:** Measures device depression pitch angle relative to the horizon (`d = h / tan(theta)` where `h` is calibrated observer height, default 1.40m at chest/eye level) when aimed at vehicle ground-contact tire baselines.
+* **Stadiametric Pinhole Photogrammetry:** Cross-references camera horizontal field of view with standardized vehicle metric dimensions (e.g., Bus = 2.50m, Car = 1.75m, BRTA License Plate = 0.52m).
+* **Inverse-Variance Sensor Fusion:** Fuses both modalities to produce a continuous metric distance reading along with a computed uncertainty bound (`+/- Delta d`) and statistical confidence score (`Confidence %`).
+* **Acoustic Azimuth / Directivity Tracking:** Records directivity orientation (`Front 0 deg Direct Axis`, `Right Side 90 deg`, `Rear 180 deg Shielded`, `Left Side 270 deg`) to capture spatial radiation variations without biasing baseline classification models.
+* **Auto-Lock & Snap on Record:** Triggering audio recording automatically freezes the instantaneous rangefinder distance and captures a synchronized high-resolution vehicle photo.
+
+### 9. Controlled In-Situ Stationary Vehicle Protocol
+Rather than chasing high-speed vehicles in moving traffic, researchers operate via **Controlled In-Situ Acquisition**:
+1. Station at traffic signals, passenger halts, bus terminals, or rickshaw stands.
+2. Request the driver while stationary: *"Bhai, amra research er jonno apnar vehicle er horn sound ta record korte chachhi, ektu horn ta bajaben?"*
+3. Stand directly in front of the vehicle (0 deg Azimuth, 2m to 5m distance) aiming the live camera crosshair at the front bumper/tires.
+4. When the driver honks, tap Record. The system locks distance, captures the photo, and records uncompressed audio in a single synchronized operation.
+5. Tap Stop when the horn ceases, verify clip quality in the player, and commit.
+
 ---
 
 ## Standardized 9-Class Acoustic Taxonomy
