@@ -34,6 +34,7 @@ class HornEventMetadata(BaseModel):
     camera_tilt_deg: Optional[float] = 0.0
     observer_height_m: Optional[float] = 1.40
     angle_deg: int = 45
+    recording_side: Optional[str] = "Front"
     mic_height_m: float = 1.5
     elevation_type: str = "Ground_Level"
     class_id: str

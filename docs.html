@@ -785,20 +785,20 @@ Confidence (%) = max(25%, min(99%, round((1 - &Delta;d / d_fused) * 100)))
 Dataset/
 |-- Raw_By_Class/
 |   |-- Bus/
-|   |   |-- BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929_003500.wav
-|   |   `-- BDHORN_0002_S02_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929_003510.wav
+|   |   |-- BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929_003500.wav
+|   |   `-- BDHORN_0002_S02_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929_003510.wav
 |   `-- Motorcycle/
 |
 |-- Instances_By_Vehicle/
 |   |-- Bus/
 |   |   |-- Hino_AK1J_DhakaMetro-Ba-14-8923/
-|   |   |   |-- BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929_003500.wav
-|   |   |   `-- BDHORN_0002_S02_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929_003510.wav
+|   |   |   |-- BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929_003500.wav
+|   |   |   `-- BDHORN_0002_S02_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929_003510.wav
 |   |   `-- Tata_LP410_DhakaMetro-Ga-11-2233/
 |   `-- Motorcycle/
 |
 |-- Vehicle_Photos/
-|   |-- BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929_003500.jpg
+|   |-- BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929_003500.jpg
 |   `-- ...
 `-- metadata.csv
       </div>
@@ -853,14 +853,15 @@ Dataset/
         <tbody>
           <tr><td><code>sample_id</code></td><td>string</td><td>Global unique sequential identifier (e.g., <code>BDHORN_0001</code>)</td></tr>
           <tr><td><code>instance_id</code></td><td>string</td><td>Instance-local sequential index for this specific vehicle (e.g., <code>S01</code>)</td></tr>
-          <tr><td><code>filename</code></td><td>string</td><td>Standard 7-parameter WAV filename</td></tr>
+          <tr><td><code>filename</code></td><td>string</td><td>Standard 9-parameter WAV filename: <code>[SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Side]_[Location]_[Timestamp].wav</code></td></tr>
           <tr><td><code>audio_filename</code></td><td>string</td><td>Redundant alias for SQL / Pandas join compatibility</td></tr>
           <tr><td><code>photo_filename</code></td><td>string</td><td>Filename of matched photograph in <code>Vehicle_Photos/</code></td></tr>
           <tr><td><code>vehicle_class</code></td><td>string</td><td>Class label from 9-class acoustic taxonomy</td></tr>
           <tr><td><code>vehicle_model</code></td><td>string</td><td>Vehicle make and model (e.g., <code>Hino_AK1J</code>)</td></tr>
           <tr><td><code>license_plate</code></td><td>string</td><td>Vehicle registration number (e.g., <code>DhakaMetro-Ba-14-8923</code>)</td></tr>
+          <tr><td><code>distance_m</code></td><td>string</td><td>Formatted recording distance (e.g., <code>5.0m</code> or <code>3.2m</code>)</td></tr>
+          <tr><td><code>recording_side</code></td><td>string</td><td>Acoustic incidence side: <code>Front</code>, <code>Left</code>, <code>Right</code>, or <code>Back</code></td></tr>
           <tr><td><code>location</code></td><td>string</td><td>Collection site or GPS coordinates</td></tr>
-          <tr><td><code>distance_m</code></td><td>string</td><td>Formatted recording distance (e.g., <code>5m</code> or <code>3.2m</code>)</td></tr>
           <tr><td><code>distance_raw_m</code></td><td>float</td><td>Exact decimal distance measured by optical rangefinder (e.g., <code>3.18</code>)</td></tr>
           <tr><td><code>distance_uncertainty_m</code></td><td>float</td><td>Absolute scientific uncertainty bound &plusmn;&Delta;d (e.g., <code>0.14</code>)</td></tr>
           <tr><td><code>distance_confidence_pct</code></td><td>float</td><td>Statistical confidence score in percentage (e.g., <code>95.6</code>)</td></tr>
@@ -921,7 +922,7 @@ python build_app.py
       <div class="code-block">
 pytest tests/
       </div>
-      <p>All automated unit tests verify ring buffer safety, Pydantic schema validation, dual-layer folder creation, and 7-parameter filename conformance.</p>
+      <p>All automated unit tests verify ring buffer safety, Pydantic schema validation, dual-layer folder creation, and 9-parameter filename conformance.</p>
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
   </div>

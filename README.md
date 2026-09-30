@@ -47,12 +47,12 @@ A critical flaw in acoustic machine learning research is **Data Leakage**: when 
 * **Segregated Photo Layer:** `Dataset/Vehicle_Photos/` stores high-resolution vehicle and license plate photographs named with identical base identifiers to eliminate non-audio file clutter inside acoustic training folders.
 
 ### 6. Standard Filename Architecture
-Every audio file and photograph encodes its complete contextual provenance in its filename:
+Every audio file and photograph encodes its complete contextual provenance in its filename matching UI form field sequence:
 ```
-[SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Location]_[Timestamp].wav
+[SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Side]_[Location]_[Timestamp].wav
 ```
-*Example Audio:* `BDHORN_0001_S01_Bus_HinoAK1J_DhakaMetroBa148923_5m_GabtoliTerminal_20260929_003500.wav`  
-*Example Photo:* `BDHORN_0001_S01_Bus_HinoAK1J_DhakaMetroBa148923_5m_GabtoliTerminal_20260929_003500.jpg`
+*Example Audio:* `BDHORN_0001_S01_Bus_HinoAK1J_DhakaMetroBa148923_5.0m_Front_GabtoliTerminal_20260929_003500.wav`  
+*Example Photo:* `BDHORN_0001_S01_Bus_HinoAK1J_DhakaMetroBa148923_5.0m_Front_GabtoliTerminal_20260929_003500.jpg`
 
 ### 7. Dual Export Engine: Direct Disk Writing & Standalone ZIP
 * **Direct File System Access API:** Chromium-based browsers on laptops and Android allow binding a target directory directly. Committing a sample writes dual-layer files and appends to `metadata.csv` on the physical drive with zero download popups.
@@ -134,7 +134,7 @@ vehicle horn classification/
 │   └── utils/                  # Rotating logging utilities
 │
 ├── tests/                      # Automated unit test suite
-│   ├── test_dual_layer.py      # Dual-layer directory routing & 7-parameter filename validation
+│   ├── test_dual_layer.py      # Dual-layer directory routing & 9-parameter filename validation
 │   ├── test_ring_buffer.py     # Circular memory buffer boundary and wraparound safety
 │   └── test_metadata.py        # Pydantic schema validation and persistence integrity
 │
@@ -216,14 +216,15 @@ All 7 unit tests must report clean passes prior to committing dataset modificati
 | :--- | :--- | :--- | :--- |
 | `sample_id` | String | Unique sequential dataset identifier | `BDHORN_0001` |
 | `instance_id` | String | Vehicle-specific sample counter | `S01` |
-| `filename` | String | Standard 8-parameter WAV filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929.wav` |
-| `audio_filename` | String | Database alias for file resolution | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929.wav` |
-| `photo_filename` | String | Matching photograph filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5m_Gabtoli_20260929.jpg` |
+| `filename` | String | Standard 9-parameter WAV filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929.wav` |
+| `audio_filename` | String | Database alias for file resolution | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929.wav` |
+| `photo_filename` | String | Matching photograph filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929.jpg` |
 | `vehicle_class` | String | Target category from 9-class taxonomy | `Bus` |
 | `vehicle_model` | String | Vehicle manufacturer chassis / model | `Hino_AK1J` |
 | `license_plate` | String | Official vehicle registration number | `DhakaMetro-Ba-14-8923` |
+| `distance_m` | String | Distance between transducer and vehicle | `5.0m` |
+| `recording_side` | String | Acoustic incidence perspective (Front/Left/Right/Back) | `Front` |
 | `location` | String | Site name or GPS coordinate string | `Gabtoli_Terminal` |
-| `distance_m` | String | Distance between transducer and vehicle | `5m` |
 | `duration_sec` | Float | Natural clip length in seconds | `1.84` |
 | `peak_dbfs` | Float | True peak instantaneous amplitude | `-3.45` |
 | `rms_dbfs` | Float | True root-mean-square amplitude | `-14.20` |

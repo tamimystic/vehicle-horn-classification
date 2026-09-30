@@ -1095,6 +1095,18 @@ body {
   line-height: 1.35;
 }
 
+.auto-distance-input {
+  background: #181825 !important;
+  color: #a6e3a1 !important;
+  border: 1.5px solid #a6e3a1 !important;
+  font-weight: 800 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  text-align: center;
+  cursor: default;
+  box-shadow: 0 0 8px rgba(166, 227, 161, 0.15);
+}
+
+
 
 </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -1145,6 +1157,46 @@ body {
 
       <div class="form-grid">
         <div class="form-group col-2">
+          <label for="vehicleClassSelect">Vehicle Class:</label>
+          <select id="vehicleClassSelect">
+            <option value="Bus" selected>Bus (Pneumatic Air / Dual Electric)</option>
+            <option value="Hydraulic_Horn">Hydraulic Horn (Banned High-SPL >105 dBA)</option>
+            <option value="Truck">Truck / Lorry (Heavy Commercial)</option>
+            <option value="Private_Car">Private Car (Sedan / SUV / Microbus)</option>
+            <option value="Motorcycle">Motorcycle (Single-Disc High Pitch)</option>
+            <option value="CNG_Autorickshaw">CNG Auto (3-Wheeler Buzzer)</option>
+            <option value="Easybike_Leguna">Easybike / Leguna (Melody / Electric)</option>
+            <option value="Rickshaw_Bell">Rickshaw Bell (Metallic Chime)</option>
+            <option value="Background_Traffic_Noise">Background Traffic Noise (Negative)</option>
+          </select>
+        </div>
+
+        <div class="form-group col-2">
+          <label for="vehicleModelInput">Vehicle Name & Model:</label>
+          <input type="text" id="vehicleModelInput" value="Hino_AK1J" placeholder="e.g. Hino AK1J, Tata LP 410, Yamaha FZ">
+        </div>
+
+        <div class="form-group col-2">
+          <label for="vehiclePlateInput">Plate / Vehicle ID:</label>
+          <input type="text" id="vehiclePlateInput" value="Dhaka-Metro-Ba-14-8923" placeholder="e.g. DhakaMetro-Ba-14-8923">
+        </div>
+
+        <div class="form-group col-1">
+          <label for="distanceInput">Distance (Auto):</label>
+          <input type="text" id="distanceInput" value="5.0m" class="auto-distance-input" readonly title="Auto-calculated in real-time by Live Optical Rangefinder">
+        </div>
+
+        <div class="form-group col-1">
+          <label for="sideSelect">Recording Side:</label>
+          <select id="sideSelect">
+            <option value="Front" selected>Front (সামনে)</option>
+            <option value="Left">Left (বাম পাশ)</option>
+            <option value="Right">Right (ডান পাশ)</option>
+            <option value="Back">Back (পেছন)</option>
+          </select>
+        </div>
+
+        <div class="form-group col-2">
           <label for="locationInput">Location / Site:</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
           <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect, or &quot;Pin on Map&quot; to drag pin to your exact spot</div>
@@ -1194,53 +1246,6 @@ body {
               <button type="button" id="confirmMapSpotBtn" class="pill-btn confirm-spot-btn">Lock This Exact Spot</button>
             </div>
           </div>
-        </div>
-
-        <div class="form-group col-1">
-          <label for="distanceSelect">Distance:</label>
-          <select id="distanceSelect">
-            <option value="1m">1 m</option>
-            <option value="3m">3 m</option>
-            <option value="5m" selected>5 m</option>
-            <option value="7m">7 m</option>
-            <option value="10m">10 m</option>
-            <option value="15m">15 m</option>
-          </select>
-        </div>
-
-        <div class="form-group col-1">
-          <label for="azimuthSelect">Acoustic Azimuth:</label>
-          <select id="azimuthSelect">
-            <option value="0" selected>Front (0 deg Direct)</option>
-            <option value="90">Right Side (90 deg)</option>
-            <option value="180">Rear (180 deg Shielded)</option>
-            <option value="270">Left Side (270 deg)</option>
-          </select>
-        </div>
-
-        <div class="form-group col-2">
-          <label for="vehicleClassSelect">Vehicle Class:</label>
-          <select id="vehicleClassSelect">
-            <option value="Bus" selected>Bus (Pneumatic Air / Dual Electric)</option>
-            <option value="Hydraulic_Horn">Hydraulic Horn (Banned High-SPL >105 dBA)</option>
-            <option value="Truck">Truck / Lorry (Heavy Commercial)</option>
-            <option value="Private_Car">Private Car (Sedan / SUV / Microbus)</option>
-            <option value="Motorcycle">Motorcycle (Single-Disc High Pitch)</option>
-            <option value="CNG_Autorickshaw">CNG Auto (3-Wheeler Buzzer)</option>
-            <option value="Easybike_Leguna">Easybike / Leguna (Melody / Electric)</option>
-            <option value="Rickshaw_Bell">Rickshaw Bell (Metallic Chime)</option>
-            <option value="Background_Traffic_Noise">Background Traffic Noise (Negative)</option>
-          </select>
-        </div>
-
-        <div class="form-group col-2">
-          <label for="vehicleModelInput">Vehicle Name & Model:</label>
-          <input type="text" id="vehicleModelInput" value="Hino_AK1J" placeholder="e.g. Hino AK1J, Tata LP 410, Yamaha FZ">
-        </div>
-
-        <div class="form-group col-1">
-          <label for="vehiclePlateInput">Plate / Vehicle ID:</label>
-          <input type="text" id="vehiclePlateInput" value="Dhaka-Metro-Ba-14-8923" placeholder="e.g. DhakaMetro-Ba-14-8923">
         </div>
       </div>
 
@@ -1449,8 +1454,10 @@ let rootDirectoryHandle = null;
 
 // DOM Elements
 const locationInput = document.getElementById("locationInput");
-const distanceSelect = document.getElementById("distanceSelect");
-const azimuthSelect = document.getElementById("azimuthSelect");
+const distanceInput = document.getElementById("distanceInput") || document.getElementById("distanceSelect");
+const distanceSelect = document.getElementById("distanceSelect") || distanceInput;
+const sideSelect = document.getElementById("sideSelect") || document.getElementById("azimuthSelect");
+const azimuthSelect = document.getElementById("azimuthSelect") || sideSelect;
 const vehicleClassSelect = document.getElementById("vehicleClassSelect");
 const vehicleModelInput = document.getElementById("vehicleModelInput");
 const vehiclePlateInput = document.getElementById("vehiclePlateInput");
@@ -2408,24 +2415,31 @@ function lockCurrentRangefinderDistance(interactive = true) {
   const dVal = calc.distance;
   const dStr = `${dVal.toFixed(1)}m`;
 
-  let found = false;
-  for (let i = 0; i < distanceSelect.options.length; i++) {
-    if (distanceSelect.options[i].value === dStr) {
-      distanceSelect.selectedIndex = i;
-      found = true;
-      break;
+  if (distanceInput) {
+    distanceInput.value = dStr;
+  }
+
+  if (distanceSelect && distanceSelect.tagName === "SELECT") {
+    let found = false;
+    for (let i = 0; i < distanceSelect.options.length; i++) {
+      if (distanceSelect.options[i].value === dStr) {
+        distanceSelect.selectedIndex = i;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      const opt = document.createElement("option");
+      opt.value = dStr;
+      opt.textContent = `${dStr} (Auto-Locked)`;
+      distanceSelect.appendChild(opt);
+      distanceSelect.value = dStr;
     }
   }
 
-  if (!found) {
-    const opt = document.createElement("option");
-    opt.value = dStr;
-    opt.textContent = `${dStr} (Rangefinder Locked)`;
-    distanceSelect.appendChild(opt);
-    distanceSelect.value = dStr;
-  }
-
-  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
+  const sideVal = sideSelect ? sideSelect.value : "Front";
+  const azimuthMap = { Front: 0, Right: 90, Back: 180, Left: 270 };
+  const azimuthVal = azimuthMap[sideVal] !== undefined ? azimuthMap[sideVal] : (azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0);
 
   currentDistanceMetrics = {
     raw_m: dVal,
@@ -2433,11 +2447,12 @@ function lockCurrentRangefinderDistance(interactive = true) {
     conf_pct: calc.confidence,
     method: "Sensor_Fusion_Optical_Tilt",
     tilt_deg: -parseFloat(calc.pitch.toFixed(1)),
-    azimuth_deg: azimuthVal
+    azimuth_deg: azimuthVal,
+    side: sideVal
   };
 
   if (interactive && latestLogEl) {
-    latestLogEl.innerHTML = `<span style="color:#a6e3a1;">Distance locked: <b>${dStr}</b> (+/-${calc.uncertainty}m, Conf: ${calc.confidence}%)</span>`;
+    latestLogEl.innerHTML = `<span style="color:#a6e3a1;">Distance auto-locked: <b>${dStr}</b> | Side: <b>${sideVal}</b> (+/-${calc.uncertainty}m, Conf: ${calc.confidence}%)</span>`;
   }
 }
 
@@ -2737,25 +2752,22 @@ function stopAudioRecording() {
   const key = getInstanceKey();
   const instanceNum = (instanceCounters[key] || 0) + 1;
   const instanceId = `S${String(instanceNum).padStart(2, "0")}`;
-  const loc = sanitize(locationInput.value || "Field");
-  const dist = distanceSelect.value;
   const cls = sanitize(vehicleClassSelect.value);
   const model = sanitize(vehicleModelInput.value || "Unknown");
   const plate = sanitize(vehiclePlateInput.value || "Unknown");
+  const dist = sanitize(distanceInput ? distanceInput.value : (distanceSelect ? distanceSelect.value : "5.0m"));
+  const side = sanitize(sideSelect ? sideSelect.value : "Front");
+  const loc = sanitize(locationInput.value || "Field");
 
-  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${loc}_${timeStr}`;
+  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${side}_${loc}_${timeStr}`;
   const wavName = `${baseFileName}.wav`;
   const photoName = `${baseFileName}.jpg`;
-
-  const azimuthText = azimuthSelect ? azimuthSelect.options[azimuthSelect.selectedIndex].text : "Front (0 deg Direct)";
-  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
 
   reviewDetails.innerHTML = `
     <div><strong>1. Class Layer:</strong> <span class="path-tag">Dataset/Raw_By_Class/${cls}/${wavName}</span></div>
     <div><strong>2. Instance Layer:</strong> <span class="path-tag">Dataset/Instances_By_Vehicle/${cls}/${model}_${plate}/${wavName}</span></div>
     ${currentPhotoBlob ? `<div><strong>3. Photo Layer:</strong> <span class="path-tag">Dataset/Vehicle_Photos/${photoName}</span></div>` : `<div style="color:#a6adc8;">(No vehicle photo attached)</div>`}
-    <div><strong>4. Acoustic Azimuth:</strong> <span class="path-tag">${azimuthText}</span></div>
-    <div><strong>5. Calibrated Distance:</strong> <span class="path-tag">${dist} (Raw: ${currentDistanceMetrics.raw_m}m, Uncertainty: +/-${currentDistanceMetrics.uncertainty_m}m, Conf: ${currentDistanceMetrics.conf_pct}%)</span></div>
+    <div><strong>4. Side & Distance:</strong> <span class="path-tag">Side: ${side} | Distance: ${dist} (Uncertainty: +/-${currentDistanceMetrics.uncertainty_m}m, Conf: ${currentDistanceMetrics.conf_pct}%)</span></div>
   `;
 
   reviewSection.style.display = "block";
@@ -2817,14 +2829,16 @@ saveRecordingBtn.addEventListener("click", async () => {
   const key = getInstanceKey();
   const instanceNum = (instanceCounters[key] || 0) + 1;
   const instanceId = `S${String(instanceNum).padStart(2, "0")}`;
-  const loc = sanitize(locationInput.value || "Field");
-  const dist = distanceSelect.value;
   const cls = sanitize(vehicleClassSelect.value);
   const model = sanitize(vehicleModelInput.value || "Unknown");
   const plate = sanitize(vehiclePlateInput.value || "Unknown");
-  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
+  const dist = sanitize(distanceInput ? distanceInput.value : (distanceSelect ? distanceSelect.value : "5.0m"));
+  const side = sanitize(sideSelect ? sideSelect.value : "Front");
+  const loc = sanitize(locationInput.value || "Field");
+  const azimuthMap = { "Front": 0, "Right": 90, "Back": 180, "Left": 270 };
+  const azimuthVal = azimuthMap[side] !== undefined ? azimuthMap[side] : (azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0);
 
-  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${loc}_${timeStr}`;
+  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${side}_${loc}_${timeStr}`;
   const wavFileName = `${baseFileName}.wav`;
   const photoFileName = currentPhotoBlob ? `${baseFileName}.jpg` : "";
 
@@ -2837,12 +2851,13 @@ saveRecordingBtn.addEventListener("click", async () => {
     vehicle_class: cls,
     vehicle_model: model,
     license_plate: plate,
-    location: loc,
     distance_m: dist,
+    recording_side: side,
+    location: loc,
     distance_raw_m: currentDistanceMetrics.raw_m || (parseFloat(dist) || 5.0),
     distance_uncertainty_m: currentDistanceMetrics.uncertainty_m || 0.15,
     distance_confidence_pct: currentDistanceMetrics.conf_pct || 95.0,
-    distance_method: currentDistanceMetrics.method || "Manual_Selection",
+    distance_method: currentDistanceMetrics.method || "Optical_Inclinometer_Telemetry",
     acoustic_azimuth_deg: azimuthVal,
     camera_tilt_deg: currentDistanceMetrics.tilt_deg || 0.0,
     observer_height_m: observerHeightM || 1.40,

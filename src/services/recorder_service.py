@@ -39,6 +39,7 @@ class RecorderService:
             class_name = sanitize_name(class_info["name"])
             location = sanitize_name(session_params.get("location", "Gabtoli"))
             distance = sanitize_name(session_params.get("distance", "5m"))
+            side = sanitize_name(session_params.get("recording_side", session_params.get("side", "Front")))
             model = sanitize_name(session_params.get("vehicle_model", "Unknown"))
             plate = sanitize_name(session_params.get("license_plate", "Unknown"))
 
@@ -47,8 +48,8 @@ class RecorderService:
             self.instance_counters[inst_key] = instance_num
             instance_id = f"S{instance_num:02d}"
 
-            # Standard Filename: [SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Location]_[Timestamp].wav
-            filename = f"{sample_id}_{instance_id}_{class_name}_{model}_{plate}_{distance}_{location}_{time_str}.wav"
+            # Standard Filename: [SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Side]_[Location]_[Timestamp].wav
+            filename = f"{sample_id}_{instance_id}_{class_name}_{model}_{plate}_{distance}_{side}_{location}_{time_str}.wav"
 
             # 1. Dual-Layer File Organization:
             # Layer A: Dataset/Raw_By_Class/<VehicleClass>/
@@ -89,6 +90,7 @@ class RecorderService:
                 calib_offset_c=self.config.audio.calib_offset_c,
                 location=location,
                 distance_m=distance,
+                recording_side=side,
                 angle_deg=session_params.get("angle_deg", 45),
                 mic_height_m=session_params.get("mic_height_m", 1.5),
                 elevation_type=session_params.get("elevation_type", "Ground_Level"),

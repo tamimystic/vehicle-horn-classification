@@ -40,8 +40,10 @@ let rootDirectoryHandle = null;
 
 // DOM Elements
 const locationInput = document.getElementById("locationInput");
-const distanceSelect = document.getElementById("distanceSelect");
-const azimuthSelect = document.getElementById("azimuthSelect");
+const distanceInput = document.getElementById("distanceInput") || document.getElementById("distanceSelect");
+const distanceSelect = document.getElementById("distanceSelect") || distanceInput;
+const sideSelect = document.getElementById("sideSelect") || document.getElementById("azimuthSelect");
+const azimuthSelect = document.getElementById("azimuthSelect") || sideSelect;
 const vehicleClassSelect = document.getElementById("vehicleClassSelect");
 const vehicleModelInput = document.getElementById("vehicleModelInput");
 const vehiclePlateInput = document.getElementById("vehiclePlateInput");
@@ -999,24 +1001,31 @@ function lockCurrentRangefinderDistance(interactive = true) {
   const dVal = calc.distance;
   const dStr = `${dVal.toFixed(1)}m`;
 
-  let found = false;
-  for (let i = 0; i < distanceSelect.options.length; i++) {
-    if (distanceSelect.options[i].value === dStr) {
-      distanceSelect.selectedIndex = i;
-      found = true;
-      break;
+  if (distanceInput) {
+    distanceInput.value = dStr;
+  }
+
+  if (distanceSelect && distanceSelect.tagName === "SELECT") {
+    let found = false;
+    for (let i = 0; i < distanceSelect.options.length; i++) {
+      if (distanceSelect.options[i].value === dStr) {
+        distanceSelect.selectedIndex = i;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      const opt = document.createElement("option");
+      opt.value = dStr;
+      opt.textContent = `${dStr} (Auto-Locked)`;
+      distanceSelect.appendChild(opt);
+      distanceSelect.value = dStr;
     }
   }
 
-  if (!found) {
-    const opt = document.createElement("option");
-    opt.value = dStr;
-    opt.textContent = `${dStr} (Rangefinder Locked)`;
-    distanceSelect.appendChild(opt);
-    distanceSelect.value = dStr;
-  }
-
-  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
+  const sideVal = sideSelect ? sideSelect.value : "Front";
+  const azimuthMap = { Front: 0, Right: 90, Back: 180, Left: 270 };
+  const azimuthVal = azimuthMap[sideVal] !== undefined ? azimuthMap[sideVal] : (azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0);
 
   currentDistanceMetrics = {
     raw_m: dVal,
@@ -1024,11 +1033,12 @@ function lockCurrentRangefinderDistance(interactive = true) {
     conf_pct: calc.confidence,
     method: "Sensor_Fusion_Optical_Tilt",
     tilt_deg: -parseFloat(calc.pitch.toFixed(1)),
-    azimuth_deg: azimuthVal
+    azimuth_deg: azimuthVal,
+    side: sideVal
   };
 
   if (interactive && latestLogEl) {
-    latestLogEl.innerHTML = `<span style="color:#a6e3a1;">Distance locked: <b>${dStr}</b> (+/-${calc.uncertainty}m, Conf: ${calc.confidence}%)</span>`;
+    latestLogEl.innerHTML = `<span style="color:#a6e3a1;">Distance auto-locked: <b>${dStr}</b> | Side: <b>${sideVal}</b> (+/-${calc.uncertainty}m, Conf: ${calc.confidence}%)</span>`;
   }
 }
 
@@ -1328,25 +1338,22 @@ function stopAudioRecording() {
   const key = getInstanceKey();
   const instanceNum = (instanceCounters[key] || 0) + 1;
   const instanceId = `S${String(instanceNum).padStart(2, "0")}`;
-  const loc = sanitize(locationInput.value || "Field");
-  const dist = distanceSelect.value;
   const cls = sanitize(vehicleClassSelect.value);
   const model = sanitize(vehicleModelInput.value || "Unknown");
   const plate = sanitize(vehiclePlateInput.value || "Unknown");
+  const dist = sanitize(distanceInput ? distanceInput.value : (distanceSelect ? distanceSelect.value : "5.0m"));
+  const side = sanitize(sideSelect ? sideSelect.value : "Front");
+  const loc = sanitize(locationInput.value || "Field");
 
-  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${loc}_${timeStr}`;
+  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${side}_${loc}_${timeStr}`;
   const wavName = `${baseFileName}.wav`;
   const photoName = `${baseFileName}.jpg`;
-
-  const azimuthText = azimuthSelect ? azimuthSelect.options[azimuthSelect.selectedIndex].text : "Front (0 deg Direct)";
-  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
 
   reviewDetails.innerHTML = `
     <div><strong>1. Class Layer:</strong> <span class="path-tag">Dataset/Raw_By_Class/${cls}/${wavName}</span></div>
     <div><strong>2. Instance Layer:</strong> <span class="path-tag">Dataset/Instances_By_Vehicle/${cls}/${model}_${plate}/${wavName}</span></div>
     ${currentPhotoBlob ? `<div><strong>3. Photo Layer:</strong> <span class="path-tag">Dataset/Vehicle_Photos/${photoName}</span></div>` : `<div style="color:#a6adc8;">(No vehicle photo attached)</div>`}
-    <div><strong>4. Acoustic Azimuth:</strong> <span class="path-tag">${azimuthText}</span></div>
-    <div><strong>5. Calibrated Distance:</strong> <span class="path-tag">${dist} (Raw: ${currentDistanceMetrics.raw_m}m, Uncertainty: +/-${currentDistanceMetrics.uncertainty_m}m, Conf: ${currentDistanceMetrics.conf_pct}%)</span></div>
+    <div><strong>4. Side & Distance:</strong> <span class="path-tag">Side: ${side} | Distance: ${dist} (Uncertainty: +/-${currentDistanceMetrics.uncertainty_m}m, Conf: ${currentDistanceMetrics.conf_pct}%)</span></div>
   `;
 
   reviewSection.style.display = "block";
@@ -1408,14 +1415,16 @@ saveRecordingBtn.addEventListener("click", async () => {
   const key = getInstanceKey();
   const instanceNum = (instanceCounters[key] || 0) + 1;
   const instanceId = `S${String(instanceNum).padStart(2, "0")}`;
-  const loc = sanitize(locationInput.value || "Field");
-  const dist = distanceSelect.value;
   const cls = sanitize(vehicleClassSelect.value);
   const model = sanitize(vehicleModelInput.value || "Unknown");
   const plate = sanitize(vehiclePlateInput.value || "Unknown");
-  const azimuthVal = azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0;
+  const dist = sanitize(distanceInput ? distanceInput.value : (distanceSelect ? distanceSelect.value : "5.0m"));
+  const side = sanitize(sideSelect ? sideSelect.value : "Front");
+  const loc = sanitize(locationInput.value || "Field");
+  const azimuthMap = { "Front": 0, "Right": 90, "Back": 180, "Left": 270 };
+  const azimuthVal = azimuthMap[side] !== undefined ? azimuthMap[side] : (azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0);
 
-  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${loc}_${timeStr}`;
+  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${side}_${loc}_${timeStr}`;
   const wavFileName = `${baseFileName}.wav`;
   const photoFileName = currentPhotoBlob ? `${baseFileName}.jpg` : "";
 
@@ -1428,12 +1437,13 @@ saveRecordingBtn.addEventListener("click", async () => {
     vehicle_class: cls,
     vehicle_model: model,
     license_plate: plate,
-    location: loc,
     distance_m: dist,
+    recording_side: side,
+    location: loc,
     distance_raw_m: currentDistanceMetrics.raw_m || (parseFloat(dist) || 5.0),
     distance_uncertainty_m: currentDistanceMetrics.uncertainty_m || 0.15,
     distance_confidence_pct: currentDistanceMetrics.conf_pct || 95.0,
-    distance_method: currentDistanceMetrics.method || "Manual_Selection",
+    distance_method: currentDistanceMetrics.method || "Optical_Inclinometer_Telemetry",
     acoustic_azimuth_deg: azimuthVal,
     camera_tilt_deg: currentDistanceMetrics.tilt_deg || 0.0,
     observer_height_m: observerHeightM || 1.40,
