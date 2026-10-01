@@ -31,7 +31,7 @@ def test_recorder_service_dual_layer_export():
         recorder = RecorderService(audio_engine, metadata_service, app_config=test_config)
 
         dummy_audio = np.zeros(int(48000 * 0.5), dtype=np.float32)
-        class_info = {"class_id": "C02", "name": "Bus", "legal_status": "Legal_Standard"}
+        class_info = {"class_id": "C01", "name": "Bus", "legal_status": "Legal_Standard"}
         session_params = {
             "location": "Gabtoli",
             "distance": "5m",

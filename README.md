@@ -76,21 +76,19 @@ Rather than chasing high-speed vehicles in moving traffic, researchers operate v
 
 ---
 
-## Standardized 9-Class Acoustic Taxonomy
+## Standardized 7-Class Acoustic Taxonomy
 
 The taxonomy reflects the empirical vehicle distribution of Bangladesh roadways as standardized in `config/taxonomy.json`:
 
 | Class ID | Class Name | Display Label | Dominant Frequency | Legal / Regulatory Status | Acoustic Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **C01** | `Hydraulic_Horn` | Hydraulic Horn (Banned) | 1000 - 8000 Hz | Illegal / Prohibited | High-SPL (>105 dBA), multi-tone trumpet pneumatic blast. |
-| **C02** | `Bus` | Bus (Air / Electric) | 400 - 2500 Hz | Legal Standard | Pneumatic dual air horn or standard high-pitch dual electric horn. |
-| **C03** | `Truck` | Truck / Heavy Lorry | 200 - 1500 Hz | Legal Standard | Deep resonant electric or low-frequency pneumatic horn. |
-| **C04** | `Private_Car` | Private Car / SUV | 400 - 800 Hz | Legal Standard | Dual-disc harmonic snail horn pair on sedans, microbuses, and SUVs. |
-| **C05** | `Motorcycle` | Motorcycle | 500 - 3000 Hz | Legal Standard | Single-disc high-frequency electric diaphragm horn. |
-| **C06** | `CNG_Autorickshaw` | CNG Auto-rickshaw | 800 - 3500 Hz | Legal Standard | Sharp piercing electromagnetic buzzer on 4-stroke 3-wheelers. |
-| **C07** | `Easybike_Leguna` | Easybike / Leguna | 600 - 3000 Hz | Regulated | Battery auto-rickshaw electronic melody horn or light buzzer. |
-| **C08** | `Rickshaw_Bell` | Rickshaw Bell / Bulb | 1500 - 6000 Hz | Legal Standard | Dual metallic chime ("Tung-Tung") or mechanical rubber bulb horn. |
-| **C09** | `Background_Traffic_Noise` | Background Traffic Noise | 20 - 20000 Hz | Ambient Negative | Congestion rumble, engine idle, tire friction without horn events. |
+| **C01** | `Bus` | Bus (Air / Electric) | 300 - 2500 Hz | Legal Standard | Transit and intercity bus pneumatic air or high-pitch electric horn. |
+| **C02** | `Truck` | Truck / Heavy Lorry | 200 - 1500 Hz | Legal Standard | Deep resonant electric or low-frequency pneumatic horn. |
+| **C03** | `Private_Car` | Private Car / SUV | 400 - 800 Hz | Legal Standard | Dual-disc harmonic snail horn pair on sedans, microbuses, and SUVs. |
+| **C04** | `Motorcycle` | Motorcycle | 1500 - 3500 Hz | Legal Standard | Single-disc high-frequency electric diaphragm horn. |
+| **C05** | `Autorickshaw` | CNG Auto-rickshaw | 800 - 2500 Hz | Legal Standard | Sharp piercing electromagnetic buzzer on 4-stroke 3-wheelers. |
+| **C06** | `Rickshaw_Bell` | Rickshaw Bell (Metallic Chime) | 3000 - 6000 Hz | Legal Standard | Dual metallic chime ("Tung-Tung") on cycle rickshaws. |
+| **C07** | `Background_Traffic_Noise` | Background Traffic Noise | 20 - 20000 Hz | Ambient Negative | Congestion rumble, engine idle, tire friction without horn events. |
 
 ---
 
@@ -121,7 +119,7 @@ vehicle horn classification/
 │
 ├── config/                     # Configuration definitions
 │   ├── settings.py             # Global paths, audio sample rates, buffer thresholds
-│   └── taxonomy.json           # Formal 9-class acoustic taxonomy definitions
+│   └── taxonomy.json           # Formal 7-class acoustic taxonomy definitions
 │
 ├── src/                        # Core Python application package
 │   ├── core/                   # Audio engine, circular ring buffer, DSP filter suite
@@ -141,7 +139,7 @@ vehicle horn classification/
 ├── Dataset/                    # Standardized Dual-Layer Research Dataset Store
 │   ├── Raw_By_Class/           # Layer A: Global sequential class folders
 │   │   ├── Bus/
-│   │   ├── Hydraulic_Horn/
+│   │   ├── Truck/
 │   │   └── ...
 │   ├── Instances_By_Vehicle/   # Layer B: Vehicle-specific instance folders
 │   │   ├── Bus/
@@ -219,7 +217,7 @@ All 7 unit tests must report clean passes prior to committing dataset modificati
 | `filename` | String | Standard 9-parameter WAV filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929.wav` |
 | `audio_filename` | String | Database alias for file resolution | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929.wav` |
 | `photo_filename` | String | Matching photograph filename | `BDHORN_0001_S01_Bus_Hino_AK1J_DhakaMetro-Ba-14-8923_5.0m_Front_Gabtoli_20260929.jpg` |
-| `vehicle_class` | String | Target category from 9-class taxonomy | `Bus` |
+| `vehicle_class` | String | Target category from 7-class taxonomy | `Bus` |
 | `vehicle_model` | String | Vehicle manufacturer chassis / model | `Hino_AK1J` |
 | `license_plate` | String | Official vehicle registration number | `DhakaMetro-Ba-14-8923` |
 | `distance_m` | String | Distance between transducer and vehicle | `5.0m` |

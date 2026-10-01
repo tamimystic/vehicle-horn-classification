@@ -303,10 +303,10 @@
           <div class="step-body">
             <div class="step-title">Set Vehicle Metadata & Snap Photo</div>
             <div class="step-desc">
-              Select the <strong>Vehicle Class</strong> from the dropdown (e.g., Bus, Hydraulic Horn, Truck, Private Car). Enter the manufacturer model and registration plate number. Tap <span class="btn-tag">Snap Photo</span> to photograph the vehicle and license plate.
+              Select the <strong>Vehicle Class</strong> from the dropdown (e.g., Bus, Truck, Private Car, Motorcycle, Autorickshaw). Enter the manufacturer model and registration plate number. Tap <span class="btn-tag">Snap Photo</span> to photograph the vehicle and license plate.
             </div>
             <div class="bilingual-hint">
-              বাংলা নির্দেশিকা: গাড়ির ধরন (বাস, হাইড্রোলিক হর্ন, ট্রাক ইত্যাদি) সিলেক্ট করুন। মডেল ও প্লেট নাম্বার লিখুন এবং "Snap Photo" চেপে গাড়ির স্পষ্ট ছবি তুলুন।
+              বাংলা নির্দেশিকা: গাড়ির ধরন (বাস, ট্রাক, প্রাইভেট কার, অটোরিকশা ইত্যাদি) সিলেক্ট করুন। মডেল ও প্লেট নাম্বার লিখুন এবং "Snap Photo" চেপে গাড়ির স্পষ্ট ছবি তুলুন।
             </div>
           </div>
         </div>
@@ -856,7 +856,7 @@ Dataset/
           <tr><td><code>filename</code></td><td>string</td><td>Standard 9-parameter WAV filename: <code>[SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Side]_[Location]_[Timestamp].wav</code></td></tr>
           <tr><td><code>audio_filename</code></td><td>string</td><td>Redundant alias for SQL / Pandas join compatibility</td></tr>
           <tr><td><code>photo_filename</code></td><td>string</td><td>Filename of matched photograph in <code>Vehicle_Photos/</code></td></tr>
-          <tr><td><code>vehicle_class</code></td><td>string</td><td>Class label from 9-class acoustic taxonomy</td></tr>
+          <tr><td><code>vehicle_class</code></td><td>string</td><td>Class label from 7-class acoustic taxonomy</td></tr>
           <tr><td><code>vehicle_model</code></td><td>string</td><td>Vehicle make and model (e.g., <code>Hino_AK1J</code>)</td></tr>
           <tr><td><code>license_plate</code></td><td>string</td><td>Vehicle registration number (e.g., <code>DhakaMetro-Ba-14-8923</code>)</td></tr>
           <tr><td><code>distance_m</code></td><td>string</td><td>Formatted recording distance (e.g., <code>5.0m</code> or <code>3.2m</code>)</td></tr>

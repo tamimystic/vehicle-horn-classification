@@ -15,7 +15,7 @@ def test_metadata_pydantic_validation():
         sample_id="BDHORN_0001", filename="BDHORN_C01_HYD_0001.wav",
         sha256_hash="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
         peak_dbfs=-3.5, rms_dbfs=-14.2, measured_spl_dba=104.5, estimated_spl_dba=98.2,
-        location="Gabtoli", distance_m="5m", class_id="C01", vehicle_class="Hydraulic_Horn",
+        location="Gabtoli", distance_m="5m", class_id="C01", vehicle_class="Bus",
         timestamp_iso="2026-09-24T00:00:00"
     )
     assert record.sample_id == "BDHORN_0001"
@@ -30,7 +30,7 @@ def test_metadata_service_append():
         record = HornEventMetadata(
             sample_id="BDHORN_0001", filename="BDHORN_C01_HYD_0001.wav", sha256_hash="dummy_hash",
             peak_dbfs=-2.1, rms_dbfs=-12.5, measured_spl_dba=102.0, estimated_spl_dba=99.9,
-            location="Mawa", distance_m="10m", class_id="C01", vehicle_class="Hydraulic_Horn",
+            location="Mawa", distance_m="10m", class_id="C01", vehicle_class="Bus",
             timestamp_iso="2026-09-24T01:00:00"
         )
         service.append_record(record)

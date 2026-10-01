@@ -691,15 +691,13 @@ removePhotoBtn.addEventListener("click", () => {
 function getVehicleTargetWidthM(cls) {
   switch (cls) {
     case "Bus":
-    case "Hydraulic_Horn":
     case "Truck":
       return 2.50; // Standard commercial vehicle width in Bangladesh (m)
     case "Private_Car":
       return 1.75;
+    case "Autorickshaw":
     case "CNG_Autorickshaw":
       return 1.30;
-    case "Easybike_Leguna":
-      return 1.25;
     case "Motorcycle":
       return 0.80;
     case "Rickshaw_Bell":
@@ -1400,15 +1398,14 @@ function stopAudioRecording() {
 }
 
 const TAXONOMY_MAP = {
-  "Bus": { id: "C02", legal: "Legal_Standard" },
-  "Hydraulic_Horn": { id: "C01", legal: "Illegal_Prohibited" },
-  "Truck": { id: "C03", legal: "Legal_Standard" },
-  "Private_Car": { id: "C04", legal: "Legal_Standard" },
-  "Motorcycle": { id: "C05", legal: "Legal_Standard" },
-  "CNG_Autorickshaw": { id: "C06", legal: "Legal_Standard" },
-  "Easybike_Leguna": { id: "C07", legal: "Regulated" },
-  "Rickshaw_Bell": { id: "C08", legal: "Legal_Standard" },
-  "Background_Traffic_Noise": { id: "C09", legal: "Ambient_Negative" }
+  "Bus": { id: "C01", legal: "Legal_Standard" },
+  "Truck": { id: "C02", legal: "Legal_Standard" },
+  "Private_Car": { id: "C03", legal: "Legal_Standard" },
+  "Motorcycle": { id: "C04", legal: "Legal_Standard" },
+  "Autorickshaw": { id: "C05", legal: "Legal_Standard" },
+  "CNG_Autorickshaw": { id: "C05", legal: "Legal_Standard" },
+  "Rickshaw_Bell": { id: "C06", legal: "Legal_Standard" },
+  "Background_Traffic_Noise": { id: "C07", legal: "Ambient_Negative" }
 };
 
 async function computeBlobSha256(blob) {
