@@ -36,7 +36,7 @@ class TkMainWindow:
         params.pack(fill=tk.X, padx=10, pady=4)
 
         tk.Label(params, text="Location:", fg="#cdd6f4", bg="#181825").grid(row=0, column=0, padx=4, pady=4, sticky=tk.W)
-        self.loc_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=18)
+        self.loc_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=16)
         self.loc_entry.insert(0, "Gabtoli_Terminal")
         self.loc_entry.grid(row=0, column=1, padx=4, pady=4)
 
@@ -45,15 +45,20 @@ class TkMainWindow:
         self.dist_combo.set("5m")
         self.dist_combo.grid(row=0, column=3, padx=4, pady=4)
 
-        tk.Label(params, text="Model:", fg="#cdd6f4", bg="#181825").grid(row=0, column=4, padx=4, pady=4, sticky=tk.W)
+        tk.Label(params, text="Side:", fg="#cdd6f4", bg="#181825").grid(row=0, column=4, padx=4, pady=4, sticky=tk.W)
+        self.side_combo = ttk.Combobox(params, values=["Front", "Left", "Right", "Back"], width=8)
+        self.side_combo.set("Front")
+        self.side_combo.grid(row=0, column=5, padx=4, pady=4)
+
+        tk.Label(params, text="Model:", fg="#cdd6f4", bg="#181825").grid(row=1, column=0, padx=4, pady=4, sticky=tk.W)
         self.model_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=16)
         self.model_entry.insert(0, "Hino_AK1J")
-        self.model_entry.grid(row=0, column=5, padx=4, pady=4)
+        self.model_entry.grid(row=1, column=1, padx=4, pady=4)
 
-        tk.Label(params, text="Plate/ID:", fg="#cdd6f4", bg="#181825").grid(row=0, column=6, padx=4, pady=4, sticky=tk.W)
+        tk.Label(params, text="Plate/ID:", fg="#cdd6f4", bg="#181825").grid(row=1, column=2, padx=4, pady=4, sticky=tk.W)
         self.plate_entry = tk.Entry(params, bg="#313244", fg="#cdd6f4", insertbackground="white", width=18)
         self.plate_entry.insert(0, "DhakaMetro-Ba-14-8923")
-        self.plate_entry.grid(row=0, column=7, padx=4, pady=4)
+        self.plate_entry.grid(row=1, column=3, columnspan=3, padx=4, pady=4, sticky=tk.W)
 
         meter = tk.Frame(self.root, bg="#181825", padx=12, pady=6)
         meter.pack(fill=tk.X, padx=10, pady=4)
@@ -98,6 +103,7 @@ class TkMainWindow:
         params = {
             "location": self.loc_entry.get().strip().replace(" ", "_"),
             "distance": self.dist_combo.get(),
+            "recording_side": self.side_combo.get(),
             "vehicle_model": self.model_entry.get().strip().replace(" ", "_"),
             "license_plate": self.plate_entry.get().strip().replace(" ", "_"),
             "measured_spl": 90.0,

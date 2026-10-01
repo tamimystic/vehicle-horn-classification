@@ -40,10 +40,17 @@ class SessionPanel(QtWidgets.QGroupBox):
         self.weather_input.addItems(["Dry_Sunny", "Overcast_Cloudy", "Post_Rain_WetRoad", "Drizzle"])
         layout.addWidget(self.weather_input, 1, 5)
 
+        layout.addWidget(QtWidgets.QLabel("Recording Side:"), 2, 0)
+        self.side_input = QtWidgets.QComboBox()
+        self.side_input.addItems(["Front", "Left", "Right", "Back"])
+        self.side_input.setCurrentText("Front")
+        layout.addWidget(self.side_input, 2, 1)
+
     def get_params(self) -> Dict[str, Any]:
         return {
             "location": self.loc_input.text().strip().replace(" ", "_"),
             "distance": self.dist_input.currentText(),
+            "recording_side": self.side_input.currentText(),
             "vehicle_model": self.model_input.text().strip().replace(" ", "_"),
             "license_plate": self.plate_input.text().strip().replace(" ", "_"),
             "measured_spl": float(self.spl_input.value()),
