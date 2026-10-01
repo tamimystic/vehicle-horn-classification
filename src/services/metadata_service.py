@@ -13,6 +13,7 @@ class HornEventMetadata(BaseModel):
     sample_id: str
     instance_id: Optional[str] = "S01"
     filename: str
+    audio_filename: Optional[str] = ""
     sha256_hash: str
     sample_rate_hz: int = 48000
     bit_depth: int = 24

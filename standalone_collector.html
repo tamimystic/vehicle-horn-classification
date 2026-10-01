@@ -2913,6 +2913,7 @@ saveRecordingBtn.addEventListener("click", async () => {
     sample_id: sampleId,
     instance_id: instanceId,
     filename: wavFileName,
+    audio_filename: wavFileName,
     sha256_hash: sha256,
     sample_rate_hz: actualSampleRate,
     bit_depth: 16,
@@ -3302,13 +3303,14 @@ exportZipBtn.addEventListener("click", async () => {
       const rec = item.record;
       const audioArrayBuffer = await item.audioBlob.arrayBuffer();
       const audioBytes = new Uint8Array(audioArrayBuffer);
+      const audioName = rec.filename || rec.audio_filename || `${rec.sample_id}.wav`;
 
       // Layer A: Raw_By_Class/<Class>/
-      zip.addFile(`Dataset/Raw_By_Class/${rec.vehicle_class}/${rec.audio_filename}`, audioBytes);
+      zip.addFile(`Dataset/Raw_By_Class/${rec.vehicle_class}/${audioName}`, audioBytes);
 
       // Layer B: Instances_By_Vehicle/<Class>/<Model_Plate>/
       const instFolder = `${rec.vehicle_model}_${rec.license_plate}`;
-      zip.addFile(`Dataset/Instances_By_Vehicle/${rec.vehicle_class}/${instFolder}/${rec.audio_filename}`, audioBytes);
+      zip.addFile(`Dataset/Instances_By_Vehicle/${rec.vehicle_class}/${instFolder}/${audioName}`, audioBytes);
 
       // Photo Layer: Vehicle_Photos/
       if (item.photoBlob && rec.photo_filename) {

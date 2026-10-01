@@ -71,12 +71,13 @@ class RecorderService:
 
             file_hash = self.metadata_service.compute_sha256(raw_class_path)
             peak_db, rms_db, _ = self.audio_engine.dsp.calculate_levels(audio)
-            estimated_spl = self.audio_engine.dsp.estimate_spl_dba(rms_db)
+            estimated_spl = self.audio_engine.dsp.estimate_spl_dba(rms_db, audio_chunk=audio)
 
             meta = HornEventMetadata(
                 sample_id=sample_id,
                 instance_id=instance_id,
                 filename=filename,
+                audio_filename=filename,
                 sha256_hash=file_hash,
                 sample_rate_hz=self.sample_rate,
                 bit_depth=24,
