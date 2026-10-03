@@ -51,7 +51,7 @@ Scientific validity in acoustic classification depends on capture integrity. The
                        |          v                                       |
                        |   [ Live Spectrum & Peak Level Monitor ]         |
                        |          |                                       |
-                       |          +<--- [ User One-Touch Hotkey: 1 to 9 ] |
+                       |          +<--- [ User One-Touch Hotkey: 1 to 7 ] |
                        |          |                                       |
                        |          v                                       |
                        |   [ Synchronized Auto File & Metadata Exporter ] |
@@ -150,7 +150,7 @@ $$C_{\text{calib}} = SPL_{\text{measured}} - RMS_{\text{dBFS}} \approx 112.4\tex
 ## Section 3: Software System Architecture
 
 1. **Circular RAM Buffer (`src/core/ring_buffer.py`):** Pre-allocates a fixed array for 5 seconds of audio. Continuous ingestion writes in-place with thread-safe pointer wrapping, eliminating Python memory reallocations during event capture.
-2. **Microsecond Triggering:** When a user taps a class button (e.g. `1` for Hydraulic Horn), the past 1.0 second and following 2.0 seconds (3.0s total) are sliced from RAM instantaneously.
+2. **Microsecond Triggering:** When a user taps a class button (e.g. `1` for Bus), the past 1.0 second and following 2.0 seconds (3.0s total) are sliced from RAM instantaneously.
 3. **Asynchronous Writer Worker (`src/services/recorder_service.py`):** Disk I/O, 24-bit PCM WAV encoding, SHA-256 calculation, and CSV metadata logging execute on a separate daemon thread to ensure zero UI frame drops.
 4. **Cross-Platform Delivery:** 
    - Desktop native GUI with Tkinter / PyQt support.

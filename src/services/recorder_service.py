@@ -73,6 +73,14 @@ class RecorderService:
             peak_db, rms_db, _ = self.audio_engine.dsp.calculate_levels(audio)
             estimated_spl = self.audio_engine.dsp.estimate_spl_dba(rms_db, audio_chunk=audio)
 
+            azimuth_map = {"Front": 0, "Right": 90, "Back": 180, "Left": 270}
+            acoustic_azimuth = azimuth_map.get(side, session_params.get("acoustic_azimuth_deg", 0))
+            raw_dist_val = 5.0
+            try:
+                raw_dist_val = float(str(distance).lower().replace("m", ""))
+            except Exception:
+                raw_dist_val = 5.0
+
             meta = HornEventMetadata(
                 sample_id=sample_id,
                 instance_id=instance_id,
@@ -91,6 +99,13 @@ class RecorderService:
                 calib_offset_c=self.config.audio.calib_offset_c,
                 location=location,
                 distance_m=distance,
+                distance_raw_m=session_params.get("distance_raw_m", raw_dist_val),
+                distance_uncertainty_m=session_params.get("distance_uncertainty_m", 0.15),
+                distance_confidence_pct=session_params.get("distance_confidence_pct", 95.0),
+                distance_method=session_params.get("distance_method", "Sensor_Fusion_Optical_Tilt"),
+                acoustic_azimuth_deg=acoustic_azimuth,
+                camera_tilt_deg=session_params.get("camera_tilt_deg", 0.0),
+                observer_height_m=session_params.get("observer_height_m", 1.40),
                 recording_side=side,
                 angle_deg=session_params.get("angle_deg", 45),
                 mic_height_m=session_params.get("mic_height_m", 1.5),

@@ -1446,6 +1446,7 @@ let currentRmsDb = -100;
 let globalSampleIndex = 1;
 const instanceCounters = {}; // Maps `${class}_${model}_${plate}` -> count
 const metadataRecords = [];
+let pendingRecording = null;
 
 // File System Handle for Direct Auto-Saving
 let rootDirectoryHandle = null;
@@ -2793,6 +2794,25 @@ function stopAudioRecording() {
   const wavName = `${baseFileName}.wav`;
   const photoName = `${baseFileName}.jpg`;
 
+  pendingRecording = {
+    now,
+    timeStr,
+    sampleId,
+    key,
+    instanceNum,
+    instanceId,
+    cls,
+    model,
+    plate,
+    dist,
+    side,
+    loc,
+    baseFileName,
+    wavFileName: wavName,
+    photoFileName: currentPhotoBlob ? photoName : "",
+    distanceMetrics: { ...currentDistanceMetrics }
+  };
+
   const clipWarningHtml = currentPeakDb >= -0.5
     ? `<div style="color:#f38ba8; font-weight:bold; margin-top:6px; padding:6px; background:#311b22; border-radius:6px; border:1px solid #f38ba8;">[!] CLIPPING ALERT: Audio peaked at ${currentPeakDb.toFixed(1)} dBFS. For loud horns, please stand at 3m–5m safe distance to avoid hardware distortion. (সাউন্ড অতিরিক্ত লাউড ছিল; ৩–৫ মিটার পেছনে সরে রিকলিপ করুন)</div>`
     : "";
@@ -2871,6 +2891,7 @@ function renderWaveform() {
 // Review Section Actions
 discardRecordingBtn.addEventListener("click", () => {
   currentAudioBlob = null;
+  pendingRecording = null;
   audioPlayback.src = "";
   reviewSection.style.display = "none";
   recordingTimer.textContent = "00:00.0";
@@ -2880,24 +2901,41 @@ discardRecordingBtn.addEventListener("click", () => {
 saveRecordingBtn.addEventListener("click", async () => {
   if (!currentAudioBlob) return;
 
-  const now = new Date();
-  const timeStr = formatTimestamp(now);
-  const sampleId = `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`;
-  const key = getInstanceKey();
-  const instanceNum = (instanceCounters[key] || 0) + 1;
-  const instanceId = `S${String(instanceNum).padStart(2, "0")}`;
-  const cls = sanitize(vehicleClassSelect.value);
-  const model = sanitize(vehicleModelInput.value || "Unknown");
-  const plate = sanitize(vehiclePlateInput.value || "Unknown");
-  const dist = sanitize(distanceInput ? distanceInput.value : (distanceSelect ? distanceSelect.value : "5.0m"));
-  const side = sanitize(sideSelect ? sideSelect.value : "Front");
-  const loc = sanitize(locationInput.value || "Field");
+  const session = pendingRecording || {
+    now: new Date(),
+    timeStr: formatTimestamp(new Date()),
+    sampleId: `BDHORN_${String(globalSampleIndex).padStart(4, "0")}`,
+    key: getInstanceKey(),
+    instanceNum: (instanceCounters[getInstanceKey()] || 0) + 1,
+    instanceId: `S${String((instanceCounters[getInstanceKey()] || 0) + 1).padStart(2, "0")}`,
+    cls: sanitize(vehicleClassSelect.value),
+    model: sanitize(vehicleModelInput.value || "Unknown"),
+    plate: sanitize(vehiclePlateInput.value || "Unknown"),
+    dist: sanitize(distanceInput ? distanceInput.value : (distanceSelect ? distanceSelect.value : "5.0m")),
+    side: sanitize(sideSelect ? sideSelect.value : "Front"),
+    loc: sanitize(locationInput.value || "Field"),
+    distanceMetrics: { ...currentDistanceMetrics }
+  };
+
+  const sampleId = session.sampleId;
+  const instanceId = session.instanceId;
+  const key = session.key;
+  const instanceNum = session.instanceNum;
+  const cls = session.cls;
+  const model = session.model;
+  const plate = session.plate;
+  const dist = session.dist;
+  const side = session.side;
+  const loc = session.loc;
+  const now = session.now;
+  const timeStr = session.timeStr;
+  const baseFileName = session.baseFileName || `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${side}_${loc}_${timeStr}`;
+  const wavFileName = session.wavFileName || `${baseFileName}.wav`;
+  const photoFileName = currentPhotoBlob ? (session.photoFileName || `${baseFileName}.jpg`) : "";
+  const distanceMetrics = session.distanceMetrics || currentDistanceMetrics;
+
   const azimuthMap = { "Front": 0, "Right": 90, "Back": 180, "Left": 270 };
   const azimuthVal = azimuthMap[side] !== undefined ? azimuthMap[side] : (azimuthSelect ? parseInt(azimuthSelect.value, 10) : 0);
-
-  const baseFileName = `${sampleId}_${instanceId}_${cls}_${model}_${plate}_${dist}_${side}_${loc}_${timeStr}`;
-  const wavFileName = `${baseFileName}.wav`;
-  const photoFileName = currentPhotoBlob ? `${baseFileName}.jpg` : "";
 
   const tax = TAXONOMY_MAP[cls] || { id: "C00", legal: "Legal_Standard" };
   const sha256 = await computeBlobSha256(currentAudioBlob);
@@ -2987,6 +3025,7 @@ saveRecordingBtn.addEventListener("click", async () => {
 
   // Reset Review & Photo State
   currentAudioBlob = null;
+  pendingRecording = null;
   audioPlayback.src = "";
   reviewSection.style.display = "none";
   recordingTimer.textContent = "00:00.0";
@@ -3288,8 +3327,11 @@ exportZipBtn.addEventListener("click", async () => {
     const store = tx.objectStore("samples");
     const req = store.getAll();
 
-    await new Promise((res) => { tx.oncomplete = () => res(); });
-    const samples = req.result || [];
+    const samples = await new Promise((res, rej) => {
+      req.onsuccess = () => res(req.result || []);
+      req.onerror = () => rej(req.error || new Error("Failed to fetch samples from IndexedDB"));
+      tx.onerror = () => rej(tx.error || new Error("IndexedDB transaction error"));
+    });
 
     const zip = new FastZipBuilder();
 

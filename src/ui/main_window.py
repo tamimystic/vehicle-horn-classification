@@ -59,7 +59,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.status_bar = QtWidgets.QStatusBar()
         self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage("Engine ready. Press 1-9 to record horn events.")
+        self.status_bar.showMessage("Engine ready. Press 1-7 to record horn events.")
         self.setCentralWidget(central)
 
     def init_timer(self):

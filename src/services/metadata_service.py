@@ -55,17 +55,24 @@ class HornEventMetadata(BaseModel):
     notes: Optional[str] = ""
 
 class MetadataService:
-    def __init__(self, csv_path: Path = config.paths.metadata_csv, json_path: Path = config.paths.metadata_json):
+    def __init__(self, csv_path: Path = config.paths.metadata_csv, json_path: Path = config.paths.metadata_json, dataset_csv_path: Optional[Path] = None):
         self.csv_path = csv_path
         self.json_path = json_path
+        self.dataset_csv_path = dataset_csv_path if dataset_csv_path is not None else (config.paths.dataset_metadata_csv if csv_path == config.paths.metadata_csv else None)
         self.lock = threading.Lock()
         self._init_storage()
 
     def _init_storage(self) -> None:
         with self.lock:
+            fields = list(HornEventMetadata.model_fields.keys())
             if not self.csv_path.exists():
-                pd.DataFrame(columns=list(HornEventMetadata.model_fields.keys())).to_csv(self.csv_path, index=False)
+                self.csv_path.parent.mkdir(parents=True, exist_ok=True)
+                pd.DataFrame(columns=fields).to_csv(self.csv_path, index=False)
+            if self.dataset_csv_path and not self.dataset_csv_path.exists():
+                self.dataset_csv_path.parent.mkdir(parents=True, exist_ok=True)
+                pd.DataFrame(columns=fields).to_csv(self.dataset_csv_path, index=False)
             if not self.json_path.exists():
+                self.json_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(self.json_path, "w", encoding="utf-8") as f:
                     json.dump([], f, indent=2)
 
@@ -90,6 +97,8 @@ class MetadataService:
         data = record.model_dump()
         with self.lock:
             pd.DataFrame([data]).to_csv(self.csv_path, mode="a", header=not self.csv_path.exists(), index=False)
+            if self.dataset_csv_path:
+                pd.DataFrame([data]).to_csv(self.dataset_csv_path, mode="a", header=not self.dataset_csv_path.exists(), index=False)
             records = []
             if self.json_path.exists():
                 try:

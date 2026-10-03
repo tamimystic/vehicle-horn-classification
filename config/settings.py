@@ -29,6 +29,7 @@ class PathSettings(BaseModel):
     raw_by_class_dir: Path = DATASET_DIR / "Raw_By_Class"
     instances_dir: Path = DATASET_DIR / "Instances_By_Vehicle"
     vehicle_photos_dir: Path = DATASET_DIR / "Vehicle_Photos"
+    dataset_metadata_csv: Path = DATASET_DIR / "metadata.csv"
     metadata_csv: Path = METADATA_DIR / "metadata_master.csv"
     metadata_json: Path = METADATA_DIR / "metadata_master.json"
     logs_dir: Path = BASE_DIR / "logs"
@@ -50,6 +51,7 @@ class AppConfig(BaseModel):
         self.paths.raw_by_class_dir.mkdir(parents=True, exist_ok=True)
         self.paths.instances_dir.mkdir(parents=True, exist_ok=True)
         self.paths.vehicle_photos_dir.mkdir(parents=True, exist_ok=True)
+        self.paths.dataset_metadata_csv.parent.mkdir(parents=True, exist_ok=True)
         self.paths.metadata_csv.parent.mkdir(parents=True, exist_ok=True)
         self.paths.logs_dir.mkdir(parents=True, exist_ok=True)
 

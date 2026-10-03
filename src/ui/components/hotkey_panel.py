@@ -3,7 +3,7 @@ from PyQt6 import QtWidgets, QtCore, QtGui
 
 class HotkeyPanel(QtWidgets.QGroupBox):
     def __init__(self, classes_data: List[Dict[str, Any]], on_class_triggered: Callable[[Dict[str, Any]], None], parent=None):
-        super().__init__("One-Touch Event Logger (Keys 1-9)", parent)
+        super().__init__("One-Touch Event Logger (Keys 1-7)", parent)
         self.classes_data = classes_data
         self.on_class_triggered = on_class_triggered
         self.buttons = {}

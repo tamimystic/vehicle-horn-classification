@@ -3,7 +3,7 @@ import subprocess
 
 def build():
     excludes = [
-        "torch", "torchvision", "scipy", "matplotlib", "spyder", "sphinx", "bcrypt",
+        "torch", "torchvision", "matplotlib", "spyder", "sphinx", "bcrypt",
         "black", "cryptography", "jupyter", "IPython", "notebook", "jinja2", "nbformat",
         "nbconvert", "dask", "distributed", "PIL", "skimage", "sklearn", "transformers",
         "huggingface_hub", "twisted", "scrapy", "streamlit", "xarray", "xgboost",

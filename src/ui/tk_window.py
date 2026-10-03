@@ -67,7 +67,7 @@ class TkMainWindow:
         self.clip_lbl = tk.Label(meter, text="SIGNAL CLEAN", font=("Segoe UI", 10, "bold"), fg="#11111b", bg="#a6e3a1", padx=12, pady=3)
         self.clip_lbl.pack(side=tk.RIGHT)
 
-        btn_box = tk.LabelFrame(self.root, text=" One-Touch Event Logger (Hotkeys 1 - 9) ", font=("Segoe UI", 10, "bold"), fg="#fab387", bg="#181825", padx=10, pady=10)
+        btn_box = tk.LabelFrame(self.root, text=" One-Touch Event Logger (Hotkeys 1 - 7) ", font=("Segoe UI", 10, "bold"), fg="#fab387", bg="#181825", padx=10, pady=10)
         btn_box.pack(fill=tk.BOTH, expand=True, padx=10, pady=6)
 
         self.buttons = {}

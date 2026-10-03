@@ -83,15 +83,13 @@ Every captured audio segment is accompanied by a standardized 28-field metadata 
 
 | ID | Vehicle Class | Acoustic Characteristics | Target Legal Status |
 |---|---|---|---|
-| **C01** | Hydraulic Horn | Multi-tone dissonance, Extreme SPL (>105 dBA), Piercing harmonics (1–8 kHz) | **Illegal / Prohibited** |
-| **C02** | Bus (Standard) | High-volume pneumatic air horn or dual-electric horn (400–2500 Hz) | Legal / Standard |
-| **C03** | Truck / Heavy Lorry | Low-frequency resonant acoustic fundamental (200–1500 Hz) | Legal / Standard |
-| **C04** | Private Car / SUV | Harmonic dual-disc snail pair (400–800 Hz) | Legal / Standard |
-| **C05** | Motorcycle | High-frequency single electromagnetic diaphragm (500–3000 Hz) | Legal / Standard |
-| **C06** | CNG Auto-rickshaw | High-pitch piercing buzzer (800–3500 Hz) | Legal / Standard |
-| **C07** | Easybike / Leguna | Electronic synthesizer/melody horn or light buzzer (600–3000 Hz) | Regulated |
-| **C08** | Rickshaw Bell | Metallic mechanical double-chime or rubber bulb horn (1500–6000 Hz) | Legal / Standard |
-| **C09** | Traffic Noise | Roadway background rush, engine idle, tire friction (Negative Class) | Ambient Noise |
+| **C01** | Bus | Pneumatic air horn or high-volume electric horn (300–2500 Hz) | Legal / Standard |
+| **C02** | Truck | Low-frequency resonant fundamental on freight trucks (200–1500 Hz) | Legal / Standard |
+| **C03** | Private Car | Harmonic dual-disc snail pair on sedans and SUVs (400–800 Hz) | Legal / Standard |
+| **C04** | Motorcycle | High-frequency single electromagnetic diaphragm (1500–3500 Hz) | Legal / Standard |
+| **C05** | Autorickshaw | Piercing electromagnetic buzzer on 4-stroke 3-wheelers (800–2500 Hz) | Legal / Standard |
+| **C06** | Rickshaw Bell | Metallic mechanical double-chime ("Tung-Tung") (3000–6000 Hz) | Legal / Standard |
+| **C07** | Background Traffic Noise | Roadway background rush, engine idle, tire friction (Negative Class) | Ambient Noise |
 
 ---
 
@@ -104,4 +102,4 @@ Every captured audio segment is accompanied by a standardized 28-field metadata 
    - Lightweight Edge Models: MobileNetV3 and EfficientNet-B0 for real-time deployment on Raspberry Pi / smartphone hardware.
 3. **Validation Strategy:** Group 5-fold cross-validation partitioned strictly by `vehicle_instance_id` to prevent data leakage.
 4. **Metrics:** Macro-averaged Precision, Recall, F1-Score, Class-wise Area Under the ROC Curve (AUC-ROC), and confusion matrix analysis.
-5. **Explainability:** Grad-CAM on log-mel representations demonstrating model attention on specific harmonic overtones of illegal hydraulic horns.
+5. **Explainability:** Grad-CAM on log-mel representations demonstrating model attention on specific harmonic overtones and formants across classes.
