@@ -43,17 +43,23 @@
     <!-- Session & Vehicle Metadata Card -->
     <section class="card metadata-card">
       <div class="card-header">
-        <span class="card-title">Vehicle & Session Metadata</span>
+        <div class="card-title-group">
+          <span class="step-badge">STEP 01</span>
+          <div>
+            <h2 class="card-title">Vehicle & Session Metadata</h2>
+            <span class="card-subtitle-bn">যানবাহন ও অবস্থান মেটাডাটা</span>
+          </div>
+        </div>
         <div class="header-action-group">
           <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct disk writing">Bind Folder</button>
-          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">GPS Locate</button>
-          <button type="button" id="mapPickerBtn" class="pill-btn" title="Pinpoint and adjust exact location on interactive map">Pin on Map</button>
+          <button type="button" id="gpsBtn" class="pill-btn gps-action-btn" title="Auto-detect current GPS location">GPS Locate</button>
+          <button type="button" id="mapPickerBtn" class="pill-btn map-action-btn" title="Pinpoint and adjust exact location on interactive map">Pin on Map</button>
         </div>
       </div>
 
       <div class="form-grid">
-        <div class="form-group col-2">
-          <label for="vehicleClassSelect">Vehicle Class:</label>
+        <div class="form-group col-3">
+          <label for="vehicleClassSelect">Vehicle Class (যানবাহনের ধরন):</label>
           <select id="vehicleClassSelect">
             <option value="Bus" selected>Bus (Transit / Commercial Air & Electric)</option>
             <option value="Truck">Truck / Heavy Lorry (Commercial Freight)</option>
@@ -65,23 +71,23 @@
           </select>
         </div>
 
-        <div class="form-group col-2">
-          <label for="vehicleModelInput">Vehicle Name & Model:</label>
+        <div class="form-group col-half">
+          <label for="vehicleModelInput">Vehicle Name & Model (মডেল):</label>
           <input type="text" id="vehicleModelInput" value="Hino_AK1J" placeholder="e.g. Hino AK1J, Tata LP 410, Yamaha FZ">
         </div>
 
-        <div class="form-group col-2">
-          <label for="vehiclePlateInput">Plate / Vehicle ID:</label>
+        <div class="form-group col-half">
+          <label for="vehiclePlateInput">Plate / Vehicle ID (নম্বর প্লেট):</label>
           <input type="text" id="vehiclePlateInput" value="Dhaka-Metro-Ba-14-8923" placeholder="e.g. DhakaMetro-Ba-14-8923">
         </div>
 
-        <div class="form-group col-1">
-          <label for="distanceInput">Distance (Auto):</label>
+        <div class="form-group col-half">
+          <label for="distanceInput">Distance [Auto-Calculated] (দূরত্ব):</label>
           <input type="text" id="distanceInput" value="5.0m" class="auto-distance-input" placeholder="e.g. 5.0m" title="Auto-calculated by Live Optical Rangefinder, or type to verify/edit">
         </div>
 
-        <div class="form-group col-1">
-          <label for="sideSelect">Recording Side:</label>
+        <div class="form-group col-half">
+          <label for="sideSelect">Recording Side (কোন পাশ থেকে):</label>
           <select id="sideSelect">
             <option value="Front" selected>Front (সামনে)</option>
             <option value="Left">Left (বাম পাশ)</option>
@@ -90,8 +96,8 @@
           </select>
         </div>
 
-        <div class="form-group col-2">
-          <label for="locationInput">Location / Site:</label>
+        <div class="form-group col-3">
+          <label for="locationInput">Location / Site (স্থান বা এলাকা):</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
           <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect, or &quot;Pin on Map&quot; to drag pin to your exact spot</div>
           <div id="gpsDetailBox" class="gps-detail-box" style="display: none;">
@@ -164,7 +170,13 @@
     <!-- Live Optical Rangefinder & Viewfinder Card -->
     <section class="card rangefinder-card">
       <div class="card-header">
-        <span class="card-title">Live Optical Rangefinder & Viewfinder</span>
+        <div class="card-title-group">
+          <span class="step-badge">STEP 02</span>
+          <div>
+            <h2 class="card-title">Optical Rangefinder & Telemetry</h2>
+            <span class="card-subtitle-bn">দূরত্ব ও কোণ পরিমাপক ক্যামেরা</span>
+          </div>
+        </div>
         <div class="header-action-group">
           <button type="button" id="toggleCameraBtn" class="pill-btn active-range-btn">Start Rangefinder Camera</button>
           <button type="button" id="flipCameraBtn" class="pill-btn" style="display:none;" title="Switch camera">Flip Lens</button>
@@ -234,27 +246,55 @@
 
     <!-- Visualizer & Audio Monitor Card -->
     <section class="card visualizer-card">
-      <div class="vis-header">
-        <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
-        <span id="recordingTimer" class="timer-display">00:00.0</span>
-        <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">Arm Mic (0ms)</button>
+      <div class="card-header vis-header-compact">
+        <div class="card-title-group">
+          <span class="step-badge">STEP 03</span>
+          <div>
+            <h2 class="card-title">Audio Monitor & Oscilloscope</h2>
+            <span class="card-subtitle-bn">লাইভ সিগন্যাল মনিটর ও লেভেল মিটার</span>
+          </div>
+        </div>
+        <div class="header-action-group">
+          <span id="recordingTimer" class="timer-display">00:00.0</span>
+          <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">Arm Mic (0ms)</button>
+        </div>
+      </div>
+
+      <div class="vis-metrics-row">
+        <div class="level-box">
+          <span class="meter-label">PEAK AMPLITUDE</span>
+          <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
+        </div>
+        <div class="vu-meter-bar-container">
+          <div id="vuMeterBar" class="vu-meter-bar"></div>
+        </div>
         <span id="clippingBadge" class="clipping-badge clean">SIGNAL READY</span>
       </div>
+
       <canvas id="waveformCanvas"></canvas>
     </section>
 
     <!-- Central Recording Hub -->
     <section class="card recording-hub-card">
-      <div class="mode-selector-row">
-        <span class="mode-label">Record Mode:</span>
-        <div class="mode-toggle">
-          <button type="button" id="modeTapBtn" class="mode-btn active">Tap Mode (Start / Stop)</button>
-          <button type="button" id="modeHoldBtn" class="mode-btn">Hold Mode (Hold / Release)</button>
+      <div class="card-header hub-header">
+        <div class="card-title-group">
+          <span class="step-badge accent">STEP 04</span>
+          <div>
+            <h2 class="card-title">One-Touch Capture Hub</h2>
+            <span class="card-subtitle-bn">হর্ন রেকর্ড বাটন</span>
+          </div>
+        </div>
+        <div class="mode-selector-row">
+          <span class="mode-label">Mode:</span>
+          <div class="mode-toggle">
+            <button type="button" id="modeTapBtn" class="mode-btn active">Tap Mode</button>
+            <button type="button" id="modeHoldBtn" class="mode-btn">Hold Mode</button>
+          </div>
         </div>
       </div>
 
       <div class="record-btn-container">
-        <button type="button" id="mainRecordBtn" class="main-record-btn idle">
+        <button type="button" id="mainRecordBtn" class="main-record-btn idle" aria-label="Record Vehicle Horn">
           <div class="btn-icon"></div>
         </button>
         <div id="recordInstruction" class="record-instruction">Tap button once when horn starts, tap again when horn stops</div>
@@ -264,10 +304,13 @@
     <!-- Post-Recording Review & Quality Control Card -->
     <section id="reviewSection" class="card review-card" style="display:none;">
       <div class="review-header">
-        <span class="card-title">Audio Quality Review</span>
+        <div class="card-title-group">
+          <span class="step-badge success">REVIEW</span>
+          <h2 class="card-title">Audio Quality Review</h2>
+        </div>
         <span id="clipDurationDisplay" class="clip-duration">--s</span>
       </div>
-      <p class="review-hint">Listen to the clip to ensure clean horn sound without wind or speech interference:</p>
+      <p class="review-hint">Listen to the clip to ensure clean horn sound without speech or wind distortion:</p>
       
       <div class="audio-player-container">
         <audio id="audioPlayback" controls></audio>
@@ -279,29 +322,39 @@
 
       <div class="review-actions">
         <button type="button" id="saveRecordingBtn" class="btn-save">
-          Save Audio & Photo
+          Save Audio & Photo (সংরক্ষণ করুন)
         </button>
         <button type="button" id="discardRecordingBtn" class="btn-discard">
-          Discard / Retake
+          Discard / Retake (বাতিল করুন)
         </button>
       </div>
     </section>
 
     <!-- Stats & Session Actions Card -->
     <section class="card stats-card">
-      <div class="stats-row">
-        <div>
-          Saved Samples: <strong id="sampleCount">0</strong>
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="step-badge">STORAGE</span>
+          <div>
+            <h2 class="card-title">Dataset Manager & Export</h2>
+            <span class="card-subtitle-bn">সংরক্ষিত নমুনা ও এক্সপোর্ট</span>
+          </div>
+        </div>
+        <div class="saved-count-pill">
+          <span>Saved:</span>
+          <strong id="sampleCount">0</strong>
           <span id="dirStatusBadge" class="dir-badge" style="display:none;">Direct Disk Write Active</span>
         </div>
+      </div>
+      <div class="stats-body">
         <div class="action-btn-group">
           <button id="installAppBtn" class="action-btn install-btn" style="display:none;">Install App</button>
-          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">Export ZIP</button>
-          <button type="button" id="downloadMetadataBtn" class="action-btn">Export CSV</button>
-          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">Reset Session</button>
+          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">Export Dataset ZIP</button>
+          <button type="button" id="downloadMetadataBtn" class="action-btn csv-btn" title="Export metadata table as CSV">Export CSV</button>
+          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">Reset Batch</button>
         </div>
+        <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
       </div>
-      <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
     </section>
   </div>
 

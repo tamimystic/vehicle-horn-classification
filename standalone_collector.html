@@ -17,24 +17,25 @@ body {
   background-color: #11111b;
   color: #cdd6f4;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.4;
-  padding: 10px;
-  max-width: 620px;
+  line-height: 1.45;
+  padding: 12px 14px 40px;
+  max-width: 680px;
   margin: 0 auto;
 }
 
 .app-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* Header */
 .app-header {
   background: #181825;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
   border: 1px solid #313244;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .title-row {
@@ -362,22 +363,76 @@ body {
 /* Generic Card */
 .card {
   background: #181825;
-  padding: 12px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
   border: 1px solid #313244;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  border-color: #45475a;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title-group > div {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .card-title {
-  font-size: 0.85rem;
+  font-size: 0.90rem;
   font-weight: 700;
   color: #fab387;
+  letter-spacing: 0.2px;
+  margin: 0;
+}
+
+.card-subtitle-bn {
+  font-size: 0.70rem;
+  color: #6c7086;
+  font-weight: 500;
+}
+
+.step-badge {
+  display: inline-block;
+  font-size: 0.60rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(137, 180, 250, 0.15);
+  color: #89b4fa;
+  border: 1px solid rgba(137, 180, 250, 0.35);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.step-badge.accent {
+  background: rgba(243, 139, 168, 0.18);
+  color: #f38ba8;
+  border-color: rgba(243, 139, 168, 0.35);
+}
+
+.step-badge.success {
+  background: rgba(166, 227, 161, 0.18);
+  color: #a6e3a1;
+  border-color: rgba(166, 227, 161, 0.35);
 }
 
 .header-action-group {
@@ -390,17 +445,27 @@ body {
   background: #313244;
   color: #89b4fa;
   border: 1px solid #45475a;
-  padding: 4px 8px;
-  font-size: 0.7rem;
+  padding: 5px 10px;
+  font-size: 0.72rem;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pill-btn:hover {
+  background: #45475a;
+  color: #cdd6f4;
+  border-color: #89b4fa;
 }
 
 .pill-btn:active {
   background: #89b4fa;
   color: #11111b;
+  transform: scale(0.97);
 }
 
 .dir-select-btn {
@@ -413,6 +478,17 @@ body {
   background: #181825;
   color: #a6e3a1;
   border-color: #a6e3a1;
+  box-shadow: 0 0 8px rgba(166, 227, 161, 0.2);
+}
+
+.gps-action-btn {
+  color: #89dceb;
+  border-color: #89dceb;
+}
+
+.map-action-btn {
+  color: #f9e2af;
+  border-color: #f9e2af;
 }
 
 .mic-arm-btn {
@@ -425,22 +501,32 @@ body {
   background: #181825;
   color: #a6e3a1;
   border: 1px solid #a6e3a1;
+  box-shadow: 0 0 10px rgba(166, 227, 161, 0.3);
 }
 
 /* Form Grid */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.col-1 { grid-column: span 1; }
-.col-2 { grid-column: span 2; }
-.col-3 { grid-column: span 3; }
+.col-half {
+  grid-column: span 1;
+}
 
-@media (max-width: 480px) {
-  .col-2, .col-1 { grid-column: span 3; }
+.col-3, .col-full {
+  grid-column: span 2;
+}
+
+@media (max-width: 520px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .col-half, .col-3, .col-full {
+    grid-column: span 1;
+  }
 }
 
 .form-group label {
@@ -448,22 +534,25 @@ body {
   font-size: 0.72rem;
   font-weight: 600;
   color: #bac2de;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
+  letter-spacing: 0.2px;
 }
 
 .form-group input, .form-group select {
   width: 100%;
-  background: #313244;
+  background: #24253a;
   border: 1px solid #45475a;
   border-radius: 8px;
   color: #cdd6f4;
-  padding: 8px 10px;
-  font-size: 0.82rem;
+  padding: 8px 12px;
+  font-size: 0.84rem;
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-group input:focus, .form-group select:focus {
   border-color: #89b4fa;
+  box-shadow: 0 0 0 3px rgba(137, 180, 250, 0.2);
 }
 
 /* Meta Footer Row */
@@ -543,53 +632,100 @@ body {
 
 /* Visualizer Card */
 .visualizer-card {
-  padding: 10px;
+  padding: 14px 16px;
 }
 
-.vis-header {
+.vis-header-compact {
+  margin-bottom: 10px;
+}
+
+.vis-metrics-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  font-size: 0.75rem;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  background: #11111b;
+  border: 1px solid #313244;
+  padding: 8px 12px;
+  border-radius: 8px;
   flex-wrap: wrap;
+}
+
+.level-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 120px;
+}
+
+.meter-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #6c7086;
+  letter-spacing: 0.6px;
 }
 
 .level-indicator {
   color: #89b4fa;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82rem;
+}
+
+.vu-meter-bar-container {
+  flex: 1;
+  height: 8px;
+  background: #181825;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #45475a;
+  min-width: 80px;
+}
+
+.vu-meter-bar {
+  width: 0%;
+  height: 100%;
+  background: #a6e3a1;
+  border-radius: 4px;
+  transition: width 0.05s ease, background 0.15s ease;
 }
 
 .timer-display {
-  font-family: monospace;
-  font-size: 0.95rem;
-  font-weight: bold;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.05rem;
+  font-weight: 800;
   color: #f9e2af;
+  letter-spacing: 0.5px;
 }
 
 .clipping-badge {
-  padding: 2px 8px;
+  padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.65rem;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.4px;
 }
 
 .clipping-badge.clean {
-  background: #313244;
+  background: rgba(166, 227, 161, 0.15);
   color: #a6e3a1;
+  border: 1px solid rgba(166, 227, 161, 0.3);
 }
 
 .clipping-badge.warn {
   background: #f38ba8;
   color: #11111b;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(243, 139, 168, 0.5);
 }
 
 #waveformCanvas {
   width: 100%;
-  height: 60px;
+  height: 70px;
   background: #11111b;
   border-radius: 8px;
+  border: 1px solid #313244;
   display: block;
 }
 
@@ -598,15 +734,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 12px;
+  padding: 16px;
+  background: linear-gradient(180deg, #181825, #141420);
+}
+
+.hub-header {
+  width: 100%;
+  margin-bottom: 14px;
 }
 
 .mode-selector-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  font-size: 0.8rem;
+  gap: 8px;
+  font-size: 0.78rem;
 }
 
 .mode-label {
@@ -649,11 +790,11 @@ body {
 }
 
 .main-record-btn {
-  width: 110px;
-  height: 110px;
+  width: 118px;
+  height: 118px;
   border-radius: 50%;
   border: 4px solid #f38ba8;
-  background: #1e1e2e;
+  background: radial-gradient(circle at 40% 40%, #2e283b, #181424);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -661,46 +802,55 @@ body {
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
-  transition: transform 0.1s, border-color 0.2s, background 0.2s;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transition: transform 0.12s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(243, 139, 168, 0.15);
+}
+
+.main-record-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 30px rgba(243, 139, 168, 0.3), inset 0 0 16px rgba(243, 139, 168, 0.25);
 }
 
 .main-record-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 
 .main-record-btn.idle .btn-icon {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   background: #f38ba8;
   border-radius: 50%;
-  transition: all 0.2s;
+  box-shadow: 0 0 12px rgba(243, 139, 168, 0.4);
+  transition: all 0.2s ease;
 }
 
 .main-record-btn.recording {
-  background: #313244;
+  background: radial-gradient(circle at 50% 50%, #452431, #24141e);
   border-color: #f38ba8;
-  animation: pulse-ring 1.5s infinite;
+  animation: pulse-ring 1.4s infinite;
 }
 
 .main-record-btn.recording .btn-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   background: #f38ba8;
-  border-radius: 6px;
+  border-radius: 8px;
+  box-shadow: 0 0 16px rgba(243, 139, 168, 0.6);
 }
 
 @keyframes pulse-ring {
   0% { box-shadow: 0 0 0 0 rgba(243, 139, 168, 0.7); }
-  70% { box-shadow: 0 0 0 16px rgba(243, 139, 168, 0); }
+  70% { box-shadow: 0 0 0 20px rgba(243, 139, 168, 0); }
   100% { box-shadow: 0 0 0 0 rgba(243, 139, 168, 0); }
 }
 
 .record-instruction {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: #a6adc8;
   text-align: center;
-  min-height: 18px;
+  min-height: 20px;
+  line-height: 1.4;
+  max-width: 90%;
 }
 
 /* Post-Recording Review Card */
@@ -812,81 +962,122 @@ body {
 
 /* Stats Card */
 .stats-card {
-  padding: 12px;
+  padding: 14px 16px;
 }
 
-.stats-row {
+.saved-count-pill {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  font-size: 0.82rem;
-  margin-bottom: 8px;
-  flex-wrap: wrap;
   gap: 6px;
+  background: #11111b;
+  border: 1px solid #313244;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.74rem;
+}
+
+.saved-count-pill strong {
+  color: #a6e3a1;
+  font-size: 0.90rem;
 }
 
 .dir-badge {
-  background: #313244;
+  background: rgba(166, 227, 161, 0.15);
   color: #a6e3a1;
   font-size: 0.65rem;
+  font-weight: 700;
   padding: 2px 6px;
   border-radius: 4px;
   margin-left: 4px;
-  border: 1px solid #a6e3a1;
+  border: 1px solid rgba(166, 227, 161, 0.3);
+}
+
+.stats-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .action-btn-group {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .action-btn {
   background: #313244;
-  color: #89b4fa;
-  border: 1px solid #89b4fa;
+  color: #cdd6f4;
+  border: 1px solid #45475a;
   border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 0.72rem;
+  padding: 7px 12px;
+  font-size: 0.74rem;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
 }
 
 .action-btn:active {
-  background: #89b4fa;
-  color: #11111b;
+  transform: translateY(0);
 }
 
 .action-btn.zip-btn {
-  background: #313244;
-  color: #f9e2af;
-  border-color: #f9e2af;
+  background: linear-gradient(135deg, #a6e3a1, #94e2d5);
+  color: #11111b;
+  border: none;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(166, 227, 161, 0.25);
 }
 
-.action-btn.zip-btn:active {
-  background: #f9e2af;
-  color: #11111b;
+.action-btn.zip-btn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 14px rgba(166, 227, 161, 0.35);
+}
+
+.action-btn.csv-btn {
+  background: #313244;
+  color: #89b4fa;
+  border-color: #89b4fa;
+}
+
+.action-btn.csv-btn:hover {
+  background: #45475a;
 }
 
 .action-btn.clear-btn {
-  background: #313244;
-  color: #a6adc8;
-  border-color: #45475a;
+  background: transparent;
+  color: #6c7086;
+  border-color: #313244;
+}
+
+.action-btn.clear-btn:hover {
+  color: #f38ba8;
+  border-color: #f38ba8;
+  background: rgba(243, 139, 168, 0.1);
 }
 
 .action-btn.install-btn {
-  background: #a6e3a1;
+  background: #89b4fa;
   color: #11111b;
   border: none;
+  font-weight: 800;
 }
 
 .latest-log {
   font-size: 0.74rem;
   color: #a6adc8;
   background: #11111b;
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #313244;
   word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* Live Optical Rangefinder & Viewfinder Styling */
@@ -1147,17 +1338,23 @@ body {
     <!-- Session & Vehicle Metadata Card -->
     <section class="card metadata-card">
       <div class="card-header">
-        <span class="card-title">Vehicle & Session Metadata</span>
+        <div class="card-title-group">
+          <span class="step-badge">STEP 01</span>
+          <div>
+            <h2 class="card-title">Vehicle & Session Metadata</h2>
+            <span class="card-subtitle-bn">যানবাহন ও অবস্থান মেটাডাটা</span>
+          </div>
+        </div>
         <div class="header-action-group">
           <button type="button" id="selectDirBtn" class="pill-btn dir-select-btn" title="Bind local directory for direct disk writing">Bind Folder</button>
-          <button type="button" id="gpsBtn" class="pill-btn" title="Auto-detect current GPS location">GPS Locate</button>
-          <button type="button" id="mapPickerBtn" class="pill-btn" title="Pinpoint and adjust exact location on interactive map">Pin on Map</button>
+          <button type="button" id="gpsBtn" class="pill-btn gps-action-btn" title="Auto-detect current GPS location">GPS Locate</button>
+          <button type="button" id="mapPickerBtn" class="pill-btn map-action-btn" title="Pinpoint and adjust exact location on interactive map">Pin on Map</button>
         </div>
       </div>
 
       <div class="form-grid">
-        <div class="form-group col-2">
-          <label for="vehicleClassSelect">Vehicle Class:</label>
+        <div class="form-group col-3">
+          <label for="vehicleClassSelect">Vehicle Class (যানবাহনের ধরন):</label>
           <select id="vehicleClassSelect">
             <option value="Bus" selected>Bus (Transit / Commercial Air & Electric)</option>
             <option value="Truck">Truck / Heavy Lorry (Commercial Freight)</option>
@@ -1169,23 +1366,23 @@ body {
           </select>
         </div>
 
-        <div class="form-group col-2">
-          <label for="vehicleModelInput">Vehicle Name & Model:</label>
+        <div class="form-group col-half">
+          <label for="vehicleModelInput">Vehicle Name & Model (মডেল):</label>
           <input type="text" id="vehicleModelInput" value="Hino_AK1J" placeholder="e.g. Hino AK1J, Tata LP 410, Yamaha FZ">
         </div>
 
-        <div class="form-group col-2">
-          <label for="vehiclePlateInput">Plate / Vehicle ID:</label>
+        <div class="form-group col-half">
+          <label for="vehiclePlateInput">Plate / Vehicle ID (নম্বর প্লেট):</label>
           <input type="text" id="vehiclePlateInput" value="Dhaka-Metro-Ba-14-8923" placeholder="e.g. DhakaMetro-Ba-14-8923">
         </div>
 
-        <div class="form-group col-1">
-          <label for="distanceInput">Distance (Auto):</label>
+        <div class="form-group col-half">
+          <label for="distanceInput">Distance [Auto-Calculated] (দূরত্ব):</label>
           <input type="text" id="distanceInput" value="5.0m" class="auto-distance-input" placeholder="e.g. 5.0m" title="Auto-calculated by Live Optical Rangefinder, or type to verify/edit">
         </div>
 
-        <div class="form-group col-1">
-          <label for="sideSelect">Recording Side:</label>
+        <div class="form-group col-half">
+          <label for="sideSelect">Recording Side (কোন পাশ থেকে):</label>
           <select id="sideSelect">
             <option value="Front" selected>Front (সামনে)</option>
             <option value="Left">Left (বাম পাশ)</option>
@@ -1194,8 +1391,8 @@ body {
           </select>
         </div>
 
-        <div class="form-group col-2">
-          <label for="locationInput">Location / Site:</label>
+        <div class="form-group col-3">
+          <label for="locationInput">Location / Site (স্থান বা এলাকা):</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
           <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect, or &quot;Pin on Map&quot; to drag pin to your exact spot</div>
           <div id="gpsDetailBox" class="gps-detail-box" style="display: none;">
@@ -1268,7 +1465,13 @@ body {
     <!-- Live Optical Rangefinder & Viewfinder Card -->
     <section class="card rangefinder-card">
       <div class="card-header">
-        <span class="card-title">Live Optical Rangefinder & Viewfinder</span>
+        <div class="card-title-group">
+          <span class="step-badge">STEP 02</span>
+          <div>
+            <h2 class="card-title">Optical Rangefinder & Telemetry</h2>
+            <span class="card-subtitle-bn">দূরত্ব ও কোণ পরিমাপক ক্যামেরা</span>
+          </div>
+        </div>
         <div class="header-action-group">
           <button type="button" id="toggleCameraBtn" class="pill-btn active-range-btn">Start Rangefinder Camera</button>
           <button type="button" id="flipCameraBtn" class="pill-btn" style="display:none;" title="Switch camera">Flip Lens</button>
@@ -1338,27 +1541,55 @@ body {
 
     <!-- Visualizer & Audio Monitor Card -->
     <section class="card visualizer-card">
-      <div class="vis-header">
-        <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
-        <span id="recordingTimer" class="timer-display">00:00.0</span>
-        <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">Arm Mic (0ms)</button>
+      <div class="card-header vis-header-compact">
+        <div class="card-title-group">
+          <span class="step-badge">STEP 03</span>
+          <div>
+            <h2 class="card-title">Audio Monitor & Oscilloscope</h2>
+            <span class="card-subtitle-bn">লাইভ সিগন্যাল মনিটর ও লেভেল মিটার</span>
+          </div>
+        </div>
+        <div class="header-action-group">
+          <span id="recordingTimer" class="timer-display">00:00.0</span>
+          <button id="armMicBtn" class="pill-btn mic-arm-btn" title="Pre-authorize microphone for zero-latency capture">Arm Mic (0ms)</button>
+        </div>
+      </div>
+
+      <div class="vis-metrics-row">
+        <div class="level-box">
+          <span class="meter-label">PEAK AMPLITUDE</span>
+          <span id="levelIndicator" class="level-indicator">Peak: -- dBFS</span>
+        </div>
+        <div class="vu-meter-bar-container">
+          <div id="vuMeterBar" class="vu-meter-bar"></div>
+        </div>
         <span id="clippingBadge" class="clipping-badge clean">SIGNAL READY</span>
       </div>
+
       <canvas id="waveformCanvas"></canvas>
     </section>
 
     <!-- Central Recording Hub -->
     <section class="card recording-hub-card">
-      <div class="mode-selector-row">
-        <span class="mode-label">Record Mode:</span>
-        <div class="mode-toggle">
-          <button type="button" id="modeTapBtn" class="mode-btn active">Tap Mode (Start / Stop)</button>
-          <button type="button" id="modeHoldBtn" class="mode-btn">Hold Mode (Hold / Release)</button>
+      <div class="card-header hub-header">
+        <div class="card-title-group">
+          <span class="step-badge accent">STEP 04</span>
+          <div>
+            <h2 class="card-title">One-Touch Capture Hub</h2>
+            <span class="card-subtitle-bn">হর্ন রেকর্ড বাটন</span>
+          </div>
+        </div>
+        <div class="mode-selector-row">
+          <span class="mode-label">Mode:</span>
+          <div class="mode-toggle">
+            <button type="button" id="modeTapBtn" class="mode-btn active">Tap Mode</button>
+            <button type="button" id="modeHoldBtn" class="mode-btn">Hold Mode</button>
+          </div>
         </div>
       </div>
 
       <div class="record-btn-container">
-        <button type="button" id="mainRecordBtn" class="main-record-btn idle">
+        <button type="button" id="mainRecordBtn" class="main-record-btn idle" aria-label="Record Vehicle Horn">
           <div class="btn-icon"></div>
         </button>
         <div id="recordInstruction" class="record-instruction">Tap button once when horn starts, tap again when horn stops</div>
@@ -1368,10 +1599,13 @@ body {
     <!-- Post-Recording Review & Quality Control Card -->
     <section id="reviewSection" class="card review-card" style="display:none;">
       <div class="review-header">
-        <span class="card-title">Audio Quality Review</span>
+        <div class="card-title-group">
+          <span class="step-badge success">REVIEW</span>
+          <h2 class="card-title">Audio Quality Review</h2>
+        </div>
         <span id="clipDurationDisplay" class="clip-duration">--s</span>
       </div>
-      <p class="review-hint">Listen to the clip to ensure clean horn sound without wind or speech interference:</p>
+      <p class="review-hint">Listen to the clip to ensure clean horn sound without speech or wind distortion:</p>
       
       <div class="audio-player-container">
         <audio id="audioPlayback" controls></audio>
@@ -1383,29 +1617,39 @@ body {
 
       <div class="review-actions">
         <button type="button" id="saveRecordingBtn" class="btn-save">
-          Save Audio & Photo
+          Save Audio & Photo (সংরক্ষণ করুন)
         </button>
         <button type="button" id="discardRecordingBtn" class="btn-discard">
-          Discard / Retake
+          Discard / Retake (বাতিল করুন)
         </button>
       </div>
     </section>
 
     <!-- Stats & Session Actions Card -->
     <section class="card stats-card">
-      <div class="stats-row">
-        <div>
-          Saved Samples: <strong id="sampleCount">0</strong>
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="step-badge">STORAGE</span>
+          <div>
+            <h2 class="card-title">Dataset Manager & Export</h2>
+            <span class="card-subtitle-bn">সংরক্ষিত নমুনা ও এক্সপোর্ট</span>
+          </div>
+        </div>
+        <div class="saved-count-pill">
+          <span>Saved:</span>
+          <strong id="sampleCount">0</strong>
           <span id="dirStatusBadge" class="dir-badge" style="display:none;">Direct Disk Write Active</span>
         </div>
+      </div>
+      <div class="stats-body">
         <div class="action-btn-group">
           <button id="installAppBtn" class="action-btn install-btn" style="display:none;">Install App</button>
-          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">Export ZIP</button>
-          <button type="button" id="downloadMetadataBtn" class="action-btn">Export CSV</button>
-          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">Reset Session</button>
+          <button type="button" id="exportZipBtn" class="action-btn zip-btn" title="Export full dual-layer dataset as ZIP">Export Dataset ZIP</button>
+          <button type="button" id="downloadMetadataBtn" class="action-btn csv-btn" title="Export metadata table as CSV">Export CSV</button>
+          <button type="button" id="clearSessionBtn" class="action-btn clear-btn" title="Reset current session">Reset Batch</button>
         </div>
+        <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
       </div>
-      <div id="latestLog" class="latest-log">Ready. Configure metadata above and press Record when horn sounds.</div>
     </section>
   </div>
 
@@ -1543,6 +1787,7 @@ let currentDistanceMetrics = {
 
 const armMicBtn = document.getElementById("armMicBtn");
 const levelIndicator = document.getElementById("levelIndicator");
+const vuMeterBar = document.getElementById("vuMeterBar");
 const recordingTimer = document.getElementById("recordingTimer");
 const clippingBadge = document.getElementById("clippingBadge");
 const canvas = document.getElementById("waveformCanvas");
@@ -2853,6 +3098,18 @@ async function computeBlobSha256(blob) {
 
 function updateAudioLevel(peakDb) {
   levelIndicator.textContent = `Peak: ${peakDb.toFixed(1)} dBFS`;
+  if (vuMeterBar) {
+    const clampedDb = Math.max(-60, Math.min(0, peakDb));
+    const pct = ((clampedDb + 60) / 60) * 100;
+    vuMeterBar.style.width = `${pct.toFixed(1)}%`;
+    if (peakDb >= -0.5) {
+      vuMeterBar.style.background = "#f38ba8";
+    } else if (peakDb > -6.0) {
+      vuMeterBar.style.background = "#fab387";
+    } else {
+      vuMeterBar.style.background = "#a6e3a1";
+    }
+  }
   if (peakDb >= -0.5) {
     clippingBadge.textContent = "! CLIPPING WARN !";
     clippingBadge.className = "clipping-badge warn";

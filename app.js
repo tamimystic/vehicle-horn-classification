@@ -131,6 +131,7 @@ let currentDistanceMetrics = {
 
 const armMicBtn = document.getElementById("armMicBtn");
 const levelIndicator = document.getElementById("levelIndicator");
+const vuMeterBar = document.getElementById("vuMeterBar");
 const recordingTimer = document.getElementById("recordingTimer");
 const clippingBadge = document.getElementById("clippingBadge");
 const canvas = document.getElementById("waveformCanvas");
@@ -1441,6 +1442,18 @@ async function computeBlobSha256(blob) {
 
 function updateAudioLevel(peakDb) {
   levelIndicator.textContent = `Peak: ${peakDb.toFixed(1)} dBFS`;
+  if (vuMeterBar) {
+    const clampedDb = Math.max(-60, Math.min(0, peakDb));
+    const pct = ((clampedDb + 60) / 60) * 100;
+    vuMeterBar.style.width = `${pct.toFixed(1)}%`;
+    if (peakDb >= -0.5) {
+      vuMeterBar.style.background = "#f38ba8";
+    } else if (peakDb > -6.0) {
+      vuMeterBar.style.background = "#fab387";
+    } else {
+      vuMeterBar.style.background = "#a6e3a1";
+    }
+  }
   if (peakDb >= -0.5) {
     clippingBadge.textContent = "! CLIPPING WARN !";
     clippingBadge.className = "clipping-badge warn";
