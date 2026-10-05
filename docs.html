@@ -126,6 +126,7 @@
       color: #cdd6f4;
       line-height: 1.45;
     }
+    .field-tip,
     .bilingual-hint {
       font-size: 0.76rem;
       color: #a6adc8;
@@ -279,8 +280,8 @@
             <div class="step-desc">
               Tap the <span class="btn-tag">Arm Mic (0ms)</span> button once. Grant microphone access when prompted. The status indicator will turn green: <code>[ARMED: 0ms]</code>. This pre-warms the audio pipeline so recordings start instantly with zero hardware delay.
             </div>
-            <div class="bilingual-hint">
-              বাংলা নির্দেশিকা: ব্রাউজারে প্রবেশ করে প্রথমে "Arm Mic (0ms)" বাটনে চাপ দিন এবং মাইক্রোফোন পারমিশন Allow করুন। এটি গ্রিন হলে বুঝতে পারবেন কোনো ল্যাটেন্সি ছাড়া রেকর্ড করার জন্য প্রস্তুত।
+            <div class="field-tip">
+              Field Tip: Tap "Arm Mic (0ms)" immediately after loading the app. Once it turns green, hardware audio initialization latency is completely eliminated.
             </div>
           </div>
         </div>
@@ -292,8 +293,8 @@
             <div class="step-desc">
               Tap the <span class="btn-tag">GPS Locate</span> button. The phone activates its high-precision satellite receiver (GPS / GLONASS). If connected to cellular data, it automatically performs reverse geocoding to identify your exact neighborhood and city (e.g., <code>Kalabagan_Dhaka</code>, <code>Farmgate_Dhaka</code>). If offline, it automatically populates exact satellite coordinates with meter precision.
             </div>
-            <div class="bilingual-hint">
-              বাংলা নির্দেশিকা: আপনি যেই জায়গায় দাঁড়িয়ে বা বসে আছেন, সেই নিখুঁত লোকেশন পেতে "GPS Locate" বাটনে ক্লিক করুন। মোবাইলের জিপিএস স্বয়ংক্রিয়ভাবে আপনার এলাকার নাম এবং ৩-৫ মিটার নির্ভুল স্থানাঙ্ক বক্সে বসিয়ে দিবে।
+            <div class="field-tip">
+              Field Tip: Tap "GPS Locate" at your recording spot. The device will resolve satellite coordinates and reverse-geocode the neighborhood name within 3-5m accuracy.
             </div>
           </div>
         </div>
@@ -305,8 +306,8 @@
             <div class="step-desc">
               Select the <strong>Vehicle Class</strong> from the dropdown (e.g., Bus, Truck, Private Car, Motorcycle, Autorickshaw). Enter the manufacturer model and registration plate number. Tap <span class="btn-tag">Snap Photo</span> to photograph the vehicle and license plate.
             </div>
-            <div class="bilingual-hint">
-              বাংলা নির্দেশিকা: গাড়ির ধরন (বাস, ট্রাক, প্রাইভেট কার, অটোরিকশা ইত্যাদি) সিলেক্ট করুন। মডেল ও প্লেট নাম্বার লিখুন এবং "Snap Photo" চেপে গাড়ির স্পষ্ট ছবি তুলুন।
+            <div class="field-tip">
+              Field Tip: Verify the vehicle class, enter model name and plate ID, and capture a photo for visual validation and acoustic audit trails.
             </div>
           </div>
         </div>
@@ -322,8 +323,8 @@
                 <li><strong>Hold Mode:</strong> Press and hold thumb on the button while the horn sounds; release immediately when the horn finishes.</li>
               </ul>
             </div>
-            <div class="bilingual-hint">
-              বাংলা নির্দেশিকা: হর্ন বাজামাত্রই ট্যাপ মোডে একবার ক্লিক করে শুরু করুন এবং আবার ক্লিক করে শেষ করুন; অথবা হোল্ড মোডে চেপে ধরে রাখুন এবং হর্ন শেষ হলে ছেড়ে দিন।
+            <div class="field-tip">
+              Field Tip: In Tap Mode, click once to start and once to stop. In Hold Mode, press down during the horn blast and release as soon as the sound ceases.
             </div>
           </div>
         </div>
@@ -340,8 +341,8 @@
                 <li>At the end of your shift, tap <span class="btn-tag">Export ZIP</span> to download the full dual-layer dataset.</li>
               </ul>
             </div>
-            <div class="bilingual-hint">
-              বাংলা নির্দেশিকা: রেকর্ড শেষ হওয়ার সাথে সাথে অডিও প্লেয়ারে শুনে নিন। শব্দ পরিষ্কার হলে "Save Audio & Photo" চাপুন, আর বাতিল করতে চাইলে "Discard / Retake" চাপুন। দিনশেষে "Export ZIP" চেপে পুরো ডেটাসেট ডাউনলোড করুন।
+            <div class="field-tip">
+              Field Tip: Verify playback immediately after capture. Save if the horn tone is clean; discard if speech or engine rumble overlaps. Export the ZIP package at shift end.
             </div>
           </div>
         </div>
@@ -553,21 +554,21 @@ Confidence (%) = max(25%, min(99%, round((1 - &Delta;d / d_fused) * 100)))
         </tbody>
       </table>
 
-      <h3>3. Controlled In-Situ Stationary Vehicle Protocol (গাড়ি থামিয়ে নিয়ন্ত্রিত স্যাম্পলিং)</h3>
+      <h3>3. Controlled In-Situ Stationary Vehicle Protocol</h3>
       <p>
         Rather than attempting to chase moving traffic, the recommended field protocol is <strong>Controlled In-Situ Acquisition</strong>:
       </p>
       <ol>
         <li>Approach stationary vehicles at passenger halts, traffic signals, bus terminals (e.g., Gabtoli, Mohakhali, Rajshahi Shiroil), or rickshaw stands.</li>
-        <li>Politely ask the driver: <em>"ভাই, গবেষণার জন্য আপনার গাড়ির হর্নের একটি সাউন্ড রেকর্ড করতে চাচ্ছি, একটু হর্নটি বাজাবেন?"</em></li>
+        <li>Politely ask the driver: <em>"Hello, we are conducting academic acoustic research on vehicle horns. Could you please sound your horn once for 1-2 seconds?"</em></li>
         <li>Stand directly in front of the vehicle (0 deg Azimuth) with the smartphone camera aimed at the front bumper/tires.</li>
         <li>Tap <span class="btn-tag">Start Rangefinder Camera</span>. The HUD displays the live calculated distance (e.g., <code>3.18 m</code>) and confidence.</li>
         <li>When the driver presses the horn, tap the Record button. With <strong>Auto-Lock & Snap on Record</strong> active, the app automatically freezes the distance, locks the metadata, and snapshots the vehicle photo synchronously!</li>
         <li>Tap Stop when the horn ends, review the clip, and save.</li>
       </ol>
 
-      <div class="bilingual-hint">
-        বাংলা নির্দেশিকা: চলন্ত গাড়ির পেছনে না ছুটে ট্রাফিক সিগন্যাল বা টার্মিনালে গাড়ি থামিয়ে ড্রাইভারকে অনুরোধ করে হর্ন রেকর্ড করা সবচেয়ে বৈজ্ঞানিক ও নিরাপদ। ক্যামেরা গাড়ির চাকা বা বাম্পারের দিকে ধরলেই লাইভ ডিসট্যান্স দেখা যাবে এবং রেকর্ড চাপলেই দূরত্ব ও ছবি অটোমেটিক লক হয়ে যাবে।
+      <div class="field-tip">
+        Field Tip: Rather than chasing moving traffic, stationary sampling at signals or terminals ensures researcher safety, eliminates Doppler shifts, and enables precise distance locking via rangefinder.
       </div>
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>

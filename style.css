@@ -397,6 +397,7 @@ body {
   margin: 0;
 }
 
+.card-subtitle-sub,
 .card-subtitle-bn {
   font-size: 0.70rem;
   color: #6c7086;

@@ -980,11 +980,11 @@ function renderRangefinderLoop() {
     if (calc.pitch < 3.0) {
       ctx.fillStyle = "#f38ba8";
       ctx.fillText("[!] TILT PHONE DOWNWARD TO TIRES ON ROAD", cx, cy + 50);
-      ctx.fillText("(ফোনটি নিচে চাকার দিকে তাক করুন)", cx, cy + 68);
+      ctx.fillText("(Tilt phone down toward vehicle tires)", cx, cy + 68);
     } else {
       ctx.fillStyle = "#a6e3a1";
       ctx.fillText("AIM CROSSHAIR AT TIRES TOUCHING ROAD", cx, cy + 50);
-      ctx.fillText("(চাকার নিচের মাটিতে তাক করুন)", cx, cy + 68);
+      ctx.fillText("(Aim crosshair at tire-road contact point)", cx, cy + 68);
     }
     ctx.restore();
 
@@ -1403,7 +1403,7 @@ function stopAudioRecording() {
   };
 
   const clipWarningHtml = currentPeakDb >= -0.5
-    ? `<div style="color:#f38ba8; font-weight:bold; margin-top:6px; padding:6px; background:#311b22; border-radius:6px; border:1px solid #f38ba8;">[!] CLIPPING ALERT: Audio peaked at ${currentPeakDb.toFixed(1)} dBFS. For loud horns, please stand at 3m–5m safe distance to avoid hardware distortion. (সাউন্ড অতিরিক্ত লাউড ছিল; ৩–৫ মিটার পেছনে সরে রিকলিপ করুন)</div>`
+    ? `<div style="color:#f38ba8; font-weight:bold; margin-top:6px; padding:6px; background:#311b22; border-radius:6px; border:1px solid #f38ba8;">[!] CLIPPING ALERT: Audio peaked at ${currentPeakDb.toFixed(1)} dBFS. For loud horns, please stand at 3m–5m safe distance to avoid hardware distortion. Step back 1–2 meters and retake.</div>`
     : "";
 
   reviewDetails.innerHTML = `

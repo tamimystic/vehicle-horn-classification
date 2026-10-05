@@ -29,7 +29,7 @@
     <section class="user-manual-banner">
       <a href="docs.html" class="manual-cta-btn" title="Open comprehensive user manual & operations guide">
         <div class="manual-cta-left">
-          <span class="manual-cta-badge">USER MANUAL &bull; ব্যবহার নির্দেশিকা</span>
+          <span class="manual-cta-badge">USER MANUAL &bull; FIELD PROTOCOL GUIDE</span>
           <span class="manual-cta-title">How to Use: Step-by-Step Field Guide</span>
           <span class="manual-cta-sub">Tap here to view the complete guide on how to record, use GPS, and export data</span>
         </div>
@@ -47,7 +47,7 @@
           <span class="step-badge">STEP 01</span>
           <div>
             <h2 class="card-title">Vehicle & Session Metadata</h2>
-            <span class="card-subtitle-bn">যানবাহন ও অবস্থান মেটাডাটা</span>
+            <span class="card-subtitle-sub">Target class, identification, side &amp; GPS site</span>
           </div>
         </div>
         <div class="header-action-group">
@@ -59,7 +59,7 @@
 
       <div class="form-grid">
         <div class="form-group col-3">
-          <label for="vehicleClassSelect">Vehicle Class (যানবাহনের ধরন):</label>
+          <label for="vehicleClassSelect">Vehicle Class:</label>
           <select id="vehicleClassSelect">
             <option value="Bus" selected>Bus (Transit / Commercial Air & Electric)</option>
             <option value="Truck">Truck / Heavy Lorry (Commercial Freight)</option>
@@ -72,32 +72,32 @@
         </div>
 
         <div class="form-group col-half">
-          <label for="vehicleModelInput">Vehicle Name & Model (মডেল):</label>
+          <label for="vehicleModelInput">Vehicle Name & Model:</label>
           <input type="text" id="vehicleModelInput" value="Hino_AK1J" placeholder="e.g. Hino AK1J, Tata LP 410, Yamaha FZ">
         </div>
 
         <div class="form-group col-half">
-          <label for="vehiclePlateInput">Plate / Vehicle ID (নম্বর প্লেট):</label>
+          <label for="vehiclePlateInput">Plate / Vehicle ID:</label>
           <input type="text" id="vehiclePlateInput" value="Dhaka-Metro-Ba-14-8923" placeholder="e.g. DhakaMetro-Ba-14-8923">
         </div>
 
         <div class="form-group col-half">
-          <label for="distanceInput">Distance [Auto-Calculated] (দূরত্ব):</label>
+          <label for="distanceInput">Distance [Auto-Calculated]:</label>
           <input type="text" id="distanceInput" value="5.0m" class="auto-distance-input" placeholder="e.g. 5.0m" title="Auto-calculated by Live Optical Rangefinder, or type to verify/edit">
         </div>
 
         <div class="form-group col-half">
-          <label for="sideSelect">Recording Side (কোন পাশ থেকে):</label>
+          <label for="sideSelect">Recording Side:</label>
           <select id="sideSelect">
-            <option value="Front" selected>Front (সামনে)</option>
-            <option value="Left">Left (বাম পাশ)</option>
-            <option value="Right">Right (ডান পাশ)</option>
-            <option value="Back">Back (পেছন)</option>
+            <option value="Front" selected>Front (0 deg Azimuth)</option>
+            <option value="Left">Left (90 deg Azimuth)</option>
+            <option value="Right">Right (270 deg Azimuth)</option>
+            <option value="Back">Back (180 deg Azimuth)</option>
           </select>
         </div>
 
         <div class="form-group col-3">
-          <label for="locationInput">Location / Site (স্থান বা এলাকা):</label>
+          <label for="locationInput">Location / Site:</label>
           <input type="text" id="locationInput" value="Gabtoli_Terminal" placeholder="e.g. Farmgate, Mawa_Highway">
           <div id="gpsStatusHint" class="gps-hint">Click &quot;GPS Locate&quot; to auto-detect, or &quot;Pin on Map&quot; to drag pin to your exact spot</div>
           <div id="gpsDetailBox" class="gps-detail-box" style="display: none;">
@@ -174,7 +174,7 @@
           <span class="step-badge">STEP 02</span>
           <div>
             <h2 class="card-title">Optical Rangefinder & Telemetry</h2>
-            <span class="card-subtitle-bn">দূরত্ব ও কোণ পরিমাপক ক্যামেরা</span>
+            <span class="card-subtitle-sub">Trigonometric ground-contact range &amp; telemetry</span>
           </div>
         </div>
         <div class="header-action-group">
@@ -239,7 +239,7 @@
           </div>
         </div>
         <div id="rangefinderHint" class="rangefinder-hint">
-          <strong>Aiming Rule:</strong> Aim center crosshair directly at the <strong>bottom of vehicle tires touching the road</strong> (চাকার নিচের মাটিতে তাক করুন) for accurate trigonometric telemetry.
+          <strong>Aiming Rule:</strong> Aim center crosshair directly at the <strong>bottom of vehicle tires touching the road</strong> for accurate trigonometric telemetry.
         </div>
       </div>
     </section>
@@ -251,7 +251,7 @@
           <span class="step-badge">STEP 03</span>
           <div>
             <h2 class="card-title">Audio Monitor & Oscilloscope</h2>
-            <span class="card-subtitle-bn">লাইভ সিগন্যাল মনিটর ও লেভেল মিটার</span>
+            <span class="card-subtitle-sub">Real-time signal monitor &amp; dynamic level meter</span>
           </div>
         </div>
         <div class="header-action-group">
@@ -281,7 +281,7 @@
           <span class="step-badge accent">STEP 04</span>
           <div>
             <h2 class="card-title">One-Touch Capture Hub</h2>
-            <span class="card-subtitle-bn">হর্ন রেকর্ড বাটন</span>
+            <span class="card-subtitle-sub">Calibrated horn sound acquisition hub</span>
           </div>
         </div>
         <div class="mode-selector-row">
@@ -322,10 +322,10 @@
 
       <div class="review-actions">
         <button type="button" id="saveRecordingBtn" class="btn-save">
-          Save Audio & Photo (সংরক্ষণ করুন)
+          Save Audio & Photo
         </button>
         <button type="button" id="discardRecordingBtn" class="btn-discard">
-          Discard / Retake (বাতিল করুন)
+          Discard / Retake
         </button>
       </div>
     </section>
@@ -337,7 +337,7 @@
           <span class="step-badge">STORAGE</span>
           <div>
             <h2 class="card-title">Dataset Manager & Export</h2>
-            <span class="card-subtitle-bn">সংরক্ষিত নমুনা ও এক্সপোর্ট</span>
+            <span class="card-subtitle-sub">Stored sample inventory &amp; batch export</span>
           </div>
         </div>
         <div class="saved-count-pill">
