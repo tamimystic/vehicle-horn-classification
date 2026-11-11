@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>User Manual & Field Operations Guide - Vehicle Horn Acoustic Suite</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HornCollector">
   <meta name="theme-color" content="#1e1e2e">
   <style>
     .docs-container {
@@ -54,6 +60,181 @@
       transition: filter 0.15s;
     }
     .nav-btn-link:hover { filter: brightness(1.1); }
+    .nav-btn-install {
+      background: linear-gradient(135deg, #a6e3a1 0%, #94e2d5 100%);
+      color: #11111b;
+      border: none;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+    .nav-btn-install:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .nav-btn-install:active { transform: scale(0.97); }
+    .nav-btn-install:disabled { opacity: 0.6; cursor: default; transform: none; }
+    .doc-install-card {
+      background: linear-gradient(135deg, #181825 0%, #1e1e2e 100%);
+      border: 1.5px solid #a6e3a1;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+    }
+    .doc-install-body {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .doc-install-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 12px;
+      border: 1px solid #313244;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      flex-shrink: 0;
+    }
+    .doc-install-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .doc-install-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .doc-install-badge {
+      background: rgba(166, 227, 161, 0.18);
+      color: #a6e3a1;
+      border: 1px solid rgba(166, 227, 161, 0.4);
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .doc-install-status {
+      font-size: 0.70rem;
+      color: #a6adc8;
+    }
+    .doc-install-heading {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #cdd6f4;
+      margin: 0 0 4px 0;
+    }
+    .doc-install-desc {
+      font-size: 0.78rem;
+      color: #a6adc8;
+      line-height: 1.45;
+      margin: 0 0 10px 0;
+    }
+    .doc-install-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .install-action-btn {
+      background: linear-gradient(135deg, #a6e3a1 0%, #94e2d5 100%);
+      color: #11111b;
+      border: none;
+      font-size: 0.80rem;
+      font-weight: 800;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+    .install-action-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .install-action-btn:active { transform: scale(0.97); }
+    .install-action-btn:disabled { opacity: 0.6; cursor: default; transform: none; }
+    .launch-app-link {
+      color: #89b4fa;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .launch-app-link:hover { text-decoration: underline; }
+    @media (max-width: 580px) {
+      .doc-install-body { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .doc-install-actions { width: 100%; }
+      .install-action-btn { width: 100%; text-align: center; }
+    }
+    .install-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .install-modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(17, 17, 27, 0.78);
+      backdrop-filter: blur(4px);
+    }
+    .install-modal-card {
+      position: relative;
+      background: #181825;
+      border: 1px solid #45475a;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      z-index: 1;
+    }
+    .install-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .install-modal-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #89b4fa;
+    }
+    .install-modal-close {
+      background: none;
+      border: none;
+      color: #6c7086;
+      font-size: 1.3rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .install-modal-close:hover { color: #cdd6f4; }
+    .install-modal-body {
+      font-size: 0.82rem;
+      color: #cdd6f4;
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+    .install-modal-body ol {
+      padding-left: 20px;
+      margin: 8px 0 0 0;
+    }
+    .install-modal-body li {
+      margin-bottom: 6px;
+    }
+    .install-modal-footer {
+      display: flex;
+      justify-content: flex-end;
+    }
     
     /* Quick Start Banner */
     .quick-start-box {
@@ -262,9 +443,29 @@
       <p>Official Field Operations Manual, Technical Architecture, and Complete User Guide</p>
       <div class="nav-bar">
         <a href="index.html" class="nav-btn-link">&larr; Return to Live Recorder</a>
+        <button type="button" id="docInstallBtn" class="nav-btn-install" title="Install Vehicle Horn Collector as standalone app on phone">Install App on Phone</button>
         <a href="https://github.com/tamimystic/vehicle-horn-classification" target="_blank" rel="noopener" class="nav-btn-link">GitHub Repository</a>
       </div>
     </header>
+
+    <!-- PWA Installation Hub -->
+    <section class="doc-install-card" id="docInstallCard">
+      <div class="doc-install-body">
+        <img src="icon-192.png" alt="App Icon" class="doc-install-icon">
+        <div class="doc-install-info">
+          <div class="doc-install-meta">
+            <span class="doc-install-badge">PROGRESSIVE WEB APP</span>
+            <span class="doc-install-status" id="installStatusLabel">Ready to Install</span>
+          </div>
+          <h2 class="doc-install-heading">Install Collector App on Phone</h2>
+          <p class="doc-install-desc">Install this tool directly onto your home screen for full-screen field operation, zero-latency microphone recording, and offline capability without app store downloads.</p>
+          <div class="doc-install-actions">
+            <button type="button" id="cardInstallBtn" class="install-action-btn">Install App on Phone</button>
+            <a href="index.html" class="launch-app-link">Open Live Recorder &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Quick Start Card -->
     <section class="quick-start-box">
@@ -927,5 +1128,98 @@ pytest tests/
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
   </div>
+
+  <div id="installModal" class="install-modal" style="display:none;">
+    <div class="install-modal-backdrop" onclick="closeInstallModal()"></div>
+    <div class="install-modal-card">
+      <div class="install-modal-header">
+        <span class="install-modal-title">Install App on Phone</span>
+        <button type="button" class="install-modal-close" onclick="closeInstallModal()">&times;</button>
+      </div>
+      <div id="installModalBody" class="install-modal-body"></div>
+      <div class="install-modal-footer">
+        <button type="button" class="nav-btn-link" onclick="closeInstallModal()">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    let deferredPrompt = null;
+    const docInstallBtn = document.getElementById('docInstallBtn');
+    const cardInstallBtn = document.getElementById('cardInstallBtn');
+    const installStatusLabel = document.getElementById('installStatusLabel');
+    const installModal = document.getElementById('installModal');
+    const installModalBody = document.getElementById('installModalBody');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (installStatusLabel) installStatusLabel.textContent = 'App Ready to Install';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = null;
+      markAsInstalled();
+    });
+
+    function markAsInstalled() {
+      if (docInstallBtn) {
+        docInstallBtn.textContent = 'App Installed';
+        docInstallBtn.disabled = true;
+      }
+      if (cardInstallBtn) {
+        cardInstallBtn.textContent = 'App Installed';
+        cardInstallBtn.disabled = true;
+      }
+      if (installStatusLabel) {
+        installStatusLabel.textContent = 'Installed (Standalone)';
+        installStatusLabel.style.color = '#a6e3a1';
+      }
+    }
+
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      markAsInstalled();
+    }
+
+    async function handleInstallClick() {
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+        showModal('<p>The application is already installed and running on your device.</p>');
+        return;
+      }
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          deferredPrompt = null;
+          markAsInstalled();
+        }
+      } else {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          showModal('<p><strong>To install on iPhone or iPad:</strong></p><ol><li>Tap the <strong>Share</strong> button at the bottom of Safari (the square with an upward arrow).</li><li>Scroll down and tap <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong> in the top right corner.</li></ol>');
+        } else {
+          showModal('<p><strong>To install on your phone:</strong></p><ol><li>Tap the browser menu (<strong>three dots</strong> in top right).</li><li>Select <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li><li>Confirm by tapping <strong>Install</strong>.</li></ol>');
+        }
+      }
+    }
+
+    function showModal(htmlContent) {
+      if (installModalBody) installModalBody.innerHTML = htmlContent;
+      if (installModal) installModal.style.display = 'flex';
+    }
+
+    function closeInstallModal() {
+      if (installModal) installModal.style.display = 'none';
+    }
+
+    if (docInstallBtn) docInstallBtn.addEventListener('click', handleInstallClick);
+    if (cardInstallBtn) cardInstallBtn.addEventListener('click', handleInstallClick);
+  </script>
 </body>
 </html>

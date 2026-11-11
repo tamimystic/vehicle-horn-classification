@@ -1,4 +1,4 @@
-const CACHE_NAME = 'horn-collector-v6';
+const CACHE_NAME = 'horn-collector-v7';
 const ASSETS = [
   './',
   './index.html',
