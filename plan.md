@@ -84,12 +84,10 @@ Every captured audio segment is accompanied by a standardized 28-field metadata 
 | ID | Vehicle Class | Acoustic Characteristics | Target Legal Status |
 |---|---|---|---|
 | **C01** | Bus | Pneumatic air horn or high-volume electric horn (300–2500 Hz) | Legal / Standard |
-| **C02** | Truck | Low-frequency resonant fundamental on freight trucks (200–1500 Hz) | Legal / Standard |
-| **C03** | Private Car | Harmonic dual-disc snail pair on sedans and SUVs (400–800 Hz) | Legal / Standard |
-| **C04** | Motorcycle | High-frequency single electromagnetic diaphragm (1500–3500 Hz) | Legal / Standard |
-| **C05** | Autorickshaw | Piercing electromagnetic buzzer on 4-stroke 3-wheelers (800–2500 Hz) | Legal / Standard |
-| **C06** | Rickshaw Bell | Metallic mechanical double-chime ("Tung-Tung") (3000–6000 Hz) | Legal / Standard |
-| **C07** | Background Traffic Noise | Roadway background rush, engine idle, tire friction (Negative Class) | Ambient Noise |
+| **C02** | Car | Harmonic dual-disc snail pair on sedans, SUVs, microbuses (400–800 Hz) | Legal / Standard |
+| **C03** | Motorcycle | High-frequency single electromagnetic diaphragm (1500–3500 Hz) | Legal / Standard |
+| **C04** | Rickshaw | Cycle rickshaw chime bell or buzzer (3000–6000 Hz) | Legal / Standard |
+| **C05** | Traffic noise | Roadway ambient congestion rumble, engine idle, tire friction (Negative Class) | Ambient Noise |
 
 ---
 

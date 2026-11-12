@@ -117,7 +117,7 @@ vehicle horn classification/
 │
 ├── config/                     # Configuration definitions
 │   ├── settings.py             # Global paths, audio sample rates, buffer thresholds
-│   └── taxonomy.json           # Formal 7-class acoustic taxonomy definitions
+│   └── taxonomy.json           # Formal 5-class acoustic taxonomy definitions
 │
 ├── src/                        # Core Python application package
 │   ├── core/                   # Audio engine, circular ring buffer, DSP filter suite
@@ -137,8 +137,10 @@ vehicle horn classification/
 ├── Dataset/                    # Standardized Dual-Layer Research Dataset Store
 │   ├── Raw_By_Class/           # Layer A: Global sequential class folders
 │   │   ├── Bus/
-│   │   ├── Truck/
-│   │   └── ...
+│   │   ├── Car/
+│   │   ├── Motorcycle/
+│   │   ├── Rickshaw/
+│   │   └── Traffic_noise/
 │   ├── Instances_By_Vehicle/   # Layer B: Vehicle-specific instance folders
 │   │   ├── Bus/
 │   │   │   └── HinoAK1J_DhakaMetroBa148923/

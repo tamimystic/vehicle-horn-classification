@@ -51,7 +51,7 @@ Scientific validity in acoustic classification depends on capture integrity. The
                        |          v                                       |
                        |   [ Live Spectrum & Peak Level Monitor ]         |
                        |          |                                       |
-                       |          +<--- [ User One-Touch Hotkey: 1 to 7 ] |
+                       |          +<--- [ User One-Touch Hotkey: 1 to 5 ] |
                        |          |                                       |
                        |          v                                       |
                        |   [ Synchronized Auto File & Metadata Exporter ] |

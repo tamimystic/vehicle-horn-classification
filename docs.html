@@ -555,6 +555,7 @@
       <div class="toc-title">Comprehensive System Table of Contents</div>
       <ol class="toc-list">
         <li><a href="#section-1">System Overview & Empirical Research Rationale</a></li>
+        <li><a href="#section-taxonomy">Standardized 5-Class Acoustic Taxonomy</a></li>
         <li><a href="#section-2">Hardware Setup & Smartphone Rig Guidelines</a></li>
         <li><a href="#section-3">Microphone Pre-Arming (Zero-Latency Standby)</a></li>
         <li><a href="#section-4">Exact Location Auto-Detection via GPS & Reverse Geocoding</a></li>
@@ -585,6 +586,69 @@
       <p>
         This software suite bypasses all digital signal processing (Zero-DSP Raw Audio) to acquire linear, uncompressed 16-bit / 24-bit PCM WAV audio alongside synchronized photographic evidence and comprehensive tabular metadata.
       </p>
+      <div class="back-to-top"><a href="#">[Back to Top]</a></div>
+    </article>
+
+    <!-- Section Taxonomy -->
+    <article id="section-taxonomy" class="doc-section">
+      <h2>Standardized 5-Class Acoustic Taxonomy</h2>
+      <p>
+        The dataset acquisition pipeline is standardized on an empirical 5-class taxonomy designed to represent the primary vehicular acoustic sources and background baselines encountered on roadways:
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Class ID</th>
+            <th>Class Name</th>
+            <th>Hotkey</th>
+            <th>Dominant Frequency</th>
+            <th>Regulatory Status</th>
+            <th>Acoustic & Sound Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>C01</strong></td>
+            <td><code>Bus</code></td>
+            <td><code>1</code></td>
+            <td>300 - 2500 Hz</td>
+            <td>Legal Standard</td>
+            <td>Transit and intercity bus pneumatic air or high-pitch electric horn.</td>
+          </tr>
+          <tr>
+            <td><strong>C02</strong></td>
+            <td><code>Car</code></td>
+            <td><code>2</code></td>
+            <td>400 - 800 Hz</td>
+            <td>Legal Standard</td>
+            <td>Dual-disc harmonic snail horn pair on sedans, microbuses, and SUVs.</td>
+          </tr>
+          <tr>
+            <td><strong>C03</strong></td>
+            <td><code>Motorcycle</code></td>
+            <td><code>3</code></td>
+            <td>1500 - 3500 Hz</td>
+            <td>Legal Standard</td>
+            <td>Single-disc high-frequency electric diaphragm horn on commuter motorcycles.</td>
+          </tr>
+          <tr>
+            <td><strong>C04</strong></td>
+            <td><code>Rickshaw</code></td>
+            <td><code>4</code></td>
+            <td>3000 - 6000 Hz</td>
+            <td>Legal Standard</td>
+            <td>Cycle rickshaw metallic chime bell or electronic buzzer.</td>
+          </tr>
+          <tr>
+            <td><strong>C05</strong></td>
+            <td><code>Traffic noise</code></td>
+            <td><code>5</code></td>
+            <td>20 - 20000 Hz</td>
+            <td>Ambient Negative</td>
+            <td>Ambient traffic congestion hum, tire friction, and engine idle without horn events (negative control baseline).</td>
+          </tr>
+        </tbody>
+      </table>
       <div class="back-to-top"><a href="#">[Back to Top]</a></div>
     </article>
 
@@ -1058,7 +1122,7 @@ Dataset/
           <tr><td><code>filename</code></td><td>string</td><td>Standard 9-parameter WAV filename: <code>[SampleID]_[InstanceID]_[VehicleClass]_[VehicleModel]_[LicensePlate]_[Distance]_[Side]_[Location]_[Timestamp].wav</code></td></tr>
           <tr><td><code>audio_filename</code></td><td>string</td><td>Redundant alias for SQL / Pandas join compatibility</td></tr>
           <tr><td><code>photo_filename</code></td><td>string</td><td>Filename of matched photograph in <code>Vehicle_Photos/</code></td></tr>
-          <tr><td><code>vehicle_class</code></td><td>string</td><td>Class label from 7-class acoustic taxonomy</td></tr>
+          <tr><td><code>vehicle_class</code></td><td>string</td><td>Class label from 5-class acoustic taxonomy (Bus, Car, Motorcycle, Rickshaw, Traffic noise)</td></tr>
           <tr><td><code>vehicle_model</code></td><td>string</td><td>Vehicle make and model (e.g., <code>Hino_AK1J</code>)</td></tr>
           <tr><td><code>license_plate</code></td><td>string</td><td>Vehicle registration number (e.g., <code>DhakaMetro-Ba-14-8923</code>)</td></tr>
           <tr><td><code>distance_m</code></td><td>string</td><td>Formatted recording distance (e.g., <code>5.0m</code> or <code>3.2m</code>)</td></tr>
