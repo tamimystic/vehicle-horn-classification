@@ -1357,13 +1357,11 @@ body {
         <div class="form-group col-3">
           <label for="vehicleClassSelect">Vehicle Class:</label>
           <select id="vehicleClassSelect">
-            <option value="Bus" selected>Bus (Transit / Commercial Air & Electric)</option>
-            <option value="Truck">Truck / Heavy Lorry (Commercial Freight)</option>
-            <option value="Private_Car">Private Car (Sedan / SUV / Microbus)</option>
-            <option value="Motorcycle">Motorcycle (Single-Disc High Pitch)</option>
-            <option value="Autorickshaw">CNG Auto-rickshaw (3-Wheeler Buzzer)</option>
-            <option value="Rickshaw_Bell">Rickshaw Bell (Metallic Chime)</option>
-            <option value="Background_Traffic_Noise">Background Traffic Noise (Negative)</option>
+            <option value="Bus" selected>Bus</option>
+            <option value="Car">Car</option>
+            <option value="Motorcycle">Motorcycle</option>
+            <option value="Rickshaw">Rickshaw</option>
+            <option value="Traffic noise">Traffic noise</option>
           </select>
         </div>
 
@@ -2351,16 +2349,20 @@ function getVehicleTargetWidthM(cls) {
   switch (cls) {
     case "Bus":
     case "Truck":
-      return 2.50; // Standard commercial vehicle width in Bangladesh (m)
+      return 2.50;
+    case "Car":
     case "Private_Car":
       return 1.75;
-    case "Autorickshaw":
-    case "CNG_Autorickshaw":
-      return 1.30;
     case "Motorcycle":
       return 0.80;
+    case "Rickshaw":
     case "Rickshaw_Bell":
+    case "Autorickshaw":
+    case "CNG_Autorickshaw":
       return 1.00;
+    case "Traffic noise":
+    case "Traffic_noise":
+    case "Background_Traffic_Noise":
     default:
       return 2.00;
   }
@@ -3077,13 +3079,17 @@ function stopAudioRecording() {
 
 const TAXONOMY_MAP = {
   "Bus": { id: "C01", legal: "Legal_Standard" },
-  "Truck": { id: "C02", legal: "Legal_Standard" },
-  "Private_Car": { id: "C03", legal: "Legal_Standard" },
-  "Motorcycle": { id: "C04", legal: "Legal_Standard" },
-  "Autorickshaw": { id: "C05", legal: "Legal_Standard" },
-  "CNG_Autorickshaw": { id: "C05", legal: "Legal_Standard" },
-  "Rickshaw_Bell": { id: "C06", legal: "Legal_Standard" },
-  "Background_Traffic_Noise": { id: "C07", legal: "Ambient_Negative" }
+  "Car": { id: "C02", legal: "Legal_Standard" },
+  "Motorcycle": { id: "C03", legal: "Legal_Standard" },
+  "Rickshaw": { id: "C04", legal: "Legal_Standard" },
+  "Traffic noise": { id: "C05", legal: "Ambient_Negative" },
+  "Traffic_noise": { id: "C05", legal: "Ambient_Negative" },
+  "Private_Car": { id: "C02", legal: "Legal_Standard" },
+  "Truck": { id: "C01", legal: "Legal_Standard" },
+  "Autorickshaw": { id: "C04", legal: "Legal_Standard" },
+  "CNG_Autorickshaw": { id: "C04", legal: "Legal_Standard" },
+  "Rickshaw_Bell": { id: "C04", legal: "Legal_Standard" },
+  "Background_Traffic_Noise": { id: "C05", legal: "Ambient_Negative" }
 };
 
 async function computeBlobSha256(blob) {

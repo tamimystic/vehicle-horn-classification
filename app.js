@@ -694,16 +694,20 @@ function getVehicleTargetWidthM(cls) {
   switch (cls) {
     case "Bus":
     case "Truck":
-      return 2.50; // Standard commercial vehicle width in Bangladesh (m)
+      return 2.50;
+    case "Car":
     case "Private_Car":
       return 1.75;
-    case "Autorickshaw":
-    case "CNG_Autorickshaw":
-      return 1.30;
     case "Motorcycle":
       return 0.80;
+    case "Rickshaw":
     case "Rickshaw_Bell":
+    case "Autorickshaw":
+    case "CNG_Autorickshaw":
       return 1.00;
+    case "Traffic noise":
+    case "Traffic_noise":
+    case "Background_Traffic_Noise":
     default:
       return 2.00;
   }
@@ -1420,13 +1424,17 @@ function stopAudioRecording() {
 
 const TAXONOMY_MAP = {
   "Bus": { id: "C01", legal: "Legal_Standard" },
-  "Truck": { id: "C02", legal: "Legal_Standard" },
-  "Private_Car": { id: "C03", legal: "Legal_Standard" },
-  "Motorcycle": { id: "C04", legal: "Legal_Standard" },
-  "Autorickshaw": { id: "C05", legal: "Legal_Standard" },
-  "CNG_Autorickshaw": { id: "C05", legal: "Legal_Standard" },
-  "Rickshaw_Bell": { id: "C06", legal: "Legal_Standard" },
-  "Background_Traffic_Noise": { id: "C07", legal: "Ambient_Negative" }
+  "Car": { id: "C02", legal: "Legal_Standard" },
+  "Motorcycle": { id: "C03", legal: "Legal_Standard" },
+  "Rickshaw": { id: "C04", legal: "Legal_Standard" },
+  "Traffic noise": { id: "C05", legal: "Ambient_Negative" },
+  "Traffic_noise": { id: "C05", legal: "Ambient_Negative" },
+  "Private_Car": { id: "C02", legal: "Legal_Standard" },
+  "Truck": { id: "C01", legal: "Legal_Standard" },
+  "Autorickshaw": { id: "C04", legal: "Legal_Standard" },
+  "CNG_Autorickshaw": { id: "C04", legal: "Legal_Standard" },
+  "Rickshaw_Bell": { id: "C04", legal: "Legal_Standard" },
+  "Background_Traffic_Noise": { id: "C05", legal: "Ambient_Negative" }
 };
 
 async function computeBlobSha256(blob) {
